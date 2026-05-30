@@ -7,14 +7,18 @@ FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
 
 export MININET_GUI_ADDRESS="$(hostname -I | awk '{print $1}')"
 
+restore_terminal() {
+  stty sane 2>/dev/null || true
+}
+trap restore_terminal EXIT
+
 # ---- cleanup previous runs ----
-echo "Stopping previous processes..."
-sudo pkill -9 -f "uvicorn|mininet_gui_backend.api" || true
-sudo pkill -9 -f "npm run dev|vite" || true
-sudo pkill -9 -f "tshark|dumpcap" || true
-sudo pkill -9 -f "ryu-manager|ryu run" || true
-sudo pkill -9 -f "mnexec" || true
-sudo pkill -9 -f "mininet:" || true
+printf "Stopping previous processes...\n"
+sudo pkill -9 -f "uvicorn mininet_gui_backend" 2>/dev/null || true
+sudo pkill -9 -f "vite.*mininet-gui" 2>/dev/null || true
+sudo pkill -9 -f "tshark" 2>/dev/null || true
+sudo pkill -9 -f "ryu-manager" 2>/dev/null || true
+sudo pkill -9 -f "mnexec" 2>/dev/null || true
 sudo mn -c >/dev/null 2>&1 || true
 
 # ---- trim logs ----
@@ -33,30 +37,30 @@ trim_log "$FRONTEND_DIR/nohup.out"
 
 if [ -f "$BACKEND_LOG_FILE" ]; then
   sudo truncate -s 0 "$BACKEND_LOG_FILE"
-  echo "✔ Cleared backend log file"
+  printf "✔ Cleared backend log file\n"
 fi
 
 # ---- start backend ----
-echo "Starting backend..."
+printf "Starting backend...\n"
 (cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000 --log-level debug > /dev/null 2>&1 &)
 sleep 3
 
 if ! pgrep -f "uvicorn mininet_gui_backend" >/dev/null 2>&1; then
-  echo "✘ Backend process not found. Check:"
+  printf "✘ Backend process not found. Check:\n"
   tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
   exit 1
 fi
 
 # wait for backend to be ready
-echo "Waiting for backend..."
+printf "Waiting for backend...\n"
 for i in $(seq 1 30); do
   if curl -s http://127.0.0.1:8000/api/health 2>/dev/null | grep -q '"status"'; then
-    echo "✔ Backend ready"
+    printf "✔ Backend ready\n"
     break
   fi
   if [ "$i" -eq 30 ]; then
-    echo "✘ Backend failed to start within 30 seconds"
-    echo "  Check: $BACKEND_DIR/nohup.out"
+    printf "✘ Backend failed to start within 30 seconds\n"
+    printf "  Check: %s\n" "$BACKEND_DIR/nohup.out"
     tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
     exit 1
   fi
@@ -64,10 +68,10 @@ for i in $(seq 1 30); do
 done
 
 # ---- start frontend ----
-echo "VITE_BACKEND_URL=http://$MININET_GUI_ADDRESS:8000" > "$FRONTEND_DIR/.env"
-echo "VITE_BACKEND_WS_URL=ws://$MININET_GUI_ADDRESS:8000" >> "$FRONTEND_DIR/.env"
+printf "VITE_BACKEND_URL=http://%s:8000\n" "$MININET_GUI_ADDRESS" > "$FRONTEND_DIR/.env"
+printf "VITE_BACKEND_WS_URL=ws://%s:8000\n" "$MININET_GUI_ADDRESS" >> "$FRONTEND_DIR/.env"
 
-echo "Starting frontend..."
+printf "Starting frontend...\n"
 (
   cd "$FRONTEND_DIR"
   if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -85,5 +89,4 @@ echo "Starting frontend..."
 )
 
 # ---- done ----
-echo ""
-echo "Mininet-GUI is available at: http://$MININET_GUI_ADDRESS:5173"
+printf "\nMininet-GUI is available at: http://%s:5173\n" "$MININET_GUI_ADDRESS"

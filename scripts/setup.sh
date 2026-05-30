@@ -64,5 +64,4 @@ if ! grep -q "alias mininet_gui=" "$HOME/.bashrc" 2>/dev/null; then
     echo "alias mininet_gui=$MININET_GUI_DIR/scripts/run.sh" >> "$HOME/.bashrc"
 fi
 
-echo ""
-echo "Setup complete. Run with: mininet_gui (or scripts/run.sh)"
+printf "\nSetup complete. Run with: mininet_gui (or scripts/run.sh)\n"
