@@ -5,22 +5,15 @@ set -euo pipefail
 sudo apt-get update
 sudo apt-get install -y \
     build-essential \
-    ca-certificates \
     curl \
     ethtool \
     git \
     iperf \
-    iperf3 \
     iproute2 \
     iputils-ping \
-    lsb-release \
     net-tools \
     openvswitch-switch \
     openvswitch-testcontroller \
-    procps \
-    socat \
-    sudo \
-    tcpdump \
     telnet \
     tshark
 
