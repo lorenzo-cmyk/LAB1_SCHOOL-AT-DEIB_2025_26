@@ -1,7 +1,6 @@
 import { createI18n } from "vue-i18n";
 
 import en from "./locales/en.json";
-import pt from "./locales/pt.json";
 
 const getSavedLocale = () => {
   try {
@@ -18,7 +17,7 @@ const i18n = createI18n({
   legacy: true,
   locale: getSavedLocale() || "en",
   fallbackLocale: "en",
-  messages: { en, pt },
+  messages: { en },
 });
 
 export default i18n;

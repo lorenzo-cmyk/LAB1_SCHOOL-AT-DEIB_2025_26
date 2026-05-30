@@ -68,7 +68,6 @@
     "viewNodeStats": "View Node Stats"
   },
   "settings": {
-    "language": "Language",
     "defaultLinkAttributes": "Default Link Attributes",
     "defaultOpenflow": "Default OpenFlow version",
     "lightTheme": "Light theme",
@@ -78,10 +77,6 @@
     },
     "viewTitle": "Visibility",
     "defaultsTitle": "Defaults"
-  },
-  "language": {
-    "english": "English",
-    "portuguese": "Portuguese"
   },
   "iperf": {
     "configTab": "Config",

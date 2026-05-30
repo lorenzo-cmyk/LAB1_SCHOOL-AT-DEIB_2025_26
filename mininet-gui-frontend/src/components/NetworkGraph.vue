@@ -564,19 +564,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
                 {{ $t("settings.viewTitle") }}
               </div>
             </div>
-            <div class="modal-form-grid">
-              <label class="modal-field">
-                {{ $t("settings.language") }}
-                <select
-                  v-model="settings.language"
-                  class="modal-select"
-                  @change="handleLanguageChange"
-                >
-                  <option value="en">{{ $t("language.english") }}</option>
-                  <option value="pt">{{ $t("language.portuguese") }}</option>
-                </select>
-              </label>
-            </div>
             <div class="settings-grid">
               <label class="settings-toggle">
                 <input
@@ -1390,10 +1377,6 @@ export default {
       if (this.$i18n?.locale && this.$i18n.locale !== locale) {
         this.$i18n.locale = locale;
       }
-    },
-    handleLanguageChange() {
-      this.applyLocaleSetting();
-      this.persistSettings();
     },
     maybeShowFirstRunHelp() {
       try {
