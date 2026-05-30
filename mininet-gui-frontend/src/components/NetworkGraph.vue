@@ -1715,6 +1715,11 @@ export default {
               for (const nodeId of data.nodes) {
                 try {
                   await deleteNode(nodeId);
+                  delete this.hosts[nodeId];
+                  delete this.switches[nodeId];
+                  delete this.controllers[nodeId];
+                  delete this.nats[nodeId];
+                  delete this.routers[nodeId];
                   results.push(nodeId);
                 } catch (error) {
                   console.log("error deleting node", nodeId, error);
