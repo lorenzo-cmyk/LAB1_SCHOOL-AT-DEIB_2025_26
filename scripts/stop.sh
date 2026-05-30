@@ -10,7 +10,7 @@ printf "Stopping Mininet-GUI processes...\n"
 sudo pkill -9 -f "uvicorn mininet_gui_backend" 2>/dev/null || true
 sudo pkill -9 -f "vite.*mininet-gui" 2>/dev/null || true
 sudo pkill -9 -f "tshark" 2>/dev/null || true
-sudo pkill -9 -f "ryu-manager" 2>/dev/null || true
+sudo pkill -9 -f "ryu" 2>/dev/null || true
 sudo pkill -9 -f "mnexec" 2>/dev/null || true
 sudo mn -c >/dev/null 2>&1 || true
 
