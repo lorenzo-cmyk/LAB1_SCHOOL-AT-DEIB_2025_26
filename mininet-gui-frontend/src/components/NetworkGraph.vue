@@ -545,11 +545,11 @@ import logoImage from "@/assets/logo-mininet-gui.png";
                   {{ $t("about.repository") }}
                   <a
                     class="about-link"
-                    href="https://github.com/latarc/mininet-gui"
+                    href=""
                     target="_blank"
                     rel="noreferrer"
                   >
-                    https://github.com/latarc/mininet-gui
+                     ""
                   </a>
                 </p>
                 <p>{{ $t("about.license") }}</p>
@@ -1141,7 +1141,7 @@ export default {
     },
     handleOpenDocumentation() {
       window.open(
-        "https://github.com/latarc/mininet-gui",
+        "",
         "_blank",
         "noopener,noreferrer",
       );
@@ -2745,7 +2745,7 @@ export default {
         doc.text(this.$t("addressing.createdIn", { date: createdAt }), 40, 60);
         doc.text(
           this.$t("addressing.repository", {
-            repo: "https://github.com/latarc/mininet-gui",
+            repo: "",
           }),
           40,
           74,

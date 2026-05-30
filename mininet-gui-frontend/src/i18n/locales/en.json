@@ -127,7 +127,7 @@
     "frontendVersion": "Frontend version: {version}",
     "backendVersion": "Backend version: {version}",
     "mininetVersion": "Mininet version: {version}",
-    "authors": "Authors: Lucas Schneider, Emidio Neto, Felipe Dantas",
+    "authors": "",
     "repository": "Repository:",
     "license": "License: MIT"
   },
