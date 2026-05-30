@@ -70,6 +70,7 @@
   "settings": {
     "language": "Language",
     "openaiKey": "OpenAI API Key",
+    "openaiModel": "OpenAI Model",
     "defaultLinkAttributes": "Default Link Attributes",
     "defaultOpenflow": "Default OpenFlow version",
     "lightTheme": "Light theme",

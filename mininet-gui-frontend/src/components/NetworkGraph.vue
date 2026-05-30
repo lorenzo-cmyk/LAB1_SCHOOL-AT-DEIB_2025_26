@@ -48,6 +48,7 @@ import LinkStats from "./LinkStats.vue";
 import PingallResults from "./PingallResults.vue";
 import ControllerForm from "./ControllerForm.vue";
 import TopologyForm from "./TopologyForm.vue";
+import Topbar from "./Topbar.vue";
 import frontendPackage from "../../package.json";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -80,199 +81,37 @@ import logoImage from "@/assets/logo-mininet-gui.png";
         </button>
       </div>
     </div>
-    <div ref="topbar" :class="['topbar', themeClass]">
-      <div class="topbar-title">{{ $t("app.title") }}</div>
-      <div class="menu-bar">
-        <div class="menu-item-wrapper" @mouseenter="handleMenuHover('file')">
-          <button
-            type="button"
-            class="menu-item"
-            :class="{ open: fileMenuOpen }"
-            @click.stop="toggleFileMenu"
-          >
-            {{ $t("menu.file") }}
-          </button>
-          <div v-if="fileMenuOpen" class="menu-dropdown" @click.stop>
-            <button type="button" class="menu-action" @click="handleNewTopology">
-              {{ $t("menu.newTopology") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleOpenTopology">
-              {{ $t("menu.openTopology") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleSaveTopology">
-              {{ $t("menu.saveTopology") }}
-            </button>
-            <div class="menu-separator"></div>
-            <button type="button" class="menu-action" @click="handleExportScript">
-              {{ $t("menu.exportScript") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleExportSniffer">
-              {{ $t("menu.exportSniffer") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleExportPng">
-              {{ $t("menu.exportPng") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleExportAddressingPlan">
-              {{ $t("menu.exportAddressing") }}
-            </button>
-            <div class="menu-separator"></div>
-            <button type="button" class="menu-action" @click="handleOpenSettings">
-              {{ $t("menu.settings") }}
-            </button>
-          </div>
-        </div>
-        <div class="menu-item-wrapper" @mouseenter="handleMenuHover('view')">
-          <button
-            type="button"
-            class="menu-item"
-            :class="{ open: viewMenuOpen }"
-            @click.stop="toggleViewMenu"
-          >
-            {{ $t("menu.view") }}
-          </button>
-          <div v-if="viewMenuOpen" class="menu-dropdown" @click.stop>
-            <button type="button" class="menu-action" @click="handleCollapseAllViews">
-              {{ $t("menu.collapseViews") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleExpandAllViews">
-              {{ $t("menu.expandViews") }}
-            </button>
-            <div class="menu-separator"></div>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showHosts" @change="handleShowHostsSetting" />
-              {{ $t("menu.showHosts") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showControllers" @change="handleShowControllersSetting" />
-              {{ $t("menu.showControllers") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showSpecialSwitches" @change="persistSettings" />
-              {{ $t("menu.showSpecialSwitches") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showSpecialControllers" @change="persistSettings" />
-              {{ $t("menu.showSpecialControllers") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showHostIp" @change="persistSettings" />
-              {{ $t("menu.showHostIp") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showSwitchDpids" @change="persistSettings" />
-              {{ $t("menu.showSwitchDpids") }}
-            </label>
-            <label class="menu-checkbox">
-              <input type="checkbox" v-model="settings.showPortLabels" @change="persistSettings" />
-              {{ $t("menu.showPortLabels") }}
-            </label>
-            <div class="menu-separator"></div>
-            <label class="menu-checkbox">
-              <input
-                type="checkbox"
-                v-model="settings.theme"
-                :true-value="'light'"
-                :false-value="'dark'"
-                @change="handleThemeSetting"
-              />
-              {{ $t("menu.lightTheme") }}
-            </label>
-          </div>
-        </div>
-        <div class="menu-item-wrapper" @mouseenter="handleMenuHover('run')">
-          <button
-            type="button"
-            class="menu-item"
-            :class="{ open: runMenuOpen }"
-            @click.stop="toggleRunMenu"
-          >
-            {{ $t("menu.run") }}
-          </button>
-          <div v-if="runMenuOpen" class="menu-dropdown" @click.stop>
-            <button
-              type="button"
-              class="menu-action"
-              @click="handleStartNetwork"
-              :disabled="networkStarted || networkCommandInFlight || !mininetConnected"
-            >
-              {{ $t("menu.startNetwork") }}
-            </button>
-            <button
-              type="button"
-              class="menu-action"
-              @click="handleStopNetwork"
-              :disabled="!networkStarted || networkCommandInFlight || !mininetConnected"
-            >
-              {{ $t("menu.stopNetwork") }}
-            </button>
-            <button
-              type="button"
-              class="menu-action"
-              @click="handleRestartNetwork"
-              :disabled="networkCommandInFlight || !mininetConnected"
-            >
-              {{ $t("menu.restartNetwork") }}
-            </button>
-          </div>
-        </div>
-        <div class="menu-item-wrapper" @mouseenter="handleMenuHover('tools')">
-          <button
-            type="button"
-            class="menu-item"
-            :class="{ open: toolsMenuOpen }"
-            @click.stop="toggleToolsMenu"
-          >
-            {{ $t("menu.tools") }}
-          </button>
-          <div v-if="toolsMenuOpen" class="menu-dropdown" @click.stop>
-            <button type="button" class="menu-action" @click="handleRunIperf">
-              {{ $t("menu.runIperf") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleRunPingall">
-              {{ $t("menu.runPingall") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleGenerateTopology">
-              {{ $t("menu.generateTopology") }}
-            </button>
-            <div class="menu-separator"></div>
-            <button type="button" class="menu-action" @click="handleStartSniffer">
-              {{ $t("menu.startSniffer") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleStopSniffer">
-              {{ $t("menu.stopSniffer") }}
-            </button>
-          </div>
-        </div>
-        <div class="menu-item-wrapper" @mouseenter="handleMenuHover('help')">
-          <button
-            type="button"
-            class="menu-item"
-            :class="{ open: helpMenuOpen }"
-            @click.stop="toggleHelpMenu"
-          >
-            {{ $t("menu.help") }}
-          </button>
-          <div v-if="helpMenuOpen" class="menu-dropdown" @click.stop>
-            <button type="button" class="menu-action" @click="handleOpenUsage">
-              {{ $t("menu.usage") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleOpenDocumentation">
-              {{ $t("menu.openDocs") }}
-            </button>
-            <button type="button" class="menu-action" @click="handleOpenAbout">
-              {{ $t("menu.about") }}
-            </button>
-          </div>
-        </div>
-      </div>
-      <input
-        ref="topologyFileInput"
-        type="file"
-        accept=".json"
-        class="menu-file-input"
-        @change="handleFileUpload"
-      />
-    </div>
+    <Topbar
+      ref="topbar"
+      :settings="settings"
+      :networkStarted="networkStarted"
+      :networkCommandInFlight="networkCommandInFlight"
+      :mininetConnected="mininetConnected"
+      @start-network="handleStartNetwork"
+      @stop-network="handleStopNetwork"
+      @restart-network="handleRestartNetwork"
+      @new-topology="showResetConfirmModal"
+      @save-topology="saveTopologyAs"
+      @export-script="exportMininetScript"
+      @export-sniffer="exportSniffer"
+      @export-png="exportTopologyAsPng"
+      @export-addressing-plan="exportAddressingPlan"
+      @open-settings="showSettingsModal"
+      @run-iperf="showIperfModal"
+      @run-pingall="showPingallModal"
+      @generate-topology="showTopologyFormModal"
+      @start-sniffer="toggleSniffer"
+      @stop-sniffer="toggleSniffer"
+      @collapse-all-views="handleCollapseAllViews"
+      @expand-all-views="handleExpandAllViews"
+      @open-usage="handleOpenUsage"
+      @open-docs="handleOpenDocumentation"
+      @open-about="handleOpenAbout"
+      @update-show-hosts="handleShowHostsSetting"
+      @update-show-controllers="handleShowControllersSetting"
+      @update-setting="handleSettingChange"
+      @file-upload="importTopology"
+    />
     <div class="layout" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
       <!-- Side panel (left) -->
 
@@ -348,6 +187,7 @@ import logoImage from "@/assets/logo-mininet-gui.png";
         :focusNodeId="webshellFocusId"
         :minimized="webshellMinimized"
         :openaiKey="settings.openaiApiKey"
+        :openaiModel="settings.openaiModel"
         :llmHandlers="llmHandlers"
         :theme="settings.theme"
         @viewChange="handleWebshellViewChange"
@@ -689,6 +529,19 @@ import logoImage from "@/assets/logo-mininet-gui.png";
                   placeholder="sk-..."
                 />
               </label>
+              <label class="modal-field">
+                {{ $t("settings.openaiModel") }}
+                <select
+                  v-model="settings.openaiModel"
+                  class="modal-input"
+                  @change="persistSettings"
+                >
+                  <option value="gpt-4o">gpt-4o</option>
+                  <option value="gpt-4o-mini">gpt-4o-mini</option>
+                  <option value="gpt-4-turbo">gpt-4-turbo</option>
+                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                </select>
+              </label>
             </div>
           </div>
         </div>
@@ -718,6 +571,7 @@ export default {
   name: "NetworkGraph",
   components: {
     Side,
+    Topbar,
     NodeStats,
     LinkStats,
     PingallResults,
@@ -737,9 +591,6 @@ export default {
       addEdgeMode: false,
       networkStarted: false,
       networkCommandInFlight: false,
-      runMenuOpen: false,
-      toolsMenuOpen: false,
-      viewMenuOpen: false,
       mininetConnected: true,
       healthTimer: null,
       pingallRunning: false,
@@ -781,9 +632,6 @@ export default {
         y: 0,
         nodeId: null,
       },
-      fileMenuOpen: false,
-      helpMenuOpen: false,
-      boundHandleGlobalClick: null,
       frontendVersion: frontendPackage?.version || "unknown",
       backendVersion: "unknown",
       mininetVersion: "unknown",
@@ -823,6 +671,7 @@ export default {
         language: "en",
         switchOpenflow: "",
         openaiApiKey: "",
+        openaiModel: "gpt-4o-mini",
         linkOptions: {
           bw: "",
           delay: "",
@@ -902,7 +751,6 @@ export default {
     await this.loadRyuApps();
     this.setupNetwork();
     this.bindSelectionEvents();
-    this.bindTopbarEvents();
     this.loadVersions();
     await this.refreshBackendHealth();
     this.healthTimer = setInterval(() => this.refreshBackendHealth(), 2000);
@@ -910,7 +758,6 @@ export default {
   beforeUnmount() {
     if (this.snifferStateTimer) clearInterval(this.snifferStateTimer);
     this.unbindSelectionEvents();
-    this.unbindTopbarEvents();
     if (this.healthTimer) clearInterval(this.healthTimer);
   },
   methods: {
@@ -1041,118 +888,7 @@ export default {
     async loadRyuApps() {
       this.ryuApps = await getRyuApps();
     },
-    bindTopbarEvents() {
-      if (!this.boundHandleGlobalClick) {
-        this.boundHandleGlobalClick = this.handleGlobalClick.bind(this);
-      }
-      document.addEventListener("click", this.boundHandleGlobalClick);
-    },
-    unbindTopbarEvents() {
-      if (this.boundHandleGlobalClick) {
-        document.removeEventListener("click", this.boundHandleGlobalClick);
-      }
-    },
-    handleGlobalClick(event) {
-      const topbar = this.$refs.topbar;
-      if (!topbar) return;
-      if (this.fileMenuOpen && !topbar.contains(event.target)) {
-        this.fileMenuOpen = false;
-      }
-      if (this.helpMenuOpen && !topbar.contains(event.target)) {
-        this.helpMenuOpen = false;
-      }
-      if (this.runMenuOpen && !topbar.contains(event.target)) {
-        this.runMenuOpen = false;
-      }
-      if (this.toolsMenuOpen && !topbar.contains(event.target)) {
-        this.toolsMenuOpen = false;
-      }
-      if (this.viewMenuOpen && !topbar.contains(event.target)) {
-        this.viewMenuOpen = false;
-      }
-    },
-    isAnyMenuOpen() {
-      return (
-        this.fileMenuOpen ||
-        this.helpMenuOpen ||
-        this.runMenuOpen ||
-        this.toolsMenuOpen ||
-        this.viewMenuOpen
-      );
-    },
-    openMenuByKey(menuKey) {
-      this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
-      this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = false;
-      if (menuKey === "file") this.fileMenuOpen = true;
-      if (menuKey === "help") this.helpMenuOpen = true;
-      if (menuKey === "run") this.runMenuOpen = true;
-      if (menuKey === "tools") this.toolsMenuOpen = true;
-      if (menuKey === "view") this.viewMenuOpen = true;
-    },
-    handleMenuHover(menuKey) {
-      if (!this.isAnyMenuOpen()) return;
-      if (menuKey === "file" && this.fileMenuOpen) return;
-      if (menuKey === "help" && this.helpMenuOpen) return;
-      if (menuKey === "run" && this.runMenuOpen) return;
-      if (menuKey === "tools" && this.toolsMenuOpen) return;
-      if (menuKey === "view" && this.viewMenuOpen) return;
-      this.openMenuByKey(menuKey);
-    },
-    toggleFileMenu() {
-      this.helpMenuOpen = false;
-      this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.fileMenuOpen = !this.fileMenuOpen;
-    },
-    toggleHelpMenu() {
-      this.fileMenuOpen = false;
-      this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.helpMenuOpen = !this.helpMenuOpen;
-    },
-    toggleToolsMenu() {
-      this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
-      this.runMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.toolsMenuOpen = !this.toolsMenuOpen;
-    },
-    toggleViewMenu() {
-      this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
-      this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = !this.viewMenuOpen;
-    },
-    closeFileMenu() {
-      this.fileMenuOpen = false;
-    },
-    closeHelpMenu() {
-      this.helpMenuOpen = false;
-    },
-    closeToolsMenu() {
-      this.toolsMenuOpen = false;
-    },
-    closeViewMenu() {
-      this.viewMenuOpen = false;
-    },
-    toggleRunMenu() {
-      this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.runMenuOpen = !this.runMenuOpen;
-    },
-    closeRunMenu() {
-      this.runMenuOpen = false;
-    },
     async handleStartNetwork() {
-      this.closeRunMenu();
       if (this.networkCommandInFlight || this.networkStarted) return;
       this.networkCommandInFlight = true;
       try {
@@ -1166,7 +902,6 @@ export default {
       }
     },
     async handleStopNetwork() {
-      this.closeRunMenu();
       if (this.networkCommandInFlight || !this.networkStarted) return;
       this.networkCommandInFlight = true;
       try {
@@ -1182,7 +917,6 @@ export default {
       }
     },
     async handleRestartNetwork() {
-      this.closeRunMenu();
       if (this.networkCommandInFlight) return;
       this.networkCommandInFlight = true;
       try {
@@ -1201,72 +935,15 @@ export default {
         await this.refreshBackendHealth();
       }
     },
-    handleNewTopology() {
-      this.closeFileMenu();
-      this.showResetConfirmModal();
-    },
-    handleOpenTopology() {
-      this.closeFileMenu();
-      this.openFileDialog();
-    },
-    handleSaveTopology() {
-      this.closeFileMenu();
-      this.saveTopologyAs();
-    },
-    handleExportScript() {
-      this.closeFileMenu();
-      this.exportMininetScript();
-    },
-    handleExportSniffer() {
-      this.closeFileMenu();
-      this.exportSniffer();
-    },
-    handleExportPng() {
-      this.closeFileMenu();
-      this.exportTopologyAsPng();
-    },
-    handleExportAddressingPlan() {
-      this.closeFileMenu();
-      this.exportAddressingPlan();
-    },
-    handleOpenSettings() {
-      this.closeFileMenu();
-      this.showSettingsModal();
-    },
-    handleRunIperf() {
-      this.closeToolsMenu();
-      this.showIperfModal();
-    },
-    handleRunPingall() {
-      this.closeToolsMenu();
-      this.showPingallModal();
-    },
-    handleGenerateTopology() {
-      this.closeToolsMenu();
-      this.showTopologyFormModal();
-    },
-    async handleStartSniffer() {
-      this.closeToolsMenu();
-      if (this.snifferActive) return;
-      await this.toggleSniffer();
-    },
-    async handleStopSniffer() {
-      this.closeToolsMenu();
-      if (!this.snifferActive) return;
-      await this.toggleSniffer();
-    },
     handleCollapseAllViews() {
-      this.closeViewMenu();
       this.sidebarCollapsed = true;
       this.webshellMinimized = true;
     },
     handleExpandAllViews() {
-      this.closeViewMenu();
       this.sidebarCollapsed = false;
       this.webshellMinimized = false;
     },
     handleOpenUsage() {
-      this.closeHelpMenu();
       this.modalHeader = this.$t("menu.usage");
       this.modalOption = "usage";
       this.modalData = null;
@@ -1274,25 +951,21 @@ export default {
       this.showModal = true;
     },
     handleOpenDocumentation() {
-      this.closeHelpMenu();
       window.open("https://github.com/latarc/mininet-gui", "_blank", "noopener,noreferrer");
     },
     handleOpenAbout() {
-      this.closeHelpMenu();
       this.modalHeader = this.$t("menu.about");
       this.modalOption = "about";
       this.modalData = null;
       this.showModal = true;
     },
-    openFileDialog() {
-      this.$refs.topologyFileInput?.click();
-    },
-    handleFileUpload(event) {
-      const file = event.target.files?.[0];
-      if (file) {
-        this.importTopology(file);
+    handleSettingChange(key, value) {
+      this.settings[key] = value;
+      if (key === "theme") {
+        this.applyThemeSetting();
+        this.applyNetworkTheme();
       }
-      if (event.target) event.target.value = "";
+      this.persistSettings();
     },
     bindSelectionEvents() {
       const graphEl = this.$refs.graphWrapper;
@@ -3299,105 +2972,6 @@ export default {
   --theme-input-border: #d0d0d0;
 }
 
-.topbar {
-  height: 32px;
-  background: var(--theme-topbar-bg);
-  color: var(--theme-topbar-color);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--theme-topbar-border);
-  position: relative;
-  z-index: 6;
-  font-size: 0.85rem;
-}
-
-.topbar-title {
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  margin-right: 8px;
-}
-
-.menu-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.menu-item-wrapper {
-  position: relative;
-}
-
-.menu-item {
-  background: transparent;
-  border: none;
-  color: inherit;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.menu-item:hover,
-.menu-item.open {
-  background: var(--theme-menu-hover);
-}
-
-.menu-item:disabled {
-  color: #7a7a7a;
-  cursor: default;
-}
-
-.menu-dropdown {
-  position: absolute;
-  top: 28px;
-  left: 0;
-  background: var(--theme-dropdown-bg);
-  border: 1px solid var(--theme-dropdown-border);
-  border-radius: 6px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 240px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
-}
-
-.menu-action {
-  background: transparent;
-  border: none;
-  color: var(--theme-app-color);
-  padding: 6px 10px;
-  text-align: left;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.menu-action:hover {
-  background: var(--theme-menu-hover);
-}
-
-.menu-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--theme-app-color);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.menu-checkbox:hover {
-  background: var(--theme-menu-hover);
-}
-
-.menu-checkbox input {
-  accent-color: #007acc;
-}
-
 .health-overlay {
   position: absolute;
   left: 0;
@@ -3431,16 +3005,6 @@ export default {
 .health-overlay__retry {
   margin-top: 4px;
   width: auto;
-}
-
-.menu-separator {
-  height: 1px;
-  margin: 4px 0;
-  background: var(--theme-topbar-border);
-}
-
-.menu-file-input {
-  display: none;
 }
 
 .status-bar {

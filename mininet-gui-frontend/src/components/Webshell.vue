@@ -161,6 +161,7 @@ export default {
     focusNodeId: { type: String, default: null },
     minimized: { type: Boolean, default: false },
     openaiKey: { type: String, default: "" },
+    openaiModel: { type: String, default: "gpt-4o-mini" },
     llmHandlers: { type: Object, default: () => ({}) },
     theme: { type: String, default: "dark" },
   },
@@ -644,7 +645,7 @@ export default {
         : messages;
       console.log("[AI] sending messages", payloadMessages);
       const payload = {
-        model: "gpt-4o-mini",
+        model: this.openaiModel || "gpt-4o-mini",
         messages: payloadMessages,
         tools: llmTools,
         tool_choice: "auto",

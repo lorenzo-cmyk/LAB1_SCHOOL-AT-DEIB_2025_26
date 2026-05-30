@@ -13,6 +13,7 @@ class Ryu(Node):
         ip="127.0.0.1",
         port=6653,
         ryu_app="simple_switch_13",
+        of_version="OpenFlow13",
         **params,
     ):
         self.ip = ip
@@ -21,8 +22,7 @@ class Ryu(Node):
             self.ryu_app = [str(app) for app in ryu_app]
         else:
             self.ryu_app = [str(ryu_app)]
-        # TODO: Make OpenFlow version configurable; force OF13 for now.
-        self.ofp_version = "OpenFlow13"
+        self.ofp_version = str(of_version)
         self.protocol = "tcp"
         self.ryu_pid = None
         Node.__init__(self, name, inNamespace=inNamespace, ip=ip, **params)

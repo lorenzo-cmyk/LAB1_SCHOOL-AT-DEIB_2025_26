@@ -21,13 +21,15 @@ class Controller(Node):
     port: Union[int, None]
     ryu_app: Union[str, list, None] = None
     color: Union[str, None] = None
+    of_version: Union[str, None] = "OpenFlow13"
 
     def format_controller(self) -> str:
         controller_type = (self.controller_type or "").lower()
         if self.remote or controller_type == "remote":
             return f'{self.name} = net.addController("{self.name}", controller=RemoteController, ip="{self.ip}", port={self.port})'
         if controller_type == "ryu":
-            return f'{self.name} = net.addController("{self.name}", controller=Ryu, ip="{self.ip or "127.0.0.1"}", port={self.port}, ryu_app={repr(self.ryu_app)})'
+            of_ver = f', of_version="{self.of_version}"' if self.of_version else ""
+            return f'{self.name} = net.addController("{self.name}", controller=Ryu, ip="{self.ip or "127.0.0.1"}", port={self.port}, ryu_app={repr(self.ryu_app)}{of_ver})'
         if controller_type == "nox":
             return f'{self.name} = net.addController("{self.name}", controller=NOX)'
         if self.port:
