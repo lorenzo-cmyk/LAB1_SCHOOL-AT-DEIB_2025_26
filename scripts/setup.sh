@@ -34,12 +34,23 @@ echo "Installing backend Python deps"
 sudo python3 -m pip install --break-system-packages --no-cache-dir -r "$BACKEND_DIR/requirements.txt"
 
 # ---- Node / nvm ----
-if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  export NVM_DIR="$HOME/.nvm"
+elif [ -s "$HOME/.config/nvm/nvm.sh" ]; then
+  export NVM_DIR="$HOME/.config/nvm"
+else
   echo "Installing nvm"
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+  if [ -s "$HOME/.nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.nvm"
+  elif [ -s "$HOME/.config/nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.config/nvm"
+  else
+    echo "nvm install failed"
+    exit 1
+  fi
 fi
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+. "$NVM_DIR/nvm.sh"
 
 echo "Installing Node 18"
 nvm install 18

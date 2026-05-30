@@ -62,9 +62,14 @@ echo "Starting frontend..."
 (
   cd "$FRONTEND_DIR"
   if [ -s "$HOME/.nvm/nvm.sh" ]; then
-    . "$HOME/.nvm/nvm.sh"
+    export NVM_DIR="$HOME/.nvm"
+    . "$NVM_DIR/nvm.sh"
+  elif [ -s "$HOME/.config/nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.config/nvm"
+    . "$NVM_DIR/nvm.sh"
   elif [ -s "/usr/share/nvm/nvm.sh" ]; then
-    . "/usr/share/nvm/nvm.sh"
+    export NVM_DIR="/usr/share/nvm"
+    . "$NVM_DIR/nvm.sh"
   fi
   nvm use 18 2>/dev/null || true
   nohup npm run dev -- --host 0.0.0.0 &
