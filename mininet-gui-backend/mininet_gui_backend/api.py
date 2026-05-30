@@ -12,8 +12,10 @@ Endpoints that add, remove and edit nodes and edges in real time.
 
 import asyncio
 import json
+import re
 import subprocess
 from datetime import datetime, timezone
+from time import sleep, time
 from mininet_gui_backend.sniffer import SnifferManager
 from typing import Tuple, Union
 from contextlib import asynccontextmanager
@@ -1002,6 +1004,75 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
     return {"status": "ok", "match": match}
 
 
+def _parse_iperf_output(output: str) -> str:
+    """Parse iperf output and return the last bandwidth value."""
+    matches = re.findall(r'([\d\.]+ \w+/sec)', output)
+    return matches[-1] if matches else ""
+
+
+def _run_iperf(client, server, l4Type="TCP", udpBw="10M", fmt=None,
+               seconds=5, port=5001):
+    """Run iperf between two hosts without relying on Mininet's fragile
+    /sec counting logic. This implementation:
+    1. Starts iperf server
+    2. Runs iperf client (blocks until done)
+    3. Reads server output with a timeout
+    4. Returns parsed results"""
+    try:
+        server.cmd("killall -9 iperf 2>/dev/null || true")
+    except Exception:
+        pass
+
+    iperf_args = f"iperf -p {port} "
+    if l4Type == "UDP":
+        iperf_args += "-u "
+        bw_args = f"-b {udpBw} "
+    elif l4Type != "TCP":
+        raise Exception(f"Unexpected l4 type: {l4Type}")
+    else:
+        bw_args = ""
+
+    if fmt:
+        iperf_args += f"-f {fmt} "
+
+    server.sendCmd(iperf_args + "-s")
+    sleep(0.5)
+
+    client_output = client.cmd(
+        iperf_args + f"-t {seconds} -c " + server.IP() + " " + bw_args
+    )
+
+    server_output = ""
+    deadline = time() + seconds + 5
+    while time() < deadline:
+        remaining = max(0, (deadline - time()) * 1000)
+        chunk = server.monitor(timeoutms=min(int(remaining), 1000))
+        server_output += chunk
+        if "/sec" in server_output and not server.waiting:
+            break
+
+    try:
+        server.sendInt()
+    except Exception:
+        pass
+
+    try:
+        server_output += server.waitOutput()
+    except Exception:
+        pass
+
+    debug(f"iperf server output: {server_output}")
+    debug(f"iperf client output: {client_output}")
+
+    server_result = _parse_iperf_output(server_output)
+    client_result = _parse_iperf_output(client_output)
+
+    result = [server_result, client_result]
+    if l4Type == "UDP":
+        result.insert(0, udpBw)
+    return result
+
+
 @app.post("/api/mininet/iperf")
 async def run_iperf(request: IperfRequest):
     if not state.net.is_started:
@@ -1039,13 +1110,14 @@ async def run_iperf(request: IperfRequest):
 
     state.iperf_running = True
     loop = asyncio.get_running_loop()
-    timeout = (request.seconds or 5) + 10
+    timeout = (request.seconds or 5) + 15
     try:
         result = await asyncio.wait_for(
             loop.run_in_executor(
                 None,
-                lambda: state.net.iperf(
-                    hosts=[client_node, server_node],
+                lambda: _run_iperf(
+                    client_node,
+                    server_node,
                     l4Type=request.l4_type or "TCP",
                     **kwargs,
                 ),
