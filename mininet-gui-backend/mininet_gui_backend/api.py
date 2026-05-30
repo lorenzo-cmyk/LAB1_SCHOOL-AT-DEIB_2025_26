@@ -389,6 +389,13 @@ def run_pingall():
             detail="Host shell busy — wait for previous command to finish and try again",
         )
     finally:
+        # Reset shell state on all hosts after pingall
+        for host in getattr(state.net, "hosts", []):
+            try:
+                host.cmd("killall -9 ping 2>/dev/null || true")
+            except Exception:
+                pass
+            host.waiting = False
         state.pingall_running = False
 
 
@@ -1040,6 +1047,13 @@ def run_iperf(request: IperfRequest):
             return {"client": result[0], "server": result[1]}
         return {"result": result}
     finally:
+        # Kill lingering iperf processes and reset shell state
+        for node in (client_node, server_node):
+            try:
+                node.cmd("killall -9 iperf 2>/dev/null || true")
+            except Exception:
+                pass
+            node.waiting = False
         state.iperf_running = False
 
 
