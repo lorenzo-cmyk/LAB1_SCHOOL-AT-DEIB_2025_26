@@ -17,6 +17,7 @@ sudo apt-get install -y \
     openvswitch-testcontroller \
     telnet \
     tshark
+    python3-pip
 
 # ---- ovs-controller symlinks ----
 sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/controller
