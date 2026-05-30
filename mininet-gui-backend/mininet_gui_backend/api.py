@@ -289,6 +289,7 @@ async def stop_network():
     setLogLevel("debug")
     state.net = Mininet(autoSetMacs=True, topo=Topo())
     state.net.is_started = False
+    state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
     state.links = dict()
     # Recreate topology without start
     entries = [
@@ -360,6 +361,7 @@ async def full_reset_network():
     setLogLevel("debug")
     state.net = Mininet(autoSetMacs=True, topo=Topo())
     state.net.is_started = False
+    state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
     return {"status": "ok"}
 
 
