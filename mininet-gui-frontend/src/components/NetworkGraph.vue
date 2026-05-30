@@ -2325,18 +2325,20 @@ export default {
       if (this.pingallRunning) return;
       this.closeAllActiveModes();
       this.pingallRunning = true;
-
-      let pingallResults = await requestRunPingall();
-      if (pingallResults && pingallResults.running) {
-        this.pingallRunning = false;
-        return;
-      } else {
+      try {
+        let pingallResults = await requestRunPingall();
+        if (pingallResults && pingallResults.running) {
+          return;
+        }
         this.modalHeader = this.$t("pingall.resultsTitle");
         this.modalOption = "pingall";
         this.modalData = pingallResults || null;
         this.showModal = true;
+      } catch (error) {
+        console.error("Pingall failed:", error);
+      } finally {
+        this.pingallRunning = false;
       }
-      this.pingallRunning = false;
     },
     showIperfModal() {
       if (this.iperfBusy) return;
@@ -2378,26 +2380,34 @@ export default {
       if (this.iperfForm.l4_type === "UDP" && this.iperfForm.udp_bw) {
         payload.udp_bw = this.iperfForm.udp_bw;
       }
-      const result = await runIperf(payload);
-      if (result?.running) {
-        this.iperfError = this.$t("iperf.errorAlreadyRunning");
-        this.iperfBusy = false;
+      try {
+        const result = await runIperf(payload);
+        if (result?.running) {
+          this.iperfError = this.$t("iperf.errorAlreadyRunning");
+          this.modalHeader = this.$t("menu.runIperf");
+          this.modalOption = "iperf";
+          this.iperfTab = "config";
+          this.showModal = true;
+          return;
+        }
+        if (!result) {
+          this.iperfError = this.$t("iperf.errorFailed");
+        } else {
+          this.iperfResult = result;
+        }
+        this.modalHeader = this.$t("iperf.resultsTitle");
+        this.modalOption = "iperf";
+        this.iperfTab = "results";
+        this.showModal = true;
+      } catch (error) {
+        this.iperfError = error?.message || this.$t("iperf.errorFailed");
         this.modalHeader = this.$t("menu.runIperf");
         this.modalOption = "iperf";
         this.iperfTab = "config";
         this.showModal = true;
-        return;
+      } finally {
+        this.iperfBusy = false;
       }
-      if (!result) {
-        this.iperfError = this.$t("iperf.errorFailed");
-      } else {
-        this.iperfResult = result;
-      }
-      this.iperfBusy = false;
-      this.modalHeader = this.$t("iperf.resultsTitle");
-      this.modalOption = "iperf";
-      this.iperfTab = "results";
-      this.showModal = true;
     },
     formatIperfResult(result) {
       if (!result) return "";
