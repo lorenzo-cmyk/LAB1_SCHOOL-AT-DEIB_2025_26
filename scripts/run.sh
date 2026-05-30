@@ -38,17 +38,26 @@ fi
 
 # ---- start backend ----
 echo "Starting backend..."
-(cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000 --log-level debug &)
+(cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000 --log-level debug > /dev/null 2>&1 &)
+sleep 3
+
+if ! pgrep -f "uvicorn mininet_gui_backend" >/dev/null 2>&1; then
+  echo "✘ Backend process not found. Check:"
+  tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
+  exit 1
+fi
 
 # wait for backend to be ready
 echo "Waiting for backend..."
 for i in $(seq 1 30); do
-  if curl -sf http://127.0.0.1:8000/api/health >/dev/null 2>&1; then
+  if curl -s http://127.0.0.1:8000/api/health 2>/dev/null | grep -q '"status"'; then
     echo "✔ Backend ready"
     break
   fi
   if [ "$i" -eq 30 ]; then
     echo "✘ Backend failed to start within 30 seconds"
+    echo "  Check: $BACKEND_DIR/nohup.out"
+    tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
     exit 1
   fi
   sleep 1
