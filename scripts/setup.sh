@@ -11,6 +11,7 @@ sudo apt-get install -y \
     iperf \
     iproute2 \
     iputils-ping \
+    mininet \
     net-tools \
     openvswitch-switch \
     openvswitch-testcontroller \
@@ -22,16 +23,6 @@ sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/controller
 sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/ovs-controller
 sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/test-controller
 sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/ovs-testcontroller
-
-# ---- Mininet (build mnexec + install Python package) ----
-if [ ! -x /usr/local/bin/mnexec ]; then
-    echo "Installing Mininet..."
-    sudo git clone --depth 1 https://github.com/mininet/mininet /opt/mininet
-    (cd /opt/mininet && sudo make mnexec && sudo install -m 0755 mnexec /usr/local/bin/mnexec && sudo pip install --no-cache-dir .)
-    sudo rm -rf /opt/mininet/.git
-else
-    echo "mnexec already installed, skipping Mininet build"
-fi
 
 # ---- Python backend ----
 MININET_GUI_DIR="$(cd "$(dirname "$0")/.." && pwd)"

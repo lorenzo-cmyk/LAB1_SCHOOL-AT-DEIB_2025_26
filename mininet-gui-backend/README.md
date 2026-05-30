@@ -19,7 +19,7 @@ function correctly.
 | `ovs-testcontroller` | `openvswitch-testcontroller` |
 | `tshark`      | `tshark`                  |
 | `mergecap`    | `tshark`                  |
-| `mnexec`      | built from Mininet source |
+| `mnexec`      | `mininet` (apt package)  |
 | `tail`        | `coreutils` (pre-installed) |
 | `which`       | `debianutils` (pre-installed) |
 | `ryu`         | `ryu` (pip, optional)     |
