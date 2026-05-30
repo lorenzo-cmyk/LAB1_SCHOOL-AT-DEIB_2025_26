@@ -23,6 +23,7 @@ import {
   requestFullResetNetwork,
   requestRunPingall,
   runIperf,
+  getIperfResult,
   deleteNode,
   deleteLink,
   updateNodePosition,
@@ -2390,14 +2391,41 @@ export default {
           this.showModal = true;
           return;
         }
-        if (!result) {
+        if (result === null) {
           this.iperfError = this.$t("iperf.errorFailed");
-        } else {
-          this.iperfResult = result;
+          this.modalHeader = this.$t("menu.runIperf");
+          this.modalOption = "iperf";
+          this.iperfTab = "config";
+          this.showModal = true;
+          return;
         }
-        this.modalHeader = this.$t("iperf.resultsTitle");
-        this.modalOption = "iperf";
-        this.iperfTab = "results";
+        // POST returned — iperf is running in background, poll for result
+        const pollResult = await new Promise((resolve) => {
+          let attempts = 0;
+          const maxAttempts = 120;
+          const interval = setInterval(async () => {
+            attempts++;
+            const res = await getIperfResult();
+            if (res && !res.running) {
+              clearInterval(interval);
+              resolve(res);
+            } else if (attempts >= maxAttempts) {
+              clearInterval(interval);
+              resolve(null);
+            }
+          }, 1000);
+        });
+        if (!pollResult || pollResult.error) {
+          this.iperfError = pollResult?.error || this.$t("iperf.errorFailed");
+          this.modalHeader = this.$t("menu.runIperf");
+          this.modalOption = "iperf";
+          this.iperfTab = "config";
+        } else {
+          this.iperfResult = pollResult;
+          this.modalHeader = this.$t("iperf.resultsTitle");
+          this.modalOption = "iperf";
+          this.iperfTab = "results";
+        }
         this.showModal = true;
       } catch (error) {
         this.iperfError = error?.message || this.$t("iperf.errorFailed");

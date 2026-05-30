@@ -11,6 +11,7 @@ sniffers = {}
 sniffer_manager = None
 pingall_running = False
 iperf_running = False
+iperf_result = None
 
 
 def reset_state():

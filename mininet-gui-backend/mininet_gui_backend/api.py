@@ -24,7 +24,7 @@ from mininet.topo import Topo
 from mininet.clean import cleanup as mn_cleanup
 from mininet.node import UserSwitch, OVSSwitch, OVSKernelSwitch, OVSBridge
 from mininet.link import TCLink
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
@@ -995,7 +995,7 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
 
 
 @app.post("/api/mininet/iperf")
-def run_iperf(request: IperfRequest):
+async def run_iperf(request: IperfRequest, background_tasks: BackgroundTasks):
     if not state.net.is_started:
         raise HTTPException(
             status_code=400, detail="network must be started to run iperf"
@@ -1030,22 +1030,37 @@ def run_iperf(request: IperfRequest):
         kwargs["port"] = request.port
 
     state.iperf_running = True
-    try:
-        result = state.net.iperf(
-            hosts=[client_node, server_node],
-            l4Type=request.l4_type or "TCP",
-            **kwargs,
-        )
-        if isinstance(result, (list, tuple)) and len(result) >= 2:
-            return {"client": result[0], "server": result[1]}
-        return {"result": result}
-    except AssertionError:
-        raise HTTPException(
-            status_code=500,
-            detail="Host shell busy — wait for previous command to finish and try again",
-        )
-    finally:
-        state.iperf_running = False
+    state.iperf_result = None
+
+    def _run():
+        try:
+            result = state.net.iperf(
+                hosts=[client_node, server_node],
+                l4Type=request.l4_type or "TCP",
+                **kwargs,
+            )
+            if isinstance(result, (list, tuple)) and len(result) >= 2:
+                state.iperf_result = {"client": result[0], "server": result[1]}
+            else:
+                state.iperf_result = {"result": str(result)}
+        except Exception as exc:
+            state.iperf_result = {"error": str(exc)}
+        finally:
+            state.iperf_running = False
+
+    background_tasks.add_task(_run)
+    return {"running": True}
+
+
+@app.get("/api/mininet/iperf")
+def get_iperf_result():
+    if state.iperf_running:
+        return {"running": True}
+    if state.iperf_result is None:
+        return {"running": False}
+    result = state.iperf_result
+    state.iperf_result = None
+    return result
 
 
 @app.get("/api/mininet/export_script", response_class=PlainTextResponse)
