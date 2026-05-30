@@ -559,7 +559,6 @@ async def start_sniffer_process(node_pid: int, intf: str, pcap_path: str):
             "tshark",
             "-l",
             "-n",
-            "-q",
             "-i",
             intf,
             "-T",
@@ -567,13 +566,12 @@ async def start_sniffer_process(node_pid: int, intf: str, pcap_path: str):
             "-w",
             pcap_path,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
         )
     return await asyncio.create_subprocess_exec(
         "tshark",
         "-l",
         "-n",
-        "-q",
         "-i",
         intf,
         "-T",
@@ -581,5 +579,5 @@ async def start_sniffer_process(node_pid: int, intf: str, pcap_path: str):
         "-w",
         pcap_path,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.DEVNULL,
+        stderr=asyncio.subprocess.PIPE,
     )

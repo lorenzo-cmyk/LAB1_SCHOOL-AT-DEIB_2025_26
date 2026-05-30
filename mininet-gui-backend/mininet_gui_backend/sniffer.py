@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import subprocess
 import tempfile
@@ -7,6 +8,8 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 from pydantic import BaseModel, Field, field_validator
 import pyshark.ek_field_mapping as ek_field_mapping
 from pyshark.tshark.output_parser.tshark_ek import TsharkEkJsonParser
+
+logger = logging.getLogger(__name__)
 
 
 class SnifferEvent(BaseModel):
@@ -170,6 +173,7 @@ class SnifferManager:
         if not pcap_path:
             pcap_path = self._create_pcap_path(node_info["id"], intf_name)
             self._pcap_files[key] = pcap_path
+        logger.info("Starting capture on %s:%s (pid=%s)", node_info["id"], intf_name, node_info.get("pid", 0))
         process = await self._process_factory(
             node_info.get("pid", 0), intf_name, pcap_path
         )
@@ -203,13 +207,23 @@ class SnifferManager:
         parser = TsharkEkJsonParser()
         buffer = b""
         got_first = False
+        key = (node_info["id"], intf_name)
         try:
+            # Read stderr in background
+            async def _read_stderr():
+                if process.stderr:
+                    err = await process.stderr.read()
+                    if err:
+                        logger.warning("tshark stderr on %s:%s: %s", node_info["id"], intf_name, err.decode("utf-8", errors="replace").strip())
+            stderr_task = asyncio.create_task(_read_stderr())
+
             while not self._stop_event.is_set():
                 try:
                     packet, buffer = await parser.get_packets_from_stream(
                         process.stdout, buffer, got_first_packet=got_first
                     )
                 except EOFError:
+                    logger.info("tshark EOF on %s:%s", node_info["id"], intf_name)
                     break
                 if packet is None:
                     continue
@@ -225,7 +239,9 @@ class SnifferManager:
                             continue
                         queue.put_nowait(payload)
         except Exception:
-            pass
+            logger.exception("Error in sniffer reader for %s:%s", node_info["id"], intf_name)
+        finally:
+            logger.info("Sniffer reader stopped for %s:%s (got_first=%s)", node_info["id"], intf_name, got_first)
 
     async def _shutdown(self):
         for key in list(self._tasks.keys()):
