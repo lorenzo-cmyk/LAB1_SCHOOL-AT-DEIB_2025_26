@@ -29,54 +29,24 @@ Native Mininet installation is invasive and may modify or remove important syste
 
 ## Installation
 
-### 1) Docker (recommended for local use)
-
-Prerequisites:
-- Docker
-- Open vSwitch installed and configured on the host
-
-Build:
-
-```bash
-docker build -t mininet-gui \
-  --build-arg VITE_BACKEND_URL=http://localhost:8000 \
-  --build-arg VITE_BACKEND_WS_URL=ws://localhost:8000 \
-  .
-```
-
-Run:
-
-```bash
-docker run --privileged --net=host \
-  -v /var/run/openvswitch:/var/run/openvswitch \
-  mininet-gui
-```
-
-Open the UI:
-`http://localhost:5173`
-
-### 2) From source
+### 1) From source
 
 Warning: the commands below modify the kernel and other system settings. Use with caution.
 Tested on Ubuntu 20.04.
 
 ```bash
-git clone https://github.com/mininet/mininet
-cd mininet
-./util/install.sh -nfv
-cd ..
-git clone https://github.com/latarc/mininet-gui
+git clone https://github.com/lorenzo-cmyk/mininet-gui
 cd mininet-gui
-./setup.sh
+./scripts/setup.sh
 ```
 
-Optional Ryu installation:
+Then start with:
 
 ```bash
-pip3 install ryu eventlet==0.30.0 dnspython==1.16.0
+mininet_gui
 ```
 
-### 3) Ready-to-use VM (recommended)
+### 2) Ready-to-use VM (recommended)
 
 Prerequisites: Oracle VirtualBox (<https://www.virtualbox.org/wiki/Downloads>)
 
