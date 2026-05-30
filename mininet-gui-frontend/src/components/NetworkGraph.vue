@@ -1565,219 +1565,231 @@ export default {
       );
     },
     async setupNetwork() {
-      await this.refreshBackendHealth();
-      this.hosts = await getHosts();
-      this.switches = await getSwitches();
-      this.controllers = await getControllers();
-      this.nats = await getNats();
-      this.routers = await getRouters();
+      if (this._setupBusy) return;
+      this._setupBusy = true;
+      try {
+        await this.refreshBackendHealth();
+        this.hosts = await getHosts();
+        this.switches = await getSwitches();
+        this.controllers = await getControllers();
+        this.nats = await getNats();
+        this.routers = await getRouters();
 
-      Object.values(this.hosts).map((host) => {
-        host.shape = "circularImage";
+        Object.values(this.hosts).map((host) => {
+          host.shape = "circularImage";
 
-        host.color = this.nodeBaseColor();
-        host.image = this.currentAssets().host;
-        host.label = this.hostLabel(host);
-        host.hidden = this.hostsHidden;
-        return host;
-      });
-
-      Object.values(this.switches).map((sw) => {
-        sw.shape = "circularImage";
-        sw.color = this.nodeBaseColor();
-        sw.image = this.switchImageForType(sw.switch_type);
-        sw.label = this.switchLabel(sw);
-        return sw;
-      });
-
-      Object.values(this.controllers).map((ctl) => {
-        ctl.shape = "circularImage";
-        ctl.colorCode = ctl.color || "#ffffff";
-        ctl.color = this.controllerColor();
-        ctl.image = this.controllerImageForColor(this.controllerIconColor(ctl));
-        ctl.label = this.controllerLabel(ctl);
-        ctl.hidden = this.controllersHidden;
-        return ctl;
-      });
-
-      Object.values(this.nats).map((nat) => {
-        nat.shape = "circularImage";
-        nat.color = this.nodeBaseColor();
-        nat.image = this.currentAssets().nat;
-        nat.label = nat.name || nat.id;
-        return nat;
-      });
-
-      Object.values(this.routers).map((router) => {
-        router.shape = "circularImage";
-        router.color = this.nodeBaseColor();
-        router.image = this.currentAssets().router;
-        router.label = router.name || router.id;
-        return router;
-      });
-
-      this.links = await getEdges();
-      for (const link of this.links) {
-        const options = link.options || null;
-        const intfs = link.intfs || null;
-        this.edges.add({
-          from: link.from,
-          to: link.to,
-          color: this.networkStarted ? "#00aa00ff" : this.linkInactiveColor(),
-          title: this.formatLinkTitle(options),
-          options,
-          intfs,
+          host.color = this.nodeBaseColor();
+          host.image = this.currentAssets().host;
+          host.label = this.hostLabel(host);
+          host.hidden = this.hostsHidden;
+          return host;
         });
-      }
-      for (const sw in this.switches) {
-        let ctl = this.switches[sw].controller;
-        if (ctl)
-          this.edges.add({
-            from: sw,
-            to: ctl,
-            color: this.controllerLinkColor(),
-            dashes: [10, 10],
-          });
-      }
 
-      const initialNodes = [
-        ...Object.values(this.hosts),
-        ...Object.values(this.switches),
-        ...Object.values(this.controllers),
-        ...Object.values(this.nats),
-        ...Object.values(this.routers),
-      ];
-      this.nodes.clear();
-      this.nodes.add(initialNodes);
-      this.applyVisibilitySettings();
-      this.selectInitialWebshell();
-      this.applyPortLabels();
-      console.log("network inside mounted, before setup:", this.network);
-      this.network.setOptions({
-        manipulation: {
-          enabled: false,
-          addEdge: async (data, callback) => {
-            if (data.from == data.to) {
-              alert(this.$t("errors.connectSelf"));
-              return;
-            }
-            console.log("network", this.network);
-            let from = this.nodes.get(data.from);
-            let to = this.nodes.get(data.to);
-            if (from.type === "controller" && to.type === "controller") {
-              alert(this.$t("errors.controllerToController"));
-              return;
-            } else if (from.type === "host" && this.hostHasLink(from.id)) {
-              alert(this.$t("errors.hostHasLink"));
-              return;
-            } else if (to.type === "host" && this.hostHasLink(to.id)) {
-              alert(this.$t("errors.hostHasLink"));
-              return;
-            } else if (from.type === "controller" || to.type === "controller") {
-              if (from.type === "host" || to.type === "host") {
-                alert(this.$t("errors.hostToController"));
+        Object.values(this.switches).map((sw) => {
+          sw.shape = "circularImage";
+          sw.color = this.nodeBaseColor();
+          sw.image = this.switchImageForType(sw.switch_type);
+          sw.label = this.switchLabel(sw);
+          return sw;
+        });
+
+        Object.values(this.controllers).map((ctl) => {
+          ctl.shape = "circularImage";
+          ctl.colorCode = ctl.color || "#ffffff";
+          ctl.color = this.controllerColor();
+          ctl.image = this.controllerImageForColor(
+            this.controllerIconColor(ctl),
+          );
+          ctl.label = this.controllerLabel(ctl);
+          ctl.hidden = this.controllersHidden;
+          return ctl;
+        });
+
+        Object.values(this.nats).map((nat) => {
+          nat.shape = "circularImage";
+          nat.color = this.nodeBaseColor();
+          nat.image = this.currentAssets().nat;
+          nat.label = nat.name || nat.id;
+          return nat;
+        });
+
+        Object.values(this.routers).map((router) => {
+          router.shape = "circularImage";
+          router.color = this.nodeBaseColor();
+          router.image = this.currentAssets().router;
+          router.label = router.name || router.id;
+          return router;
+        });
+
+        this.links = await getEdges();
+        for (const link of this.links) {
+          const options = link.options || null;
+          const intfs = link.intfs || null;
+          this.edges.add({
+            from: link.from,
+            to: link.to,
+            color: this.networkStarted ? "#00aa00ff" : this.linkInactiveColor(),
+            title: this.formatLinkTitle(options),
+            options,
+            intfs,
+          });
+        }
+        for (const sw in this.switches) {
+          let ctl = this.switches[sw].controller;
+          if (ctl)
+            this.edges.add({
+              from: sw,
+              to: ctl,
+              color: this.controllerLinkColor(),
+              dashes: [10, 10],
+            });
+        }
+
+        const initialNodes = [
+          ...Object.values(this.hosts),
+          ...Object.values(this.switches),
+          ...Object.values(this.controllers),
+          ...Object.values(this.nats),
+          ...Object.values(this.routers),
+        ];
+        this.nodes.clear();
+        this.nodes.add(initialNodes);
+        this.applyVisibilitySettings();
+        this.selectInitialWebshell();
+        this.applyPortLabels();
+        console.log("network inside mounted, before setup:", this.network);
+        this.network.setOptions({
+          manipulation: {
+            enabled: false,
+            addEdge: async (data, callback) => {
+              if (data.from == data.to) {
+                alert(this.$t("errors.connectSelf"));
                 return;
               }
-              let [sw, ctl] =
-                from.type === "controller" ? [to, from] : [from, to];
-              sw.controller = ctl.id;
-              await assocSwitch(sw.id, ctl.id);
-              data.color = { color: this.controllerLinkColor() };
-              data.dashes = [10, 10];
-            } else {
-              const options = this.getLinkOptionsPayload();
-              let link = await deployLink(data.from, data.to, options);
-              data.id = link.id;
-              data.color = {
-                color: this.networkStarted
-                  ? "#00aa00ff"
-                  : this.linkInactiveColor(),
-              };
-              data.title = this.formatLinkTitle(options);
-              data.options = options;
-              data.intfs = link?.intfs || null;
-            }
-            callback(data);
-            this.enterAddEdgeMode();
-            this.applyPortLabels();
-          },
-          deleteNode: async (data, callback) => {
-            console.log("node deletion", data);
-            let results = [];
-            for (const nodeId of data.nodes) {
-              try {
-                await deleteNode(nodeId);
-                results.push(nodeId);
-              } catch (error) {
-                console.log("error deleting node", nodeId, error);
-              }
-            }
-            data.nodes = results;
-            callback(data);
-          },
-          deleteEdge: async (data, callback) => {
-            try {
-              const results = [];
-              for (const edge of data.edges) {
-                let link = this.edges.get(edge);
-                let src = this.nodes.get(link.from);
-                let dst = this.nodes.get(link.to);
-                console.log("src", src);
-                console.log("dst", dst);
-                if (src.type == "controller" || dst.type == "controller") {
-                  await removeAssociation(link.from, link.to);
-                } else {
-                  await deleteLink(link.from, link.to);
+              console.log("network", this.network);
+              let from = this.nodes.get(data.from);
+              let to = this.nodes.get(data.to);
+              if (from.type === "controller" && to.type === "controller") {
+                alert(this.$t("errors.controllerToController"));
+                return;
+              } else if (from.type === "host" && this.hostHasLink(from.id)) {
+                alert(this.$t("errors.hostHasLink"));
+                return;
+              } else if (to.type === "host" && this.hostHasLink(to.id)) {
+                alert(this.$t("errors.hostHasLink"));
+                return;
+              } else if (
+                from.type === "controller" ||
+                to.type === "controller"
+              ) {
+                if (from.type === "host" || to.type === "host") {
+                  alert(this.$t("errors.hostToController"));
+                  return;
                 }
-                results.push(link.id);
+                let [sw, ctl] =
+                  from.type === "controller" ? [to, from] : [from, to];
+                sw.controller = ctl.id;
+                await assocSwitch(sw.id, ctl.id);
+                data.color = { color: this.controllerLinkColor() };
+                data.dashes = [10, 10];
+              } else {
+                const options = this.getLinkOptionsPayload();
+                let link = await deployLink(data.from, data.to, options);
+                data.id = link.id;
+                data.color = {
+                  color: this.networkStarted
+                    ? "#00aa00ff"
+                    : this.linkInactiveColor(),
+                };
+                data.title = this.formatLinkTitle(options);
+                data.options = options;
+                data.intfs = link?.intfs || null;
               }
-              console.log("All edges deleted:", results);
-              data.edges = results;
               callback(data);
-            } catch (error) {
-              console.error("Error deleting edges:", error);
-            }
+              this.enterAddEdgeMode();
+              this.applyPortLabels();
+            },
+            deleteNode: async (data, callback) => {
+              console.log("node deletion", data);
+              let results = [];
+              for (const nodeId of data.nodes) {
+                try {
+                  await deleteNode(nodeId);
+                  results.push(nodeId);
+                } catch (error) {
+                  console.log("error deleting node", nodeId, error);
+                }
+              }
+              data.nodes = results;
+              callback(data);
+            },
+            deleteEdge: async (data, callback) => {
+              try {
+                const results = [];
+                for (const edge of data.edges) {
+                  let link = this.edges.get(edge);
+                  let src = this.nodes.get(link.from);
+                  let dst = this.nodes.get(link.to);
+                  console.log("src", src);
+                  console.log("dst", dst);
+                  if (src.type == "controller" || dst.type == "controller") {
+                    await removeAssociation(link.from, link.to);
+                  } else {
+                    await deleteLink(link.from, link.to);
+                  }
+                  results.push(link.id);
+                }
+                console.log("All edges deleted:", results);
+                data.edges = results;
+                callback(data);
+              } catch (error) {
+                console.error("Error deleting edges:", error);
+                callback(data);
+              }
+            },
           },
-        },
-      });
-      this.network.on("doubleClick", async (event) => {
-        if (event.nodes.length === 1) {
-          this.showStatsModal(event.nodes[0]);
-          return;
-        }
-        if (event.edges.length === 1) {
-          this.showLinkModal(event.edges[0]);
-        }
-      });
-      this.network.on("oncontext", (event) => {
-        if (event?.event?.preventDefault) {
-          event.event.preventDefault();
-        }
-        const pointer = event?.pointer?.DOM;
-        const nodeId = pointer
-          ? this.network.getNodeAt(pointer)
-          : event?.nodes?.[0];
-        if (!nodeId) {
+        });
+        this.network.on("doubleClick", async (event) => {
+          if (event.nodes.length === 1) {
+            this.showStatsModal(event.nodes[0]);
+            return;
+          }
+          if (event.edges.length === 1) {
+            this.showLinkModal(event.edges[0]);
+          }
+        });
+        this.network.on("oncontext", (event) => {
+          if (event?.event?.preventDefault) {
+            event.event.preventDefault();
+          }
+          const pointer = event?.pointer?.DOM;
+          const nodeId = pointer
+            ? this.network.getNodeAt(pointer)
+            : event?.nodes?.[0];
+          if (!nodeId) {
+            this.hideContextMenu();
+            return;
+          }
+          this.network.unselectAll();
+          this.network.selectNodes([nodeId], false);
+          const clientX = event?.event?.clientX ?? 0;
+          const clientY = event?.event?.clientY ?? 0;
+          this.contextMenu = {
+            visible: true,
+            x: clientX,
+            y: clientY,
+            nodeId,
+          };
+        });
+        this.network.on("click", () => {
           this.hideContextMenu();
-          return;
-        }
-        this.network.unselectAll();
-        this.network.selectNodes([nodeId], false);
-        const clientX = event?.event?.clientX ?? 0;
-        const clientY = event?.event?.clientY ?? 0;
-        this.contextMenu = {
-          visible: true,
-          x: clientX,
-          y: clientY,
-          nodeId,
-        };
-      });
-      this.network.on("click", () => {
-        this.hideContextMenu();
-      });
-      this.network.on("dragEnd", async (event) => {
-        this.handleNodeDragEnd(event);
-      });
+        });
+        this.network.on("dragEnd", async (event) => {
+          this.handleNodeDragEnd(event);
+        });
+      } finally {
+        this._setupBusy = false;
+      }
     },
     async refreshBackendHealth() {
       try {
@@ -2066,6 +2078,7 @@ export default {
         this.modalPromiseResolve = resolve;
       });
 
+      if (!result) return;
       console.log("GOT DATA:", this.formData);
       await this.createController(
         position,
@@ -2242,12 +2255,14 @@ export default {
       }
     },
     async handleNodeDragEnd(event) {
-      event.nodes.forEach(async (nodeId) => {
+      for (const nodeId of event.nodes) {
         const nodeData = this.nodes.get(nodeId);
-        if (!nodeData) return;
+        if (!nodeData) continue;
         let node = this.network.body.nodes[nodeId];
-        await updateNodePosition(nodeId, [node.x, node.y]);
-      });
+        if (node) {
+          updateNodePosition(nodeId, [node.x, node.y]).catch(() => {});
+        }
+      }
     },
     enterAddEdgeMode() {
       this.addEdgeMode = true;
@@ -2258,6 +2273,10 @@ export default {
       this.network.disableEditMode();
     },
     closeModal() {
+      if (this.modalPromiseResolve) {
+        this.modalPromiseResolve(null);
+        this.modalPromiseResolve = null;
+      }
       this.modalHeader = "";
       this.showModal = false;
       this.modalOption = null;
@@ -2558,6 +2577,7 @@ export default {
         this.modalPromiseResolve = resolve;
       });
 
+      if (!result) return;
       console.log("GOT DATA", this.formData);
       await this.handleCreateTopology(
         this.formData.type,

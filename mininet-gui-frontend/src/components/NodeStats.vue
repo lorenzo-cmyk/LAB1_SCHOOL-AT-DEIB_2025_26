@@ -33,6 +33,7 @@ export default {
       switchOpenflowBusy: false,
       switchOpenflowError: "",
       switchOpenflowSuccess: false,
+      _switchOpenflowTimer: null,
       showFlowForm: false,
       flowForm: {
         match: "",
@@ -272,7 +273,7 @@ export default {
       } finally {
         this.switchOpenflowBusy = false;
         if (this.switchOpenflowSuccess) {
-          setTimeout(() => {
+          this._switchOpenflowTimer = setTimeout(() => {
             this.switchOpenflowSuccess = false;
           }, 1500);
         }
@@ -285,6 +286,11 @@ export default {
     }
     if (this.stats?.type === "host") {
       this.tabs.push({ key: "arp", labelKey: "node.tabs.arpTable" });
+    }
+  },
+  beforeUnmount() {
+    if (this._switchOpenflowTimer) {
+      clearTimeout(this._switchOpenflowTimer);
     }
   },
 };

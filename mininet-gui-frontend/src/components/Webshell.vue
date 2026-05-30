@@ -353,7 +353,10 @@ export default {
       ws.onmessage = (event) => this.handleTerminalData(sessionId, event.data);
       ws.onerror = (error) =>
         console.error(`WebSocket error (${targetNodeId}):`, error);
-      ws.onclose = () => console.log(`WebSocket closed (${targetNodeId})`);
+      ws.onclose = () => {
+        delete this.sockets[sessionId];
+        console.log(`WebSocket closed (${targetNodeId})`);
+      };
 
       this.sockets[sessionId] = ws;
     },

@@ -173,6 +173,7 @@ export default {
       saveBusy: false,
       saveError: "",
       saveSuccess: false,
+      _saveTimer: null,
     };
   },
   computed: {
@@ -257,7 +258,7 @@ export default {
         this.saveError = this.$t("link.errorUpdate");
       } finally {
         this.saveBusy = false;
-        setTimeout(() => {
+        this._saveTimer = setTimeout(() => {
           this.saveSuccess = false;
         }, 1500);
       }
@@ -284,6 +285,11 @@ export default {
         return String(ts);
       }
     },
+  },
+  beforeUnmount() {
+    if (this._saveTimer) {
+      clearTimeout(this._saveTimer);
+    }
   },
 };
 </script>

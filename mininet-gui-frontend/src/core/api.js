@@ -63,8 +63,7 @@ export const deployController = async (ctl) => {
         },
       },
     );
-    if (response.status === 200) return response.data;
-    throw new Error("Error deploying controller in mininet");
+    return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
     throw error;
@@ -157,7 +156,7 @@ export const deployLink = async (src, dst, options = null) => {
         },
       },
     );
-    if (response.status === 200) return response.data;
+    return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
     throw error;
@@ -177,11 +176,11 @@ export const assocSwitch = async (sw, ctl) => {
         },
       },
     );
-    if (response.status === 200) return response.data;
+    return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
+    throw error;
   }
-  throw error;
 };
 
 export const deleteNode = async (nodeId) => {
@@ -481,11 +480,7 @@ export const requestImportNetwork = async (file) => {
       },
     );
 
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      throw new Error("Import failed.");
-    }
+    return response.data;
   } catch (error) {
     throw new Error(
       error.response ? error.response.data.detail : "Network Error",
