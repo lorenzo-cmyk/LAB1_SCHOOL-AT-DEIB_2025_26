@@ -15,7 +15,7 @@ MININET_GUI_DIR="$HOME/mininet-gui"
 BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
 FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
  
-export MININET_GUI_ADDRESS="$(hostname -I | xargs)"
+export MININET_GUI_ADDRESS="$(hostname -I | awk '{print $1}')"
  
 BACKEND_LOG_FILE="$BACKEND_DIR/mininet_gui_backend/mininet.log"
  
