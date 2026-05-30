@@ -137,6 +137,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import TrafficView from "./TrafficView.vue";
 import MonitoringView from "./MonitoringView.vue";
+import { backendWsUrl } from "@/core/config";
 
 export default {
   components: { TrafficView, MonitoringView },
@@ -162,7 +163,7 @@ export default {
       logFitAddon: null,
       logSocket: null,
       activeTab: null,
-      backendWsUrl: import.meta.env.VITE_BACKEND_WS_URL,
+      backendWsUrl,
       resizeObserver: null,
       isMinimized: false,
       minimizedHeight: 56,

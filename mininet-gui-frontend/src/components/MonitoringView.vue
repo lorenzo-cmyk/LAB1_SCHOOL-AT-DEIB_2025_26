@@ -87,6 +87,7 @@
 <script>
 import Plotly from "plotly.js-dist-min";
 import { getInterfaces } from "@/core/api";
+import { backendWsUrl } from "@/core/config";
 
 export default {
   props: {
@@ -102,7 +103,7 @@ export default {
       socket: null,
       status: "idle",
       statusMessage: "",
-      backendWsUrl: import.meta.env.VITE_BACKEND_WS_URL,
+      backendWsUrl,
       txChart: null,
       rxChart: null,
       maxSamples: 120,

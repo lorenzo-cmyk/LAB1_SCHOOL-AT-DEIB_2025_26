@@ -100,6 +100,7 @@
 
 <script>
 import { getInterfaces, getSnifferHistory } from "@/core/api";
+import { backendWsUrl } from "@/core/config";
 
 export default {
   props: {
@@ -114,7 +115,7 @@ export default {
       socket: null,
       events: [],
       connected: false,
-      backendWsUrl: import.meta.env.VITE_BACKEND_WS_URL,
+      backendWsUrl,
       nodes: [],
       selectedDevice: "all",
       selectedInterface: "all",

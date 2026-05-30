@@ -1,6 +1,7 @@
 import axios from "axios";
+import { backendHttpUrl } from "./config";
 
-const baseUrl = import.meta.env.VITE_BACKEND_URL;
+const baseUrl = backendHttpUrl;
 
 export const deployHost = async (host) => {
   try {
