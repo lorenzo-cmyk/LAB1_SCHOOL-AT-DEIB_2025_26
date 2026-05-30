@@ -131,10 +131,29 @@ class SnifferManager:
         self._active = True
         self._stop_event.clear()
         try:
-            ek_field_mapping.MAPPING.load_mapping("3.2.3")
+            ek_field_mapping.MAPPING.clear()
+            version = self._get_tshark_version()
+            logger.info("Loading EK field mapping for tshark %s", version)
+            ek_field_mapping.MAPPING.load_mapping(version)
+            logger.info("EK field mapping loaded successfully")
+        except Exception:
+            logger.exception("Failed to load EK field mapping")
+        self._runner_task = asyncio.create_task(self._run())
+
+    @staticmethod
+    def _get_tshark_version() -> str:
+        try:
+            result = subprocess.run(
+                ["tshark", "--version"],
+                capture_output=True, text=True, timeout=5,
+            )
+            import re
+            match = re.search(r"TShark\s+\(Wireshark\)\s+(\d+\.\d+\.\d+)", result.stdout)
+            if match:
+                return match.group(1)
         except Exception:
             pass
-        self._runner_task = asyncio.create_task(self._run())
+        return "4.2.2"
 
     async def stop(self):
         if not self._active:
