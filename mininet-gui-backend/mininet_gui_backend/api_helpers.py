@@ -15,7 +15,7 @@ from typing import Optional, Set
 
 from pydantic import BaseModel, Field
 
-from mininet.log import _debug
+from mininet.log import debug as _debug
 from mininet.node import (
     RemoteController,
     Controller as ReferenceController,
