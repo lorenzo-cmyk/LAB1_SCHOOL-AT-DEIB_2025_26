@@ -10,6 +10,7 @@ Endpoints to start and stop the network at any point.
 Endpoints that add, remove and edit nodes and edges in real time.
 """
 
+import asyncio
 import json
 import subprocess
 from datetime import datetime, timezone
@@ -1002,7 +1003,7 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
 
 
 @app.post("/api/mininet/iperf")
-def run_iperf(request: IperfRequest):
+async def run_iperf(request: IperfRequest):
     if not state.net.is_started:
         raise HTTPException(
             status_code=400, detail="network must be started to run iperf"
@@ -1037,15 +1038,27 @@ def run_iperf(request: IperfRequest):
         kwargs["port"] = request.port
 
     state.iperf_running = True
+    loop = asyncio.get_running_loop()
+    timeout = (request.seconds or 5) + 10
     try:
-        result = state.net.iperf(
-            hosts=[client_node, server_node],
-            l4Type=request.l4_type or "TCP",
-            **kwargs,
+        result = await asyncio.wait_for(
+            loop.run_in_executor(
+                None,
+                lambda: state.net.iperf(
+                    hosts=[client_node, server_node],
+                    l4Type=request.l4_type or "TCP",
+                    **kwargs,
+                ),
+            ),
+            timeout=timeout,
         )
         if isinstance(result, (list, tuple)) and len(result) >= 2:
             return {"client": result[0], "server": result[1]}
         return {"result": result}
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=504, detail=f"iperf test timed out after {timeout} seconds"
+        )
     finally:
         # Kill lingering iperf processes and reset shell state
         for node in (client_node, server_node):

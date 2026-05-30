@@ -530,6 +530,8 @@ export const requestRunPingall = async () => {
 
 export const runIperf = async (payload) => {
   try {
+    const seconds = payload.seconds || 5;
+    const timeoutMs = (seconds + 15) * 1000;
     const response = await axios.post(
       baseUrl + "/api/mininet/iperf",
       JSON.stringify(payload),
@@ -538,12 +540,17 @@ export const runIperf = async (payload) => {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
         },
+        timeout: timeoutMs,
       },
     );
     return response.data || null;
   } catch (error) {
     if (error.response?.status === 409) {
       return { running: true };
+    }
+    if (error.code === "ECONNABORTED") {
+      alert("Iperf test timed out. The test may be stuck.");
+      return null;
     }
     alert(error.response ? error.response.data["detail"] : "Network Error");
     return null;
