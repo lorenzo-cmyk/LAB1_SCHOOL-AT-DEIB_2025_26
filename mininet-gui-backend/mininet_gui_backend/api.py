@@ -383,6 +383,11 @@ def run_pingall():
                 for p in pingall_results
             ]
         )
+    except AssertionError:
+        raise HTTPException(
+            status_code=500,
+            detail="Host shell busy — wait for previous command to finish and try again",
+        )
     finally:
         state.pingall_running = False
 
@@ -1034,6 +1039,11 @@ def run_iperf(request: IperfRequest):
         if isinstance(result, (list, tuple)) and len(result) >= 2:
             return {"client": result[0], "server": result[1]}
         return {"result": result}
+    except AssertionError:
+        raise HTTPException(
+            status_code=500,
+            detail="Host shell busy — wait for previous command to finish and try again",
+        )
     finally:
         state.iperf_running = False
 
