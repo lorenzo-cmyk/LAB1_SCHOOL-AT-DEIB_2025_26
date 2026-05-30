@@ -1013,11 +1013,7 @@ def _parse_iperf_output(output: str) -> str:
 def _run_iperf(client, server, l4Type="TCP", udpBw="10M", fmt=None,
                seconds=5, port=5001):
     """Run iperf between two hosts without relying on Mininet's fragile
-    /sec counting logic. This implementation:
-    1. Starts iperf server
-    2. Runs iperf client (blocks until done)
-    3. Reads server output with a timeout
-    4. Returns parsed results"""
+    /sec counting logic."""
     try:
         server.cmd("killall -9 iperf 2>/dev/null || true")
     except Exception:
@@ -1038,17 +1034,26 @@ def _run_iperf(client, server, l4Type="TCP", udpBw="10M", fmt=None,
     server.sendCmd(iperf_args + "-s")
     sleep(0.5)
 
-    client_output = client.cmd(
+    client.sendCmd(
         iperf_args + f"-t {seconds} -c " + server.IP() + " " + bw_args
     )
 
+    client_output = ""
+    client_deadline = time() + seconds + 5
+    while time() < client_deadline:
+        remaining = max(0, (client_deadline - time()) * 1000)
+        chunk = client.monitor(timeoutms=min(int(remaining), 1000))
+        client_output += chunk
+        if "/sec" in client_output and not client.waiting:
+            break
+
     server_output = ""
-    deadline = time() + seconds + 5
-    while time() < deadline:
-        remaining = max(0, (deadline - time()) * 1000)
+    server_deadline = time() + 5
+    while time() < server_deadline:
+        remaining = max(0, (server_deadline - time()) * 1000)
         chunk = server.monitor(timeoutms=min(int(remaining), 1000))
         server_output += chunk
-        if "/sec" in server_output and not server.waiting:
+        if "/sec" in server_output:
             break
 
     try:
@@ -1058,6 +1063,10 @@ def _run_iperf(client, server, l4Type="TCP", udpBw="10M", fmt=None,
 
     try:
         server_output += server.waitOutput()
+    except Exception:
+        pass
+    try:
+        client_output += client.waitOutput()
     except Exception:
         pass
 
