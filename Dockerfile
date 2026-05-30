@@ -52,7 +52,7 @@ RUN git clone --depth 1 https://github.com/mininet/mininet /opt/mininet \
 
 WORKDIR /app/backend
 COPY mininet-gui-backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt pyshark
+RUN pip install --no-cache-dir -r requirements.txt
 COPY mininet-gui-backend/ ./
 
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist

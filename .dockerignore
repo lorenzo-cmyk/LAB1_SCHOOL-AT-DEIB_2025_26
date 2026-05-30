@@ -4,5 +4,7 @@
 **/__pycache__
 **/*.pyc
 **/.venv
+**/*.sqlite3
+**/.ruff_cache
 mininet-gui-backend/nohup.out
 mininet-gui-frontend/nohup.out
