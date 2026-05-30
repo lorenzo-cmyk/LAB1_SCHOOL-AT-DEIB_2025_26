@@ -2406,9 +2406,12 @@ export default {
           const interval = setInterval(async () => {
             attempts++;
             const res = await getIperfResult();
-            if (res && !res.running) {
+            if (res && (res.client || res.server || res.result || res.error)) {
               clearInterval(interval);
               resolve(res);
+            } else if (res && res.done) {
+              clearInterval(interval);
+              resolve(null);
             } else if (attempts >= maxAttempts) {
               clearInterval(interval);
               resolve(null);

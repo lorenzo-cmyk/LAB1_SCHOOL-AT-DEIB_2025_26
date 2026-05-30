@@ -1060,7 +1060,7 @@ def get_iperf_result():
         result = state.iperf_result
         state.iperf_result = None
         return result
-    return {"running": True}
+    return {"done": True}
 
 
 @app.get("/api/mininet/export_script", response_class=PlainTextResponse)
