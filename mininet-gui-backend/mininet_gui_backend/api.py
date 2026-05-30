@@ -995,7 +995,7 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
 
 
 @app.post("/api/mininet/iperf")
-async def run_iperf(request: IperfRequest):
+def run_iperf(request: IperfRequest):
     if not state.net.is_started:
         raise HTTPException(
             status_code=400, detail="network must be started to run iperf"
@@ -1030,39 +1030,17 @@ async def run_iperf(request: IperfRequest):
         kwargs["port"] = request.port
 
     state.iperf_running = True
-    state.iperf_result = None
-
-    import threading
-
-    def _run():
-        try:
-            result = state.net.iperf(
-                hosts=[client_node, server_node],
-                l4Type=request.l4_type or "TCP",
-                **kwargs,
-            )
-            if isinstance(result, (list, tuple)) and len(result) >= 2:
-                state.iperf_result = {"client": result[0], "server": result[1]}
-            else:
-                state.iperf_result = {"result": str(result)}
-        except Exception as exc:
-            state.iperf_result = {"error": str(exc)}
-        finally:
-            state.iperf_running = False
-
-    threading.Thread(target=_run, daemon=True).start()
-    return {"started": True}
-
-
-@app.get("/api/mininet/iperf")
-def get_iperf_result():
-    if state.iperf_running:
-        return {"running": True}
-    if state.iperf_result is not None:
-        result = state.iperf_result
-        state.iperf_result = None
-        return result
-    return {"done": True}
+    try:
+        result = state.net.iperf(
+            hosts=[client_node, server_node],
+            l4Type=request.l4_type or "TCP",
+            **kwargs,
+        )
+        if isinstance(result, (list, tuple)) and len(result) >= 2:
+            return {"client": result[0], "server": result[1]}
+        return {"result": result}
+    finally:
+        state.iperf_running = False
 
 
 @app.get("/api/mininet/export_script", response_class=PlainTextResponse)

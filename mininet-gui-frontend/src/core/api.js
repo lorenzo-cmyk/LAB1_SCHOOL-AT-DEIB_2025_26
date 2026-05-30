@@ -550,20 +550,6 @@ export const runIperf = async (payload) => {
   }
 };
 
-export const getIperfResult = async () => {
-  try {
-    const response = await axios.get(baseUrl + "/api/mininet/iperf", {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        Accept: "application/json",
-      },
-    });
-    return response.data || null;
-  } catch (error) {
-    return null;
-  }
-};
-
 export const sendGet = async (url) => {
   try {
     const response = await axios.get(url, {
