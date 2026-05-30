@@ -24,7 +24,7 @@ from mininet.topo import Topo
 from mininet.clean import cleanup as mn_cleanup
 from mininet.node import UserSwitch, OVSSwitch, OVSKernelSwitch, OVSBridge
 from mininet.link import TCLink
-from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
@@ -995,7 +995,7 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
 
 
 @app.post("/api/mininet/iperf")
-async def run_iperf(request: IperfRequest, background_tasks: BackgroundTasks):
+async def run_iperf(request: IperfRequest):
     if not state.net.is_started:
         raise HTTPException(
             status_code=400, detail="network must be started to run iperf"
@@ -1032,6 +1032,8 @@ async def run_iperf(request: IperfRequest, background_tasks: BackgroundTasks):
     state.iperf_running = True
     state.iperf_result = None
 
+    import threading
+
     def _run():
         try:
             result = state.net.iperf(
@@ -1048,7 +1050,7 @@ async def run_iperf(request: IperfRequest, background_tasks: BackgroundTasks):
         finally:
             state.iperf_running = False
 
-    background_tasks.add_task(_run)
+    threading.Thread(target=_run, daemon=True).start()
     return {"started": True}
 
 
