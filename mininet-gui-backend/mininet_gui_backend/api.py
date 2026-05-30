@@ -1049,18 +1049,18 @@ async def run_iperf(request: IperfRequest, background_tasks: BackgroundTasks):
             state.iperf_running = False
 
     background_tasks.add_task(_run)
-    return {"running": True}
+    return {"started": True}
 
 
 @app.get("/api/mininet/iperf")
 def get_iperf_result():
     if state.iperf_running:
         return {"running": True}
-    if state.iperf_result is None:
-        return {"running": False}
-    result = state.iperf_result
-    state.iperf_result = None
-    return result
+    if state.iperf_result is not None:
+        result = state.iperf_result
+        state.iperf_result = None
+        return result
+    return {"running": True}
 
 
 @app.get("/api/mininet/export_script", response_class=PlainTextResponse)

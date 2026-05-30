@@ -2383,14 +2383,6 @@ export default {
       }
       try {
         const result = await runIperf(payload);
-        if (result?.running) {
-          this.iperfError = this.$t("iperf.errorAlreadyRunning");
-          this.modalHeader = this.$t("menu.runIperf");
-          this.modalOption = "iperf";
-          this.iperfTab = "config";
-          this.showModal = true;
-          return;
-        }
         if (result === null) {
           this.iperfError = this.$t("iperf.errorFailed");
           this.modalHeader = this.$t("menu.runIperf");
@@ -2399,7 +2391,15 @@ export default {
           this.showModal = true;
           return;
         }
-        // POST returned — iperf is running in background, poll for result
+        if (result?.running) {
+          this.iperfError = this.$t("iperf.errorAlreadyRunning");
+          this.modalHeader = this.$t("menu.runIperf");
+          this.modalOption = "iperf";
+          this.iperfTab = "config";
+          this.showModal = true;
+          return;
+        }
+        // POST returned {"started": true} — iperf running in background, poll
         const pollResult = await new Promise((resolve) => {
           let attempts = 0;
           const maxAttempts = 120;
