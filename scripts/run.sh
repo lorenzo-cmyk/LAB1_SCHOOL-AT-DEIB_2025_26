@@ -5,8 +5,6 @@ MININET_GUI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
 FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
 
-export MININET_GUI_ADDRESS="$(hostname -I | awk '{print $1}')"
-
 restore_terminal() {
   stty sane 2>/dev/null || true
 }
@@ -68,9 +66,6 @@ for i in $(seq 1 30); do
 done
 
 # ---- start frontend ----
-printf "VITE_BACKEND_URL=http://%s:8000\n" "$MININET_GUI_ADDRESS" > "$FRONTEND_DIR/.env"
-printf "VITE_BACKEND_WS_URL=ws://%s:8000\n" "$MININET_GUI_ADDRESS" >> "$FRONTEND_DIR/.env"
-
 printf "Starting frontend...\n"
 (
   cd "$FRONTEND_DIR"
@@ -89,4 +84,8 @@ printf "Starting frontend...\n"
 )
 
 # ---- done ----
-printf "\nMininet-GUI is available at: http://%s:5173\n" "$MININET_GUI_ADDRESS"
+ALL_IPS="$(hostname -I)"
+printf "\nMininet-GUI is available at:\n"
+for ip in $ALL_IPS; do
+  printf "  http://%s:5173\n" "$ip"
+done
