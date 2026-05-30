@@ -1,87 +1,148 @@
 <template>
   <div class="modal-ui link-modal">
     <div class="modal-tabs">
-      <button type="button" class="modal-tab" :class="{ 'is-active': activeTab === 'options' }" @click="activeTab = 'options'">
+      <button
+        type="button"
+        class="modal-tab"
+        :class="{ 'is-active': activeTab === 'options' }"
+        @click="activeTab = 'options'"
+      >
         {{ $t("link.optionsTitle") }}
       </button>
-      <button type="button" class="modal-tab" :class="{ 'is-active': activeTab === 'stats' }" @click="activeTab = 'stats'">
+      <button
+        type="button"
+        class="modal-tab"
+        :class="{ 'is-active': activeTab === 'stats' }"
+        @click="activeTab = 'stats'"
+      >
         {{ $t("link.statsTitle") }}
       </button>
     </div>
 
     <div class="modal-tab-panels">
-      <div class="modal-section tab-panel" :class="{ 'is-hidden': activeTab !== 'options' }">
-      <div class="modal-section__header">
-        <div class="modal-section__title">{{ linkLabel }}</div>
-        <span class="modal-muted">{{ $t("link.optionsTitle") }}</span>
-      </div>
-      <div class="modal-form-grid">
-        <label class="modal-field">
-          {{ $t("link.bandwidth") }}
-          <input v-model="form.bw" type="number" min="0" step="1" class="modal-input" />
-        </label>
-        <label class="modal-field">
-          {{ $t("link.delay") }}
-          <input v-model="form.delay" type="number" min="0" step="1" class="modal-input" />
-        </label>
-        <label class="modal-field">
-          {{ $t("link.jitter") }}
-          <input v-model="form.jitter" type="number" min="0" step="1" class="modal-input" />
-        </label>
-        <label class="modal-field">
-          {{ $t("link.loss") }}
-          <input v-model="form.loss" type="number" min="0" max="100" step="0.1" class="modal-input" />
-        </label>
-        <label class="modal-field">
-          {{ $t("link.maxQueue") }}
-          <input v-model="form.max_queue_size" type="number" min="0" step="1" class="modal-input" />
-        </label>
-        <label class="modal-field link-checkbox">
-          <input v-model="form.use_htb" type="checkbox" />
-          <span>{{ $t("link.useHtb") }}</span>
-        </label>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="modal-button modal-button--primary" :disabled="saveBusy" @click="saveOptions">
-          {{ saveBusy ? $t("actions.saving") : $t("link.saveOptions") }}
-        </button>
-        <span v-if="saveError" class="modal-error">{{ saveError }}</span>
-        <span v-else-if="saveSuccess" class="modal-success">{{ $t("actions.saved") }}</span>
-      </div>
+      <div
+        class="modal-section tab-panel"
+        :class="{ 'is-hidden': activeTab !== 'options' }"
+      >
+        <div class="modal-section__header">
+          <div class="modal-section__title">{{ linkLabel }}</div>
+          <span class="modal-muted">{{ $t("link.optionsTitle") }}</span>
+        </div>
+        <div class="modal-form-grid">
+          <label class="modal-field">
+            {{ $t("link.bandwidth") }}
+            <input
+              v-model="form.bw"
+              type="number"
+              min="0"
+              step="1"
+              class="modal-input"
+            />
+          </label>
+          <label class="modal-field">
+            {{ $t("link.delay") }}
+            <input
+              v-model="form.delay"
+              type="number"
+              min="0"
+              step="1"
+              class="modal-input"
+            />
+          </label>
+          <label class="modal-field">
+            {{ $t("link.jitter") }}
+            <input
+              v-model="form.jitter"
+              type="number"
+              min="0"
+              step="1"
+              class="modal-input"
+            />
+          </label>
+          <label class="modal-field">
+            {{ $t("link.loss") }}
+            <input
+              v-model="form.loss"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              class="modal-input"
+            />
+          </label>
+          <label class="modal-field">
+            {{ $t("link.maxQueue") }}
+            <input
+              v-model="form.max_queue_size"
+              type="number"
+              min="0"
+              step="1"
+              class="modal-input"
+            />
+          </label>
+          <label class="modal-field link-checkbox">
+            <input v-model="form.use_htb" type="checkbox" />
+            <span>{{ $t("link.useHtb") }}</span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="modal-button modal-button--primary"
+            :disabled="saveBusy"
+            @click="saveOptions"
+          >
+            {{ saveBusy ? $t("actions.saving") : $t("link.saveOptions") }}
+          </button>
+          <span v-if="saveError" class="modal-error">{{ saveError }}</span>
+          <span v-else-if="saveSuccess" class="modal-success">{{
+            $t("actions.saved")
+          }}</span>
+        </div>
       </div>
 
-      <div class="modal-section tab-panel" :class="{ 'is-hidden': activeTab !== 'stats' }">
-      <div class="modal-section__header">
-        <div class="modal-section__title">{{ $t("link.statsTitle") }}</div>
-        <button class="modal-button" type="button" :disabled="statsBusy" @click="loadStats">
-          {{ $t("actions.refresh") }}
-        </button>
-      </div>
-      <div v-if="statsError" class="modal-error">{{ statsError }}</div>
-      <div v-else class="link-stats">
-        <div v-if="stats?.intfs?.length" class="modal-table__wrapper">
-          <table class="modal-table">
-            <thead>
-              <tr>
-                <th>{{ $t("link.interface") }}</th>
-                <th>{{ $t("link.tx") }}</th>
-                <th>{{ $t("link.rx") }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="intf in stats.intfs" :key="intf.name">
-                <td>{{ intf.name }}</td>
-                <td>{{ formatBytes(intf.tx_bytes) }}</td>
-                <td>{{ formatBytes(intf.rx_bytes) }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div
+        class="modal-section tab-panel"
+        :class="{ 'is-hidden': activeTab !== 'stats' }"
+      >
+        <div class="modal-section__header">
+          <div class="modal-section__title">{{ $t("link.statsTitle") }}</div>
+          <button
+            class="modal-button"
+            type="button"
+            :disabled="statsBusy"
+            @click="loadStats"
+          >
+            {{ $t("actions.refresh") }}
+          </button>
         </div>
-        <div v-else class="modal-muted">{{ $t("link.noStats") }}</div>
-        <div class="modal-muted link-timestamp" v-if="stats?.timestamp">
-          {{ $t("link.updatedAt", { time: formatTimestamp(stats.timestamp) }) }}
+        <div v-if="statsError" class="modal-error">{{ statsError }}</div>
+        <div v-else class="link-stats">
+          <div v-if="stats?.intfs?.length" class="modal-table__wrapper">
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th>{{ $t("link.interface") }}</th>
+                  <th>{{ $t("link.tx") }}</th>
+                  <th>{{ $t("link.rx") }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="intf in stats.intfs" :key="intf.name">
+                  <td>{{ intf.name }}</td>
+                  <td>{{ formatBytes(intf.tx_bytes) }}</td>
+                  <td>{{ formatBytes(intf.rx_bytes) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else class="modal-muted">{{ $t("link.noStats") }}</div>
+          <div class="modal-muted link-timestamp" v-if="stats?.timestamp">
+            {{
+              $t("link.updatedAt", { time: formatTimestamp(stats.timestamp) })
+            }}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   </div>
@@ -140,11 +201,18 @@ export default {
     },
     buildPayload() {
       const payload = {};
-      if (this.form.bw !== "" && this.form.bw !== null) payload.bw = Number(this.form.bw);
-      if (this.form.delay !== "" && this.form.delay !== null) payload.delay = Number(this.form.delay);
-      if (this.form.jitter !== "" && this.form.jitter !== null) payload.jitter = Number(this.form.jitter);
-      if (this.form.loss !== "" && this.form.loss !== null) payload.loss = Number(this.form.loss);
-      if (this.form.max_queue_size !== "" && this.form.max_queue_size !== null) {
+      if (this.form.bw !== "" && this.form.bw !== null)
+        payload.bw = Number(this.form.bw);
+      if (this.form.delay !== "" && this.form.delay !== null)
+        payload.delay = Number(this.form.delay);
+      if (this.form.jitter !== "" && this.form.jitter !== null)
+        payload.jitter = Number(this.form.jitter);
+      if (this.form.loss !== "" && this.form.loss !== null)
+        payload.loss = Number(this.form.loss);
+      if (
+        this.form.max_queue_size !== "" &&
+        this.form.max_queue_size !== null
+      ) {
         payload.max_queue_size = Number(this.form.max_queue_size);
       }
       if (this.form.use_htb) payload.use_htb = true;
@@ -173,7 +241,11 @@ export default {
       this.saveSuccess = false;
       try {
         const options = this.buildPayload();
-        const response = await updateLinkOptions(this.link.from, this.link.to, options);
+        const response = await updateLinkOptions(
+          this.link.from,
+          this.link.to,
+          options,
+        );
         if (!response) {
           this.saveError = this.$t("link.errorUpdate");
           return;

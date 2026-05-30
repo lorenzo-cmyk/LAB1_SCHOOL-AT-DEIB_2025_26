@@ -1,9 +1,15 @@
 <template>
   <div
     :class="['webshell-container', themeClass, { minimized: isMinimized }]"
-    :style="{ height: isMinimized ? minimizedHeight + 'px' : panelHeight + 'px' }"
+    :style="{
+      height: isMinimized ? minimizedHeight + 'px' : panelHeight + 'px',
+    }"
   >
-    <div v-show="!isMinimized" class="resize-handle-top" @mousedown.prevent="startResize"></div>
+    <div
+      v-show="!isMinimized"
+      class="resize-handle-top"
+      @mousedown.prevent="startResize"
+    ></div>
     <div class="webshell-header">
       <div class="webshell-title">
         <i class="mdi mdi-console"></i>
@@ -53,7 +59,9 @@
       </div>
       <div class="webshell-actions">
         <button class="icon-button" type="button" @click="toggleMinimize">
-          <span class="material-symbols-outlined">{{ isMinimized ? "expand_less" : "expand_more" }}</span>
+          <span class="material-symbols-outlined">{{
+            isMinimized ? "expand_less" : "expand_more"
+          }}</span>
         </button>
       </div>
     </div>
@@ -82,12 +90,16 @@
       </button>
     </div>
 
-    <div v-show="!isMinimized && activeView === 'terminal'" class="terminal-window" @click="focusActiveTerminal">
+    <div
+      v-show="!isMinimized && activeView === 'terminal'"
+      class="terminal-window"
+      @click="focusActiveTerminal"
+    >
       <div class="terminal-stack">
         <div
           v-for="session in getSessionList()"
           :key="session.id"
-          :ref="el => setTerminalRef(session.id, session.nodeId, el)"
+          :ref="(el) => setTerminalRef(session.id, session.nodeId, el)"
           :class="['terminal-instance', { active: activeTab === session.id }]"
         ></div>
         <div v-if="getSessionList().length === 0" class="terminal-empty">
@@ -95,7 +107,10 @@
         </div>
       </div>
     </div>
-    <div v-show="!isMinimized && activeView === 'traffic'" class="traffic-window">
+    <div
+      v-show="!isMinimized && activeView === 'traffic'"
+      class="traffic-window"
+    >
       <TrafficView
         :enabled="snifferActive"
         :graphNodes="graphNodeList"
@@ -104,19 +119,29 @@
         @toggleSniffer="$emit('toggleSniffer')"
       />
     </div>
-    <div v-show="!isMinimized && activeView === 'monitor'" class="monitoring-window">
-      <MonitoringView :graphNodes="graphNodeList" :graphVersion="graphVersion" :theme="theme" />
+    <div
+      v-show="!isMinimized && activeView === 'monitor'"
+      class="monitoring-window"
+    >
+      <MonitoringView
+        :graphNodes="graphNodeList"
+        :graphVersion="graphVersion"
+        :theme="theme"
+      />
     </div>
-    <div v-show="!isMinimized && activeView === 'logs'" class="terminal-window" @click="focusLogTerminal">
-      <div
-        ref="logTerminal"
-        class="terminal-instance active"
-      ></div>
+    <div
+      v-show="!isMinimized && activeView === 'logs'"
+      class="terminal-window"
+      @click="focusLogTerminal"
+    >
+      <div ref="logTerminal" class="terminal-instance active"></div>
     </div>
     <div v-show="!isMinimized && activeView === 'chat'" class="chat-window">
       <div class="chat-messages" ref="chatMessages">
         <div
-          v-for="(message, index) in chatMessages.filter(m => m.role !== 'system')"
+          v-for="(message, index) in chatMessages.filter(
+            (m) => m.role !== 'system',
+          )"
           :key="index"
           class="chat-message"
           :class="`chat-${message.role}`"
@@ -133,7 +158,9 @@
           :disabled="chatBusy"
           rows="2"
         ></textarea>
-        <button :disabled="chatBusy" @click="sendChat">{{ $t("actions.send") }}</button>
+        <button :disabled="chatBusy" @click="sendChat">
+          {{ $t("actions.send") }}
+        </button>
       </div>
       <p v-if="chatError" class="chat-error">{{ chatError }}</p>
     </div>
@@ -287,11 +314,11 @@ export default {
       if (this.activeTab) this.fitTerminal(this.activeTab);
     });
   },
-    beforeUnmount() {
-      Object.values(this.sockets).forEach(ws => ws?.close());
-      if (this.logSocket) this.logSocket.close();
-      this.teardownGraphWatcher();
-      Object.values(this.terminals).forEach(term => term?.dispose());
+  beforeUnmount() {
+    Object.values(this.sockets).forEach((ws) => ws?.close());
+    if (this.logSocket) this.logSocket.close();
+    this.teardownGraphWatcher();
+    Object.values(this.terminals).forEach((term) => term?.dispose());
     if (this.logTerminal) this.logTerminal.dispose();
     if (this.resizeObserver) this.resizeObserver.disconnect();
     window.removeEventListener("mousemove", this.handleResize);
@@ -315,8 +342,8 @@ export default {
         this.activeTab = sessionList[0]?.id ?? null;
       }
 
-      const existingIds = new Set(sessionList.map(session => session.id));
-      Object.keys(this.terminals).forEach(sessionId => {
+      const existingIds = new Set(sessionList.map((session) => session.id));
+      Object.keys(this.terminals).forEach((sessionId) => {
         if (!existingIds.has(sessionId)) {
           this.disposeTerminal(sessionId);
         }
@@ -345,7 +372,7 @@ export default {
       term.open(el);
       fitAddon.fit();
 
-      term.onData(data => {
+      term.onData((data) => {
         this.sendChar(sessionId, data);
       });
 
@@ -370,13 +397,17 @@ export default {
       if (this.sockets[sessionId]) return;
       const targetNodeId = nodeId || this.sessionNodeIds[sessionId];
       if (!targetNodeId) return;
-      const ws = new WebSocket(`${this.backendWsUrl}/api/mininet/terminal/${targetNodeId}`);
-      
-      ws.onopen = () => console.log(`Connected to ${targetNodeId} (${sessionId})`);
-      ws.onmessage = event => this.handleTerminalData(sessionId, event.data);
-      ws.onerror = error => console.error(`WebSocket error (${targetNodeId}):`, error);
+      const ws = new WebSocket(
+        `${this.backendWsUrl}/api/mininet/terminal/${targetNodeId}`,
+      );
+
+      ws.onopen = () =>
+        console.log(`Connected to ${targetNodeId} (${sessionId})`);
+      ws.onmessage = (event) => this.handleTerminalData(sessionId, event.data);
+      ws.onerror = (error) =>
+        console.error(`WebSocket error (${targetNodeId}):`, error);
       ws.onclose = () => console.log(`WebSocket closed (${targetNodeId})`);
-      
+
       this.sockets[sessionId] = ws;
     },
 
@@ -405,18 +436,19 @@ export default {
       fitAddon.fit();
       this.logTerminal = term;
       this.logFitAddon = fitAddon;
-      if (this.resizeObserver) this.resizeObserver.observe(this.$refs.logTerminal);
+      if (this.resizeObserver)
+        this.resizeObserver.observe(this.$refs.logTerminal);
     },
 
     initLogSocket() {
       if (this.logSocket) return;
       const ws = new WebSocket(`${this.backendWsUrl}/api/mininet/logs`);
-      ws.onmessage = event => {
+      ws.onmessage = (event) => {
         if (this.logTerminal) {
           this.logTerminal.write(event.data + "\r\n");
         }
       };
-      ws.onerror = error => console.error("Log WebSocket error:", error);
+      ws.onerror = (error) => console.error("Log WebSocket error:", error);
       ws.onclose = () => {
         this.logSocket = null;
       };
@@ -454,7 +486,9 @@ export default {
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(char);
       } else {
-        console.log(`WebSocket for ${sessionId} is not connected. Reconnecting...`);
+        console.log(
+          `WebSocket for ${sessionId} is not connected. Reconnecting...`,
+        );
         this.initWebSocket(sessionId);
       }
     },
@@ -487,7 +521,9 @@ export default {
       if (this.activeTab === sessionId) this.activeTab = null;
     },
     closeSession(sessionId) {
-      const remaining = this.getSessionList().filter(session => session.id !== sessionId);
+      const remaining = this.getSessionList().filter(
+        (session) => session.id !== sessionId,
+      );
       if (this.activeTab === sessionId) {
         this.activeTab = remaining[0]?.id ?? null;
       }
@@ -520,7 +556,8 @@ export default {
       const delta = this.startY - event.clientY;
       const nextHeight = Math.min(720, Math.max(160, this.startHeight + delta));
       this.panelHeight = nextHeight;
-      if (this.activeView === "terminal" && this.activeTab) this.fitTerminal(this.activeTab);
+      if (this.activeView === "terminal" && this.activeTab)
+        this.fitTerminal(this.activeTab);
       if (this.activeView === "logs") this.fitLogTerminal();
     },
 
@@ -529,14 +566,15 @@ export default {
       window.removeEventListener("mousemove", this.handleResize);
       window.removeEventListener("mouseup", this.stopResize);
       this.$nextTick(() => {
-        if (this.activeView === "terminal" && this.activeTab) this.fitTerminal(this.activeTab);
+        if (this.activeView === "terminal" && this.activeTab)
+          this.fitTerminal(this.activeTab);
         if (this.activeView === "logs") this.fitLogTerminal();
       });
     },
 
     clearTerminals() {
-      Object.values(this.sockets).forEach(ws => ws?.close());
-      Object.values(this.terminals).forEach(term => term?.dispose());
+      Object.values(this.sockets).forEach((ws) => ws?.close());
+      Object.values(this.terminals).forEach((term) => term?.dispose());
       this.terminals = {};
       this.fitAddons = {};
       this.terminalRefs = {};
@@ -547,7 +585,11 @@ export default {
     setupGraphWatcher() {
       this.teardownGraphWatcher();
       const dataset = this.nodes;
-      if (!dataset || typeof dataset.on !== "function" || typeof dataset.get !== "function") {
+      if (
+        !dataset ||
+        typeof dataset.on !== "function" ||
+        typeof dataset.get !== "function"
+      ) {
         this.graphNodeList = [];
         this.nodeDatasetRef = null;
         this.nodeDatasetHandler = null;
@@ -559,7 +601,7 @@ export default {
       };
       this.nodeDatasetHandler = handler;
       this.nodeDatasetRef = dataset;
-      ["add", "update", "remove"].forEach(event => {
+      ["add", "update", "remove"].forEach((event) => {
         dataset.on(event, handler);
       });
       this.updateGraphNodeList();
@@ -568,7 +610,7 @@ export default {
       const dataset = this.nodeDatasetRef;
       const handler = this.nodeDatasetHandler;
       if (!dataset || !handler) return;
-      ["add", "update", "remove"].forEach(event => {
+      ["add", "update", "remove"].forEach((event) => {
         if (typeof dataset.off !== "function") return;
         try {
           dataset.off(event, handler);
@@ -586,7 +628,7 @@ export default {
         return;
       }
       const entries = dataset.get();
-      this.graphNodeList = entries.map(node => ({
+      this.graphNodeList = entries.map((node) => ({
         id: node.id,
         label: node.label || node.name || node.id,
         type: node.type,
@@ -620,7 +662,10 @@ export default {
         this.$nextTick(this.scrollChatToBottom);
         while (assistant?.tool_calls?.length) {
           console.log("[AI] tool_calls", assistant.tool_calls);
-          const toolMessages = await runToolCalls(assistant.tool_calls, this.llmHandlers);
+          const toolMessages = await runToolCalls(
+            assistant.tool_calls,
+            this.llmHandlers,
+          );
           console.log("[AI] tool responses", toolMessages);
           this.chatMessages.push(...toolMessages);
           this.$nextTick(this.scrollChatToBottom);
@@ -650,14 +695,17 @@ export default {
         tools: llmTools,
         tool_choice: "auto",
       };
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.openaiKey}`,
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.openaiKey}`,
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
       if (!response.ok) {
         const text = await response.text();
         throw new Error(text || this.$t("webshell.errors.requestFailed"));
@@ -688,13 +736,16 @@ export default {
           dashes: edge.dashes,
           color: edge.color,
         }));
-        return buildGraphStateMessage({ nodes: summarizedNodes, edges: summarizedEdges });
+        return buildGraphStateMessage({
+          nodes: summarizedNodes,
+          edges: summarizedEdges,
+        });
       } catch (error) {
         console.warn("Failed to build graph context", error);
         return "";
       }
     },
-  }
+  },
 };
 </script>
 
@@ -1012,6 +1063,4 @@ export default {
   background: transparent;
   z-index: 2;
 }
-
-
 </style>

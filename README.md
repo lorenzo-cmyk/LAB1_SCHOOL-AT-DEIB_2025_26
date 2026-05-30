@@ -18,10 +18,6 @@ Official repository: <https://github.com/latarc/mininet-gui>
 
 VirtualBox VM: <https://drive.google.com/file/d/1aDN72tvA3mvsEMomfyqbHUGZHaCtPSOH/view?usp=sharing>
 
-### Screenshot
-
-![mininet-gui screenshot](docs/mininet-gui-screenshot.png)
-
 ## Requirements
 
 The ready-to-use VM requires Oracle VirtualBox (version 7.1.6 r167084).

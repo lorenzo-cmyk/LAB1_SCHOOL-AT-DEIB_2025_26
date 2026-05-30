@@ -4,6 +4,7 @@ Helper functions, Pydantic models, and constants extracted from api.py.
 This module contains non-endpoint utility functions, data models, and
 configuration constants that support the Mininet-GUI API layer.
 """
+
 import os
 import select
 import asyncio
@@ -40,8 +41,14 @@ LOG_FILE = os.path.join(os.path.dirname(__file__), "mininet.log")
 RYU_APP_DIRS = []
 
 FLOW_FIELDS = [
-    "cookie", "duration", "table", "n_packets", "n_bytes",
-    "idle_timeout", "priority", "actions"
+    "cookie",
+    "duration",
+    "table",
+    "n_packets",
+    "n_bytes",
+    "idle_timeout",
+    "priority",
+    "actions",
 ]
 
 MONITOR_INTERVAL_SECONDS = 0.5
@@ -50,6 +57,7 @@ MONITOR_INTERVAL_SECONDS = 0.5
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
+
 
 class LinkOptions(BaseModel):
     bw: Optional[float] = Field(None, ge=0)
@@ -119,8 +127,10 @@ class LinuxRouter(Node):
 # Helper / utility functions
 # ---------------------------------------------------------------------------
 
+
 def debug(msg, *args):
-    _debug(str(msg)+" "+" ".join(map(str, args))+"\n")
+    _debug(str(msg) + " " + " ".join(map(str, args)) + "\n")
+
 
 def list_ryu_apps():
     apps = set()
@@ -136,6 +146,7 @@ def list_ryu_apps():
             app_dirs.append(app_dir)
     try:
         import importlib
+
         app_pkg = importlib.import_module("ryu.app")
         if app_pkg and hasattr(app_pkg, "__path__"):
             for _finder, name, _ispkg in pkgutil.iter_modules(app_pkg.__path__):
@@ -162,7 +173,7 @@ def list_ryu_apps():
                     continue
                 token = line.split()[0]
                 if token.startswith("ryu.app."):
-                    apps.add(token[len("ryu.app."):])
+                    apps.add(token[len("ryu.app.") :])
     except Exception:
         pass
 
@@ -177,21 +188,32 @@ def list_ryu_apps():
 
     return sorted(apps)
 
+
 def setup_log_file():
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
     handler = logging.FileHandler(LOG_FILE)
     handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
-    if not any(isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == handler.baseFilename for h in root_logger.handlers):
+    if not any(
+        isinstance(h, logging.FileHandler)
+        and getattr(h, "baseFilename", None) == handler.baseFilename
+        for h in root_logger.handlers
+    ):
         root_logger.addHandler(handler)
     try:
         from mininet.log import lg
+
         lg.setLevel(logging.DEBUG)
-        if not any(isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == handler.baseFilename for h in lg.handlers):
+        if not any(
+            isinstance(h, logging.FileHandler)
+            and getattr(h, "baseFilename", None) == handler.baseFilename
+            for h in lg.handlers
+        ):
             lg.addHandler(handler)
     except Exception:
         pass
+
 
 def clear_log_file():
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
@@ -247,14 +269,25 @@ def add_controller_to_net(controller: Controller, start=True):
         )
     elif controller_type == "ryu":
         if not controller.port:
-            raise HTTPException(status_code=400, detail="Ryu controller requires a port")
+            raise HTTPException(
+                status_code=400, detail="Ryu controller requires a port"
+            )
         if not controller.ryu_app:
-            raise HTTPException(status_code=400, detail="Ryu controller requires an app")
-        ryu_apps = controller.ryu_app if isinstance(controller.ryu_app, list) else [controller.ryu_app]
+            raise HTTPException(
+                status_code=400, detail="Ryu controller requires an app"
+            )
+        ryu_apps = (
+            controller.ryu_app
+            if isinstance(controller.ryu_app, list)
+            else [controller.ryu_app]
+        )
         available_apps = list_ryu_apps()
-        if available_apps and any(app_name not in available_apps for app_name in ryu_apps):
+        if available_apps and any(
+            app_name not in available_apps for app_name in ryu_apps
+        ):
             try:
                 import importlib
+
                 for app_name in ryu_apps:
                     importlib.import_module(f"ryu.app.{app_name}")
             except Exception:
@@ -262,6 +295,7 @@ def add_controller_to_net(controller: Controller, start=True):
         elif not available_apps:
             try:
                 import importlib
+
                 for app_name in ryu_apps:
                     importlib.import_module(f"ryu.app.{app_name}")
             except Exception:
@@ -276,9 +310,7 @@ def add_controller_to_net(controller: Controller, start=True):
             of_version=controller.of_version or "OpenFlow13",
         )
     elif controller_type == "nox":
-        controller_node = state.net.addController(
-            controller.name, controller=NOX
-        )
+        controller_node = state.net.addController(controller.name, controller=NOX)
     else:
         if not controller.port or controller.port in _list_listening_ports():
             controller.port = _find_free_controller_port()
@@ -337,13 +369,21 @@ def add_switch_to_net(switch: Switch, start=True):
     switch_type = (switch.switch_type or "").lower()
     switch.switch_type = switch_type or switch.switch_type
     if switch_type == "user":
-        switch_node = state.net.addSwitch(switch.name, ports=switch.ports, cls=UserSwitch)
+        switch_node = state.net.addSwitch(
+            switch.name, ports=switch.ports, cls=UserSwitch
+        )
     elif switch_type == "ovs":
-        switch_node = state.net.addSwitch(switch.name, ports=switch.ports, cls=OVSSwitch)
+        switch_node = state.net.addSwitch(
+            switch.name, ports=switch.ports, cls=OVSSwitch
+        )
     elif switch_type == "ovskernel":
-        switch_node = state.net.addSwitch(switch.name, ports=switch.ports, cls=OVSKernelSwitch)
+        switch_node = state.net.addSwitch(
+            switch.name, ports=switch.ports, cls=OVSKernelSwitch
+        )
     elif switch_type == "ovsbridge":
-        switch_node = state.net.addSwitch(switch.name, ports=switch.ports, cls=OVSBridge)
+        switch_node = state.net.addSwitch(
+            switch.name, ports=switch.ports, cls=OVSBridge
+        )
     else:
         switch_node = state.net.addSwitch(switch.name, ports=switch.ports)
 
@@ -357,11 +397,15 @@ def add_switch_to_net(switch: Switch, start=True):
     switch_node.controller = switch.controller
     switch_node.switch_type = switch.switch_type
     if switch.of_version:
-        _apply_switch_openflow_version(switch.name, switch.of_version, switch_type=switch.switch_type)
+        _apply_switch_openflow_version(
+            switch.name, switch.of_version, switch_type=switch.switch_type
+        )
     return switch_node
 
 
-def _apply_switch_openflow_version(switch_id: str, of_version: Optional[str], switch_type: Optional[str] = None):
+def _apply_switch_openflow_version(
+    switch_id: str, of_version: Optional[str], switch_type: Optional[str] = None
+):
     if switch_type is None:
         switch = state.switches.get(switch_id)
         if not switch:
@@ -369,7 +413,10 @@ def _apply_switch_openflow_version(switch_id: str, of_version: Optional[str], sw
         switch_type = switch.switch_type
     switch_type = (switch_type or "").lower()
     if switch_type not in ("ovs", "ovskernel", "ovsbridge"):
-        raise HTTPException(status_code=400, detail="openflow version is only supported for OVS switches")
+        raise HTTPException(
+            status_code=400,
+            detail="openflow version is only supported for OVS switches",
+        )
     if not of_version or of_version == "auto":
         result = subprocess.run(
             ["ovs-vsctl", "--if-exists", "clear", "bridge", switch_id, "protocols"],
@@ -378,7 +425,14 @@ def _apply_switch_openflow_version(switch_id: str, of_version: Optional[str], sw
         )
     else:
         result = subprocess.run(
-            ["ovs-vsctl", "--if-exists", "set", "bridge", switch_id, f"protocols={of_version}"],
+            [
+                "ovs-vsctl",
+                "--if-exists",
+                "set",
+                "bridge",
+                switch_id,
+                f"protocols={of_version}",
+            ],
             text=True,
             capture_output=True,
         )
@@ -424,25 +478,41 @@ async def _stop_mininet_with_timeout(timeout: float = 5.0):
     state.net.controllers = []
     loop = asyncio.get_running_loop()
     try:
-        await asyncio.wait_for(loop.run_in_executor(None, state.net.stop), timeout=timeout)
+        await asyncio.wait_for(
+            loop.run_in_executor(None, state.net.stop), timeout=timeout
+        )
     except asyncio.TimeoutError:
-        debug(f"mininet.stop() did not complete within {timeout} seconds, continuing cleanup")
+        debug(
+            f"mininet.stop() did not complete within {timeout} seconds, continuing cleanup"
+        )
     except Exception as exc:
         debug("error while stopping mininet", exc)
+
 
 def list_mininet_interfaces():
     nodes = []
     if hasattr(state.net, "hosts"):
         for host in state.net.hosts:
-            intfs = [i.name for i in host.intfList() if i.name and i.name not in ("lo", "lo0")]
+            intfs = [
+                i.name
+                for i in host.intfList()
+                if i.name and i.name not in ("lo", "lo0")
+            ]
             node_type = getattr(host, "type", "host")
-            nodes.append({"id": host.name, "type": node_type, "intfs": intfs, "pid": host.pid})
+            nodes.append(
+                {"id": host.name, "type": node_type, "intfs": intfs, "pid": host.pid}
+            )
     if hasattr(state.net, "switches"):
         for sw in state.net.switches:
-            intfs = [i.name for i in sw.intfList() if i.name and i.name not in ("lo", "lo0")]
+            intfs = [
+                i.name for i in sw.intfList() if i.name and i.name not in ("lo", "lo0")
+            ]
             node_type = getattr(sw, "type", "switch")
-            nodes.append({"id": sw.name, "type": node_type, "intfs": intfs, "pid": sw.pid})
+            nodes.append(
+                {"id": sw.name, "type": node_type, "intfs": intfs, "pid": sw.pid}
+            )
     return nodes
+
 
 async def read_pty(master_fd, websocket: WebSocket):
     """Reads PTY output and sends it to WebSocket"""
@@ -466,6 +536,7 @@ async def read_pty(master_fd, websocket: WebSocket):
                     await websocket.send_text(output)
     except Exception as e:
         debug(f"PTY Read Error: {e}")
+
 
 async def read_sniffer(process: asyncio.subprocess.Process, websocket: WebSocket):
     """Reads tcpdump output and sends it to WebSocket"""

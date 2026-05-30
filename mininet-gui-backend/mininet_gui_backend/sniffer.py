@@ -2,7 +2,6 @@ import asyncio
 import os
 import subprocess
 import tempfile
-from datetime import datetime, timezone
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from pydantic import BaseModel, Field, field_validator
@@ -11,7 +10,9 @@ from pyshark.tshark.output_parser.tshark_ek import TsharkEkJsonParser
 
 
 class SnifferEvent(BaseModel):
-    ts: Optional[int] = Field(default=None, description="Epoch timestamp in nanoseconds")
+    ts: Optional[int] = Field(
+        default=None, description="Epoch timestamp in nanoseconds"
+    )
     proto: str = Field(default="UNKNOWN")
     src: Optional[str] = None
     dst: Optional[str] = None
@@ -169,9 +170,13 @@ class SnifferManager:
         if not pcap_path:
             pcap_path = self._create_pcap_path(node_info["id"], intf_name)
             self._pcap_files[key] = pcap_path
-        process = await self._process_factory(node_info.get("pid", 0), intf_name, pcap_path)
+        process = await self._process_factory(
+            node_info.get("pid", 0), intf_name, pcap_path
+        )
         self._processes[key] = process
-        self._tasks[key] = asyncio.create_task(self._read_and_publish(node_info, intf_name, process))
+        self._tasks[key] = asyncio.create_task(
+            self._read_and_publish(node_info, intf_name, process)
+        )
 
     async def _stop_capture(self, key):
         process = self._processes.pop(key, None)

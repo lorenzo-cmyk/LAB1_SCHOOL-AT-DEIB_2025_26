@@ -8,7 +8,13 @@
         @click="$emit('toggleSniffer')"
       >
         <span class="material-symbols-outlined">radar</span>
-        <span>{{ enabled ? (connected ? $t("traffic.stopSniffer") : $t("traffic.connecting")) : $t("traffic.startSniffer") }}</span>
+        <span>{{
+          enabled
+            ? connected
+              ? $t("traffic.stopSniffer")
+              : $t("traffic.connecting")
+            : $t("traffic.startSniffer")
+        }}</span>
       </button>
       <div class="traffic-filters">
         <select v-model="selectedDevice" class="traffic-select">
@@ -41,10 +47,19 @@
           <option value="LLDP">LLDP</option>
           <option value="OTHER">{{ $t("traffic.other") }}</option>
         </select>
-        <input v-model="textFilter" class="traffic-input" :placeholder="$t('traffic.filterPlaceholder')" />
+        <input
+          v-model="textFilter"
+          class="traffic-input"
+          :placeholder="$t('traffic.filterPlaceholder')"
+        />
       </div>
       <div class="traffic-actions">
-        <button class="traffic-button" type="button" @click="clearEvents" :disabled="events.length === 0">
+        <button
+          class="traffic-button"
+          type="button"
+          @click="clearEvents"
+          :disabled="events.length === 0"
+        >
           {{ $t("actions.clear") }}
         </button>
       </div>
@@ -61,7 +76,11 @@
         <span class="cell info">{{ $t("traffic.info") }}</span>
       </div>
       <div class="traffic-body" ref="list">
-        <div v-for="(item, index) in filteredEvents" :key="index" class="traffic-row">
+        <div
+          v-for="(item, index) in filteredEvents"
+          :key="index"
+          class="traffic-row"
+        >
           <span class="cell time">{{ formatTs(item.ts) }}</span>
           <span class="cell node">{{ item.node }}</span>
           <span class="cell intf">{{ item.intf }}</span>
@@ -108,8 +127,8 @@ export default {
     nodeOptions() {
       const merged = [];
       const seen = new Set();
-      this.graphNodes.forEach(graphNode => {
-        const backendNode = this.nodes.find(n => n.id === graphNode.id);
+      this.graphNodes.forEach((graphNode) => {
+        const backendNode = this.nodes.find((n) => n.id === graphNode.id);
         merged.push({
           id: graphNode.id,
           label: graphNode.label || graphNode.name || graphNode.id,
@@ -118,7 +137,7 @@ export default {
         });
         seen.add(graphNode.id);
       });
-      this.nodes.forEach(backendNode => {
+      this.nodes.forEach((backendNode) => {
         if (seen.has(backendNode.id)) return;
         merged.push({
           id: backendNode.id,
@@ -133,17 +152,24 @@ export default {
     availableInterfaces() {
       if (this.selectedDevice === "all") {
         const all = new Set();
-        this.nodeOptions.forEach(node => node.intfs.forEach(intf => all.add(intf)));
+        this.nodeOptions.forEach((node) =>
+          node.intfs.forEach((intf) => all.add(intf)),
+        );
         return Array.from(all).sort();
       }
-      const node = this.nodeOptions.find(n => n.id === this.selectedDevice);
+      const node = this.nodeOptions.find((n) => n.id === this.selectedDevice);
       return node ? node.intfs : [];
     },
     filteredEvents() {
       const text = this.textFilter.trim().toLowerCase();
-      const items = this.events.filter(item => {
-        if (this.selectedDevice !== "all" && item.node !== this.selectedDevice) return false;
-        if (this.selectedInterface !== "all" && item.intf !== this.selectedInterface) return false;
+      const items = this.events.filter((item) => {
+        if (this.selectedDevice !== "all" && item.node !== this.selectedDevice)
+          return false;
+        if (
+          this.selectedInterface !== "all" &&
+          item.intf !== this.selectedInterface
+        )
+          return false;
         if (this.selectedProto !== "all") {
           if (this.selectedProto === "OTHER") {
             if (["IP", "IP6", "ARP"].includes(item.proto)) return false;
@@ -152,7 +178,8 @@ export default {
           }
         }
         if (text) {
-          const hay = `${item.raw || ""} ${item.src || ""} ${item.dst || ""} ${item.info || ""}`.toLowerCase();
+          const hay =
+            `${item.raw || ""} ${item.src || ""} ${item.dst || ""} ${item.info || ""}`.toLowerCase();
           if (!hay.includes(text)) return false;
         }
         return true;
@@ -216,7 +243,9 @@ export default {
     },
     ensureSelectedDevice() {
       if (this.selectedDevice === "all") return;
-      const exists = this.nodeOptions.some(node => node.id === this.selectedDevice);
+      const exists = this.nodeOptions.some(
+        (node) => node.id === this.selectedDevice,
+      );
       if (!exists) {
         this.selectedDevice = "all";
       }
@@ -242,7 +271,7 @@ export default {
       ws.onopen = () => {
         this.connected = true;
       };
-      ws.onmessage = event => {
+      ws.onmessage = (event) => {
         let payload = null;
         try {
           payload = JSON.parse(event.data);
@@ -461,6 +490,4 @@ export default {
   padding: 1rem;
   color: var(--theme-traffic-empty-color);
 }
-
-
 </style>

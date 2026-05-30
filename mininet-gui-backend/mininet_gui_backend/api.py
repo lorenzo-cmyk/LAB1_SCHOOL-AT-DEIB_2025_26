@@ -9,58 +9,77 @@ Endpoints to start and stop the network at any point.
 
 Endpoints that add, remove and edit nodes and edges in real time.
 """
-import os
-import pty
+
 import json
-import asyncio
 import subprocess
-import uuid
 from datetime import datetime, timezone
 from mininet_gui_backend.sniffer import SnifferManager
-import pyshark.ek_field_mapping as ek_field_mapping
-from pyshark.tshark.output_parser.tshark_ek import TsharkEkJsonParser
 from typing import Tuple, Union
 from contextlib import asynccontextmanager
 
-from mininet.moduledeps import pathCheck
 
 from mininet.net import Mininet
 from mininet.log import setLogLevel
-from mininet.topo import Topo, MinimalTopo
+from mininet.topo import Topo
 from mininet.clean import cleanup as mn_cleanup
 from mininet.node import UserSwitch, OVSSwitch, OVSKernelSwitch, OVSBridge
 from mininet.link import TCLink
-from fastapi import FastAPI, HTTPException, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, Response
+from fastapi.responses import PlainTextResponse
 
-from mininet_gui_backend.export import build_addressing_plan, export_net_to_script, export_net_to_json
+from mininet_gui_backend.export import (
+    build_addressing_plan,
+    export_net_to_script,
+    export_net_to_json,
+)
 from mininet_gui_backend.schema import Switch, Host, Controller, Nat, Router
 from mininet_gui_backend import app_state as state
-from mininet_gui_backend.flow_rules import FlowRuleCreate, FlowRuleDelete, build_flow, build_flow_match
+from mininet_gui_backend.flow_rules import (
+    FlowRuleCreate,
+    FlowRuleDelete,
+    build_flow,
+    build_flow_match,
+)
 from mininet_gui_backend.utils import (
     get_interface_stats_path,
-    parse_ip_addrs,
     parse_flow_match_from_dump,
     read_interface_counter,
 )
 from mininet_gui_backend.api_helpers import (
-    LinkOptions, LinkCreate, LinkUpdate,
-    ControllerUpdate, SwitchUpdate, HostUpdate,
-    IperfRequest, LinuxRouter,
-    LOG_FILE, RYU_APP_DIRS, FLOW_FIELDS, MONITOR_INTERVAL_SECONDS,
-    debug, list_ryu_apps, setup_log_file, clear_log_file,
-    add_host_to_net, add_router_to_net, add_nat_to_net,
-    add_controller_to_net, _list_listening_ports,
-    _find_free_controller_port, add_switch_to_net,
-    _apply_switch_openflow_version, _terminate_all_terminals,
-    _stop_all_sniffers_quietly, _stop_mininet_with_timeout,
-    list_mininet_interfaces, read_pty, read_sniffer,
+    LinkCreate,
+    LinkUpdate,
+    ControllerUpdate,
+    SwitchUpdate,
+    HostUpdate,
+    IperfRequest,
+    FLOW_FIELDS,
+    debug,
+    list_ryu_apps,
+    setup_log_file,
+    clear_log_file,
+    add_host_to_net,
+    add_router_to_net,
+    add_nat_to_net,
+    add_controller_to_net,
+    add_switch_to_net,
+    _apply_switch_openflow_version,
+    _terminate_all_terminals,
+    _stop_all_sniffers_quietly,
+    _stop_mininet_with_timeout,
+    list_mininet_interfaces,
     start_sniffer_process,
 )
 
 from mininet_gui_backend.routers.websockets import router as ws_router
 from mininet_gui_backend.routers.sniffer_api import router as sniffer_router
+from mininet_gui_backend import __version__ as BACKEND_VERSION
+
+try:
+    from mininet.net import VERSION as MININET_VERSION
+except Exception:
+    MININET_VERSION = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -76,7 +95,9 @@ async def lifespan(app: FastAPI):
     state.link_attrs = dict()
     state.terminals = dict()
     state.sniffers = dict()
-    state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
+    state.sniffer_manager = SnifferManager(
+        list_mininet_interfaces, start_sniffer_process
+    )
     state.pingall_running = False
     state.iperf_running = False
     setLogLevel("debug")
@@ -86,11 +107,6 @@ async def lifespan(app: FastAPI):
     # stop
     mn_cleanup()
 
-from mininet_gui_backend import __version__ as BACKEND_VERSION
-try:
-    from mininet.net import VERSION as MININET_VERSION
-except Exception:
-    MININET_VERSION = None
 
 app = FastAPI(
     debug=True,
@@ -122,9 +138,11 @@ app.add_middleware(
 app.include_router(ws_router)
 app.include_router(sniffer_router)
 
+
 @app.get("/api/version")
 def get_version():
     return {"version": app.version, "mininet_version": MININET_VERSION}
+
 
 @app.get("/api/health")
 def get_health():
@@ -138,9 +156,11 @@ def get_health():
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
 
+
 @app.get("/api/ryu/apps")
 def get_ryu_apps():
     return {"apps": list_ryu_apps()}
+
 
 @app.get("/api/mininet/addressing_plan")
 def addressing_plan():
@@ -148,13 +168,16 @@ def addressing_plan():
         raise HTTPException(status_code=400, detail="network must be started")
     return build_addressing_plan(state.net)
 
+
 @app.get("/api/mininet/hosts")
 def list_hosts():
     return state.hosts
 
+
 @app.get("/api/mininet/interfaces")
 def list_interfaces():
     return {"nodes": list_mininet_interfaces()}
+
 
 @app.get("/api/mininet/switches")
 def list_switches():
@@ -172,17 +195,21 @@ def list_switches():
                     sw.switch_type = "ovskernel"
     return state.switches
 
+
 @app.get("/api/mininet/controllers")
 def list_controllers():
     return state.controllers
+
 
 @app.get("/api/mininet/nats")
 def list_nats():
     return state.nats
 
+
 @app.get("/api/mininet/routers")
 def list_routers():
     return state.routers
+
 
 @app.get("/api/mininet/links")
 def list_edges():
@@ -196,17 +223,26 @@ def list_edges():
         intfs = None
         intf1 = getattr(link, "intf1", None)
         intf2 = getattr(link, "intf2", None)
-        if intf1 and intf2 and getattr(intf1, "node", None) and getattr(intf2, "node", None):
+        if (
+            intf1
+            and intf2
+            and getattr(intf1, "node", None)
+            and getattr(intf2, "node", None)
+        ):
             from_node = intf1.node.name
             to_node = intf2.node.name
             intfs = {"from": intf1.name, "to": intf2.name}
         if from_node and to_node:
-            edges.append({"from": from_node, "to": to_node, "options": attrs, "intfs": intfs})
+            edges.append(
+                {"from": from_node, "to": to_node, "options": attrs, "intfs": intfs}
+            )
     return edges
+
 
 @app.get("/api/mininet/start")
 def get_network_started():
     return state.net.is_started
+
 
 @app.post("/api/mininet/start")
 def start_network():
@@ -230,6 +266,7 @@ def start_network():
             switch.start([])
     state.net.is_started = True
     return {"status": "ok"}
+
 
 @app.post("/api/mininet/stop")
 async def stop_network():
@@ -280,6 +317,7 @@ async def stop_network():
         state.links[key] = new_link
     return {"status": "ok"}
 
+
 @app.post("/api/mininet/reset")
 async def reset_network():
     """Restart network and nodes"""
@@ -290,6 +328,7 @@ async def reset_network():
     clear_log_file()
     await stop_network()
     return start_network()
+
 
 @app.post("/api/mininet/full_reset")
 async def full_reset_network():
@@ -318,11 +357,14 @@ async def full_reset_network():
     state.net.is_started = False
     return {"status": "ok"}
 
+
 @app.post("/api/mininet/pingall")
 def run_pingall():
     """Build network and start nodes"""
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to run pingall")
+        raise HTTPException(
+            status_code=400, detail="network must be started to run pingall"
+        )
     if state.pingall_running:
         raise HTTPException(status_code=409, detail="pingall already running")
     state.pingall_running = True
@@ -338,6 +380,7 @@ def run_pingall():
     finally:
         state.pingall_running = False
 
+
 @app.post("/api/mininet/hosts")
 def create_host(host: Host):
     if host.id in state.hosts:
@@ -351,6 +394,7 @@ def create_host(host: Host):
     # Return an OK status code
     return {"status": "ok"}
 
+
 @app.post("/api/mininet/routers")
 def create_router(router: Router):
     if router.id in state.routers:
@@ -361,6 +405,7 @@ def create_router(router: Router):
     state.routers[router.name] = router
     debug(new_router)
     return {"status": "ok"}
+
 
 @app.patch("/api/mininet/hosts/{host_id}")
 def update_host(host_id: str, payload: HostUpdate):
@@ -415,6 +460,7 @@ def update_host(host_id: str, payload: HostUpdate):
     state.hosts[host_id] = host
     return {"status": "ok", "host": host.model_dump()}
 
+
 @app.post("/api/mininet/nats")
 def create_nat(nat: Nat):
     if nat.id in state.nats:
@@ -435,7 +481,7 @@ def create_switch(switch: Switch):
         raise HTTPException(
             status_code=400, detail=f'controller "{switch.controller}" does not exist'
         )
-    new_switch = add_switch_to_net(switch)
+    add_switch_to_net(switch)
     state.switches[switch.name] = switch
     return switch
 
@@ -469,24 +515,31 @@ def update_switch_openflow_version(switch_id: str, payload: SwitchUpdate):
     of_version = payload.of_version
     if of_version in ("", "auto"):
         of_version = None
-    allowed = {None, "OpenFlow10", "OpenFlow11", "OpenFlow12", "OpenFlow13", "OpenFlow14", "OpenFlow15"}
+    allowed = {
+        None,
+        "OpenFlow10",
+        "OpenFlow11",
+        "OpenFlow12",
+        "OpenFlow13",
+        "OpenFlow14",
+        "OpenFlow15",
+    }
     if of_version not in allowed:
         raise HTTPException(status_code=400, detail="invalid OpenFlow version")
     _apply_switch_openflow_version(switch_id, of_version)
     state.switches[switch_id].of_version = of_version
     return {"switch": state.switches[switch_id].model_dump()}
 
+
 @app.post("/api/mininet/associate_switch")
 def associate_switch(data: dict):
     # Associate switch to controller.
     if "switch" not in data or "controller" not in data:
-        raise HTTPException(
-            status_code=400, detail=f'missing key in data'
-        )
+        raise HTTPException(status_code=400, detail="missing key in data")
     sw_id = data["switch"]
     ctl_id = data["controller"]
     if sw_id not in state.net.nameToNode or ctl_id not in state.net.nameToNode:
-        raise HTTPException(status_code=400, detail='node not in net')
+        raise HTTPException(status_code=400, detail="node not in net")
     sw = state.net.nameToNode[sw_id]
     ctl = state.net.nameToNode[ctl_id]
     if state.switches[sw_id].controller:
@@ -496,6 +549,7 @@ def associate_switch(data: dict):
     if state.net.is_started:
         sw.start([sw.controller])
     return "OK"
+
 
 @app.post("/api/mininet/links")
 def create_link(payload: Union[Tuple[str, str], LinkCreate]):
@@ -507,14 +561,36 @@ def create_link(payload: Union[Tuple[str, str], LinkCreate]):
         options = payload.options
 
     if src not in state.net.nameToNode or dst not in state.net.nameToNode:
-        raise HTTPException(status_code=400, detail=f'node not in net')
-    if state.net.nameToNode[src].type == "host" and state.net.nameToNode[src].intfList() and len([i for i in state.net.nameToNode[src].intfList() if i.name and i.name not in ("lo", "lo0")]) >= 1:
+        raise HTTPException(status_code=400, detail="node not in net")
+    if (
+        state.net.nameToNode[src].type == "host"
+        and state.net.nameToNode[src].intfList()
+        and len(
+            [
+                i
+                for i in state.net.nameToNode[src].intfList()
+                if i.name and i.name not in ("lo", "lo0")
+            ]
+        )
+        >= 1
+    ):
         raise HTTPException(status_code=400, detail="host already has a link")
-    if state.net.nameToNode[dst].type == "host" and state.net.nameToNode[dst].intfList() and len([i for i in state.net.nameToNode[dst].intfList() if i.name and i.name not in ("lo", "lo0")]) >= 1:
+    if (
+        state.net.nameToNode[dst].type == "host"
+        and state.net.nameToNode[dst].intfList()
+        and len(
+            [
+                i
+                for i in state.net.nameToNode[dst].intfList()
+                if i.name and i.name not in ("lo", "lo0")
+            ]
+        )
+        >= 1
+    ):
         raise HTTPException(status_code=400, detail="host already has a link")
     key = frozenset((src, dst))
     if key in state.links:
-        raise HTTPException(status_code=400, detail=f'link already exists')
+        raise HTTPException(status_code=400, detail="link already exists")
     link_kwargs = {}
     if options:
         opt = options.model_dump(exclude_none=True)
@@ -594,11 +670,13 @@ def get_link_stats(src_id: str, dst_id: str):
         if not intf or not getattr(intf, "name", None):
             continue
         stats_paths = get_interface_stats_path(intf.name)
-        intfs.append({
-            "name": intf.name,
-            "tx_bytes": read_interface_counter(stats_paths["tx"]),
-            "rx_bytes": read_interface_counter(stats_paths["rx"]),
-        })
+        intfs.append(
+            {
+                "name": intf.name,
+                "tx_bytes": read_interface_counter(stats_paths["tx"]),
+                "rx_bytes": read_interface_counter(stats_paths["rx"]),
+            }
+        )
     return {
         "from": src_id,
         "to": dst_id,
@@ -611,19 +689,19 @@ def get_link_stats(src_id: str, dst_id: str):
 @app.post("/api/mininet/node_position")
 def node_position(data: dict):
     if "node_id" not in data or "position" not in data:
-        raise HTTPException(
-            status_code=400, detail=f'missing key in data'
-        )
-    debug("data:",data)
+        raise HTTPException(status_code=400, detail="missing key in data")
+    debug("data:", data)
     node_id = data["node_id"]
     x, y = data["position"]
     if node_id not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
     node = state.net.nameToNode[node_id]
-    debug("before update xy",(node.x, node.y))
+    debug("before update xy", (node.x, node.y))
     node.x = x
     node.y = y
-    debug("updated xy",(state.net.nameToNode[node_id].x, state.net.nameToNode[node_id].y))
+    debug(
+        "updated xy", (state.net.nameToNode[node_id].x, state.net.nameToNode[node_id].y)
+    )
     if node.type == "sw":
         state.switches[node_id].x = x
         state.switches[node_id].y = y
@@ -666,20 +744,22 @@ def delete_node(node_id: str):
         del state.routers[node_id]
     return {"message": f"Node {node_id} deleted successfully"}
 
+
 @app.delete("/api/mininet/delete_link/{src_id}/{dst_id}")
 def delete_link(src_id: str, dst_id: str):
     key = frozenset((src_id, dst_id))
     if key not in state.links:
-        raise HTTPException(status_code=404, detail=f"Node not found")
+        raise HTTPException(status_code=404, detail="Node not found")
     state.net.delLink(state.links[key])
     del state.links[key]
     state.link_attrs.pop(key, None)
     return {"message": f"Link {key} deleted successfully"}
 
+
 @app.delete("/api/mininet/remove_association/{src_id}/{dst_id}")
 def remove_association(src_id: str, dst_id: str):
     if src_id not in state.net.nameToNode or dst_id not in state.net.nameToNode:
-        raise HTTPException(status_code=400, detail='node not in net')
+        raise HTTPException(status_code=400, detail="node not in net")
     sw, ctl = None, None
     for node_id in (src_id, dst_id):
         node = state.net.nameToNode[node_id]
@@ -688,7 +768,9 @@ def remove_association(src_id: str, dst_id: str):
         elif node.type == "controller":
             ctl = node
     if not sw or not ctl:
-        raise HTTPException(status_code=400, detail=f'node {node_id} isnt switch or controller')
+        raise HTTPException(
+            status_code=400, detail=f"node {node_id} isnt switch or controller"
+        )
     sw.controller = None
     state.switches[sw.name].controller = None
     if state.net.is_started:
@@ -700,17 +782,25 @@ def remove_association(src_id: str, dst_id: str):
 def get_node_stats(node_id: str):
     if node_id not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
-    
+
     node = state.net.nameToNode[node_id]
-    base_data = state.switches.get(node_id) or state.hosts.get(node_id) or state.controllers.get(node_id) or state.nats.get(node_id) or state.routers.get(node_id)
+    base_data = (
+        state.switches.get(node_id)
+        or state.hosts.get(node_id)
+        or state.controllers.get(node_id)
+        or state.nats.get(node_id)
+        or state.routers.get(node_id)
+    )
     if not base_data:
         raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
     result = dict(**base_data.model_dump())
 
     if node.type == "sw":
         ports_raw = node.dpctl("dump-ports")
-        ports_raw = ports_raw[ports_raw.find("\n") + 1:].replace("\n", " ")
-        result["ports"] = [p.strip() for p in ports_raw.split("port") if "LOCAL" not in p and p.strip()]
+        ports_raw = ports_raw[ports_raw.find("\n") + 1 :].replace("\n", " ")
+        result["ports"] = [
+            p.strip() for p in ports_raw.split("port") if "LOCAL" not in p and p.strip()
+        ]
 
         flow_table_raw = node.dpctl("dump-flows").strip()
         parsed_flows = []
@@ -769,13 +859,16 @@ def get_node_stats(node_id: str):
 
     result.pop("x", None)
     result.pop("y", None)
-    
+
     return result
+
 
 @app.post("/api/mininet/flows")
 def add_flow(rule: FlowRuleCreate):
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to add flows")
+        raise HTTPException(
+            status_code=400, detail="network must be started to add flows"
+        )
     if rule.switch not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Switch {rule.switch} not found")
     node = state.net.nameToNode[rule.switch]
@@ -794,10 +887,13 @@ def add_flow(rule: FlowRuleCreate):
 
     return {"status": "ok", "flow": flow}
 
+
 @app.get("/api/mininet/flows/{switch_id}")
 def list_flows(switch_id: str):
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to list flows")
+        raise HTTPException(
+            status_code=400, detail="network must be started to list flows"
+        )
     if switch_id not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Switch {switch_id} not found")
     node = state.net.nameToNode[switch_id]
@@ -807,14 +903,19 @@ def list_flows(switch_id: str):
     cmd = ["ovs-ofctl", "dump-flows", switch_id]
     result = subprocess.run(cmd, text=True, capture_output=True)
     if result.returncode != 0:
-        detail = (result.stderr or result.stdout or "ovs-ofctl dump-flows failed").strip()
+        detail = (
+            result.stderr or result.stdout or "ovs-ofctl dump-flows failed"
+        ).strip()
         raise HTTPException(status_code=400, detail=detail)
     return {"switch": switch_id, "flows": result.stdout.strip()}
+
 
 @app.delete("/api/mininet/flows")
 def delete_flows(rule: FlowRuleDelete):
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to delete flows")
+        raise HTTPException(
+            status_code=400, detail="network must be started to delete flows"
+        )
     if rule.switch not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Switch {rule.switch} not found")
     node = state.net.nameToNode[rule.switch]
@@ -832,15 +933,20 @@ def delete_flows(rule: FlowRuleDelete):
         cmd.append(match)
     result = subprocess.run(cmd, text=True, capture_output=True)
     if result.returncode != 0:
-        detail = (result.stderr or result.stdout or "ovs-ofctl del-flows failed").strip()
+        detail = (
+            result.stderr or result.stdout or "ovs-ofctl del-flows failed"
+        ).strip()
         raise HTTPException(status_code=400, detail=detail)
 
     return {"status": "ok", "match": match or "all"}
 
+
 @app.delete("/api/mininet/flows/{switch_id}/{flow_id}")
 def delete_flow_by_id(switch_id: str, flow_id: int):
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to delete flows")
+        raise HTTPException(
+            status_code=400, detail="network must be started to delete flows"
+        )
     if switch_id not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Switch {switch_id} not found")
     node = state.net.nameToNode[switch_id]
@@ -849,11 +955,13 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
     if flow_id <= 0:
         raise HTTPException(status_code=400, detail="flow_id must be >= 1")
 
-    dump = subprocess.run(["ovs-ofctl", "dump-flows", switch_id], text=True, capture_output=True)
+    dump = subprocess.run(
+        ["ovs-ofctl", "dump-flows", switch_id], text=True, capture_output=True
+    )
     if dump.returncode != 0:
         detail = (dump.stderr or dump.stdout or "ovs-ofctl dump-flows failed").strip()
         raise HTTPException(status_code=400, detail=detail)
-    lines = [l for l in dump.stdout.splitlines() if "actions=" in l]
+    lines = [line for line in dump.stdout.splitlines() if "actions=" in line]
     if flow_id > len(lines):
         raise HTTPException(status_code=404, detail="flow_id not found")
     line = lines[flow_id - 1]
@@ -868,23 +976,36 @@ def delete_flow_by_id(switch_id: str, flow_id: int):
         capture_output=True,
     )
     if result.returncode != 0:
-        detail = (result.stderr or result.stdout or "ovs-ofctl del-flows failed").strip()
+        detail = (
+            result.stderr or result.stdout or "ovs-ofctl del-flows failed"
+        ).strip()
         raise HTTPException(status_code=400, detail=detail)
     return {"status": "ok", "match": match}
+
 
 @app.post("/api/mininet/iperf")
 def run_iperf(request: IperfRequest):
     if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started to run iperf")
+        raise HTTPException(
+            status_code=400, detail="network must be started to run iperf"
+        )
     if state.iperf_running:
         raise HTTPException(status_code=409, detail="iperf already running")
     if request.client == request.server:
-        raise HTTPException(status_code=400, detail="client and server must be different hosts")
-    if request.client not in state.net.nameToNode or request.server not in state.net.nameToNode:
+        raise HTTPException(
+            status_code=400, detail="client and server must be different hosts"
+        )
+    if (
+        request.client not in state.net.nameToNode
+        or request.server not in state.net.nameToNode
+    ):
         raise HTTPException(status_code=404, detail="client or server host not found")
     client_node = state.net.nameToNode[request.client]
     server_node = state.net.nameToNode[request.server]
-    if getattr(client_node, "type", None) != "host" or getattr(server_node, "type", None) != "host":
+    if (
+        getattr(client_node, "type", None) != "host"
+        or getattr(server_node, "type", None) != "host"
+    ):
         raise HTTPException(status_code=400, detail="client and server must be hosts")
 
     kwargs = {}
@@ -910,20 +1031,37 @@ def run_iperf(request: IperfRequest):
     finally:
         state.iperf_running = False
 
+
 @app.get("/api/mininet/export_script", response_class=PlainTextResponse)
 def export_network():
     debug(state.net)
-    return export_net_to_script(state.switches, state.hosts, state.controllers, state.nats, state.routers, state.links).encode("utf-8")
+    return export_net_to_script(
+        state.switches,
+        state.hosts,
+        state.controllers,
+        state.nats,
+        state.routers,
+        state.links,
+    ).encode("utf-8")
+
 
 @app.get("/api/mininet/export_json", response_class=PlainTextResponse)
-def export_network():
+def export_network_json():
     debug(state.net)
-    return export_net_to_json(state.switches, state.hosts, state.controllers, state.nats, state.routers, state.links).encode("utf-8")
+    return export_net_to_json(
+        state.switches,
+        state.hosts,
+        state.controllers,
+        state.nats,
+        state.routers,
+        state.links,
+    ).encode("utf-8")
+
 
 @app.post("/api/mininet/import_json")
 async def import_json(file: UploadFile = File(...)):
     contents = await file.read()
-    
+
     try:
         data = json.loads(contents.decode("utf-8"))
         print("Received Topology JSON:", data)
@@ -999,10 +1137,7 @@ async def import_json(file: UploadFile = File(...)):
             switch.controller = None
             create_switch(switch)
             if controller:
-                associate_switch({
-                    "switch": switch.id,
-                    "controller": controller
-                })
+                associate_switch({"switch": switch.id, "controller": controller})
 
         for host_data in data.get("hosts", []):
             host = Host(**host_data)
@@ -1028,5 +1163,3 @@ async def import_json(file: UploadFile = File(...)):
 
     except json.JSONDecodeError:
         return {"error": "Invalid JSON file"}, 400
-
-

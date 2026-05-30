@@ -1,8 +1,6 @@
 from typing import Union
 
 from pydantic import BaseModel
-from mininet.node import RemoteController, NOX, UserSwitch, OVSSwitch, OVSKernelSwitch, OVSBridge
-from mininet_gui_backend.nodes import Ryu
 
 
 class Node(BaseModel):

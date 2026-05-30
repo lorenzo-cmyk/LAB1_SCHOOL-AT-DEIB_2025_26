@@ -1,6 +1,13 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch, nextTick } from "vue";
-import { DialogRoot, DialogPortal, DialogOverlay, DialogContent, DialogTitle, DialogClose } from "radix-vue";
+import {
+  DialogRoot,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogTitle,
+  DialogClose,
+} from "radix-vue";
 
 const props = defineProps({
   show: Boolean,
@@ -32,15 +39,21 @@ const open = computed({
 });
 
 const isLightTheme = computed(() => props.theme === "light");
-const themeClass = computed(() => (isLightTheme.value ? "theme-light" : "theme-dark"));
+const themeClass = computed(() =>
+  isLightTheme.value ? "theme-light" : "theme-dark",
+);
 
 const modalBodyRef = ref(null);
 const tabPanelSize = ref({ width: 0, height: 0 });
 const tabPanelStyle = computed(() => {
   if (!tabPanelSize.value.width && !tabPanelSize.value.height) return {};
   return {
-    "--modal-tab-panel-min-width": tabPanelSize.value.width ? `${tabPanelSize.value.width}px` : "0px",
-    "--modal-tab-panel-min-height": tabPanelSize.value.height ? `${tabPanelSize.value.height}px` : "0px",
+    "--modal-tab-panel-min-width": tabPanelSize.value.width
+      ? `${tabPanelSize.value.width}px`
+      : "0px",
+    "--modal-tab-panel-min-height": tabPanelSize.value.height
+      ? `${tabPanelSize.value.height}px`
+      : "0px",
   };
 });
 
@@ -72,7 +85,10 @@ const measureTabPanels = () => {
   const nextWidth = Math.max(0, Math.ceil(maxWidth));
   const nextHeight = Math.max(0, Math.ceil(maxHeight));
 
-  if (tabPanelSize.value.width !== nextWidth || tabPanelSize.value.height !== nextHeight) {
+  if (
+    tabPanelSize.value.width !== nextWidth ||
+    tabPanelSize.value.height !== nextHeight
+  ) {
     tabPanelSize.value = { width: nextWidth, height: nextHeight };
   }
 };
@@ -97,7 +113,8 @@ const disconnectObservers = () => {
 };
 
 const refreshTabObservers = () => {
-  const container = modalBodyRef.value?.querySelector(".modal-tab-panels") || null;
+  const container =
+    modalBodyRef.value?.querySelector(".modal-tab-panels") || null;
   tabPanelsContainer = container;
   if (!container) {
     tabPanelSize.value = { width: 0, height: 0 };
@@ -117,7 +134,11 @@ const refreshTabObservers = () => {
     mutationObserver.disconnect();
   }
   mutationObserver = new MutationObserver(() => refreshTabObservers());
-  mutationObserver.observe(container, { childList: true, subtree: true, attributes: false });
+  mutationObserver.observe(container, {
+    childList: true,
+    subtree: true,
+    attributes: false,
+  });
 
   scheduleMeasurement();
 };
@@ -161,8 +182,12 @@ onBeforeUnmount(() => {
           contentClass,
         ]"
       >
-        <div class="modal-header flex items-start justify-between gap-3 px-6 py-5">
-          <DialogTitle class="modal-title text-left text-lg font-semibold tracking-tight">
+        <div
+          class="modal-header flex items-start justify-between gap-3 px-6 py-5"
+        >
+          <DialogTitle
+            class="modal-title text-left text-lg font-semibold tracking-tight"
+          >
             <slot name="header">{{ $t("modal.defaultHeader") }}</slot>
           </DialogTitle>
           <DialogClose
@@ -274,7 +299,10 @@ onBeforeUnmount(() => {
   color: #cccccc;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .modal-tab:hover {
@@ -347,7 +375,10 @@ onBeforeUnmount(() => {
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .modal-button:hover {

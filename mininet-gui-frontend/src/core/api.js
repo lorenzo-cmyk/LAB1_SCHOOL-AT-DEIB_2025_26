@@ -63,8 +63,7 @@ export const deployController = async (ctl) => {
         },
       },
     );
-    if (response.status === 200)
-      return response.data;
+    if (response.status === 200) return response.data;
     throw new Error("Error deploying controller in mininet");
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -158,8 +157,7 @@ export const deployLink = async (src, dst, options = null) => {
         },
       },
     );
-    if (response.status === 200)
-      return response.data;
+    if (response.status === 200) return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
     throw error;
@@ -168,10 +166,10 @@ export const deployLink = async (src, dst, options = null) => {
 
 export const assocSwitch = async (sw, ctl) => {
   try {
-    console.log("assoc",sw, ctl);
+    console.log("assoc", sw, ctl);
     const response = await axios.post(
       baseUrl + `/api/mininet/associate_switch`,
-      JSON.stringify({"switch": sw, "controller": ctl}),
+      JSON.stringify({ switch: sw, controller: ctl }),
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
@@ -179,8 +177,7 @@ export const assocSwitch = async (sw, ctl) => {
         },
       },
     );
-    if (response.status === 200)
-      return response.data;
+    if (response.status === 200) return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
   }
@@ -298,11 +295,15 @@ export const getSnifferHistory = async () => {
 
 export const startSniffer = async () => {
   try {
-    const response = await axios.post(baseUrl + "/api/mininet/sniffer/start", null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
+    const response = await axios.post(
+      baseUrl + "/api/mininet/sniffer/start",
+      null,
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       },
-    });
+    );
     return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -312,11 +313,15 @@ export const startSniffer = async () => {
 
 export const stopSniffer = async () => {
   try {
-    const response = await axios.post(baseUrl + "/api/mininet/sniffer/stop", null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
+    const response = await axios.post(
+      baseUrl + "/api/mininet/sniffer/stop",
+      null,
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       },
-    });
+    );
     return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -361,7 +366,7 @@ export const updateNodePosition = async (nodeId, position) => {
   try {
     const response = await axios.post(
       baseUrl + `/api/mininet/node_position`,
-      JSON.stringify({"node_id": nodeId, "position": position}),
+      JSON.stringify({ node_id: nodeId, position: position }),
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
@@ -378,16 +383,12 @@ export const updateNodePosition = async (nodeId, position) => {
 
 export const requestStartNetwork = async () => {
   try {
-    const response = await axios.post(
-      baseUrl + "/api/mininet/start",
-      null,
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+    const response = await axios.post(baseUrl + "/api/mininet/start", null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
       },
-    );
+    });
     return response.status === 200;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -397,16 +398,12 @@ export const requestStartNetwork = async () => {
 
 export const requestStopNetwork = async () => {
   try {
-    const response = await axios.post(
-      baseUrl + "/api/mininet/stop",
-      null,
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+    const response = await axios.post(baseUrl + "/api/mininet/stop", null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
       },
-    );
+    });
     return response.status === 200;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -416,16 +413,12 @@ export const requestStopNetwork = async () => {
 
 export const requestResetNetwork = async () => {
   try {
-    const response = await axios.post(
-      baseUrl + "/api/mininet/reset",
-      null,
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+    const response = await axios.post(baseUrl + "/api/mininet/reset", null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
       },
-    );
+    });
     return response.status === 200;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -466,7 +459,7 @@ export const requestExportNetwork = async () => {
       a.href = url;
       a.download = "network_export.json";
       document.body.appendChild(a);
-      a.click(); 
+      a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }
@@ -480,9 +473,13 @@ export const requestImportNetwork = async (file) => {
   formData.append("file", file);
 
   try {
-    const response = await axios.post(baseUrl + "/api/mininet/import_json", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
+    const response = await axios.post(
+      baseUrl + "/api/mininet/import_json",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
 
     if (response.status === 200) {
       return response.data;
@@ -490,7 +487,9 @@ export const requestImportNetwork = async (file) => {
       throw new Error("Import failed.");
     }
   } catch (error) {
-    throw new Error(error.response ? error.response.data.detail : "Network Error");
+    throw new Error(
+      error.response ? error.response.data.detail : "Network Error",
+    );
   }
 };
 
@@ -507,7 +506,7 @@ export const requestExportMininetScript = async () => {
       a.href = url;
       a.download = "network_export.py";
       document.body.appendChild(a);
-      a.click(); 
+      a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }
@@ -518,16 +517,12 @@ export const requestExportMininetScript = async () => {
 
 export const requestRunPingall = async () => {
   try {
-    const response = await axios.post(
-      baseUrl + "/api/mininet/pingall",
-      null,
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+    const response = await axios.post(baseUrl + "/api/mininet/pingall", null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
       },
-    );
+    });
     return response.data;
   } catch (error) {
     if (error.response?.status === 409) {
@@ -688,11 +683,14 @@ export const getAddressingPlan = async () => {
 
 export const listFlows = async (switchId) => {
   try {
-    const response = await axios.get(baseUrl + `/api/mininet/flows/${switchId}`, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
+    const response = await axios.get(
+      baseUrl + `/api/mininet/flows/${switchId}`,
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       },
-    });
+    );
     return response.data;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");

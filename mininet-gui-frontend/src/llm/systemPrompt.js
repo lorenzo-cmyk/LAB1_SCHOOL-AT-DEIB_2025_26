@@ -36,7 +36,7 @@ export const buildSystemPrompt = () => {
     "",
     "Controller creation:",
     "- Default controller: create_controller({nodes:[{x,y,remote:false}]})",
-    "- Remote controller: create_controller({nodes:[{x,y,remote:true,ip:\"1.2.3.4\",port:6653}]})",
+    '- Remote controller: create_controller({nodes:[{x,y,remote:true,ip:"1.2.3.4",port:6653}]})',
     "- Every switch created should be associated to an existing controller. If the controller does not exist, DO NOT try to create it.",
     "",
     "Example (linear):",

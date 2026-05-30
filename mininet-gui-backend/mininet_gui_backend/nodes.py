@@ -49,10 +49,7 @@ class Ryu(Node):
         pathCheck("ryu")
         cout = "/tmp/" + self.name + ".log"
         apps = " ".join(f"ryu.app.{app}" for app in self.ryu_app if app)
-        cmd = (
-            "ryu run --observe-links --ofp-tcp-listen-port %d %s"
-            % (self.port, apps)
-        )
+        cmd = "ryu run --observe-links --ofp-tcp-listen-port %d %s" % (self.port, apps)
         pid = self.cmd(cmd + " 1>" + cout + " 2>" + cout + " & echo $!")
         try:
             self.ryu_pid = int(pid.strip())
@@ -68,6 +65,7 @@ class Ryu(Node):
             try:
                 import os
                 import signal
+
                 os.kill(self.ryu_pid, signal.SIGTERM)
             except Exception:
                 pass

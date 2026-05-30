@@ -1,5 +1,12 @@
 <script>
-import { addFlow, deleteFlowById, getNodeStats, listFlows, updateHost, updateSwitchOpenflowVersion } from "@/core/api";
+import {
+  addFlow,
+  deleteFlowById,
+  getNodeStats,
+  listFlows,
+  updateHost,
+  updateSwitchOpenflowVersion,
+} from "@/core/api";
 
 export default {
   props: ["stats"],
@@ -61,7 +68,9 @@ export default {
       return details;
     },
     isSwitch() {
-      return this.localStats?.type === "sw" || this.localStats?.type === "switch";
+      return (
+        this.localStats?.type === "sw" || this.localStats?.type === "switch"
+      );
     },
     isHost() {
       return this.localStats?.type === "host";
@@ -128,8 +137,10 @@ export default {
         const payload = {
           ip: this.hostEdit.ip,
           default_route_type: this.hostEdit.routeType,
-          default_route_dev: this.hostEdit.routeType === "dev" ? this.hostEdit.routeDev : null,
-          default_route_ip: this.hostEdit.routeType === "ip" ? this.hostEdit.routeIp : null,
+          default_route_dev:
+            this.hostEdit.routeType === "dev" ? this.hostEdit.routeDev : null,
+          default_route_ip:
+            this.hostEdit.routeType === "ip" ? this.hostEdit.routeIp : null,
         };
         const response = await updateHost(this.localStats.id, payload);
         if (!response?.host) {
@@ -199,10 +210,16 @@ export default {
           switch: this.localStats.id,
           actions: this.flowForm.actions,
           match: this.flowForm.match || undefined,
-          priority: this.flowForm.priority ? Number(this.flowForm.priority) : undefined,
+          priority: this.flowForm.priority
+            ? Number(this.flowForm.priority)
+            : undefined,
           table: this.flowForm.table ? Number(this.flowForm.table) : undefined,
-          idle_timeout: this.flowForm.idle_timeout ? Number(this.flowForm.idle_timeout) : undefined,
-          hard_timeout: this.flowForm.hard_timeout ? Number(this.flowForm.hard_timeout) : undefined,
+          idle_timeout: this.flowForm.idle_timeout
+            ? Number(this.flowForm.idle_timeout)
+            : undefined,
+          hard_timeout: this.flowForm.hard_timeout
+            ? Number(this.flowForm.hard_timeout)
+            : undefined,
           cookie: this.flowForm.cookie || undefined,
           of_version: this.flowForm.of_version || undefined,
         };
@@ -237,12 +254,18 @@ export default {
         const payload = {
           of_version: this.switchOpenflow || null,
         };
-        const updated = await updateSwitchOpenflowVersion(this.localStats.id, payload);
+        const updated = await updateSwitchOpenflowVersion(
+          this.localStats.id,
+          payload,
+        );
         if (!updated) {
           this.switchOpenflowError = this.$t("node.errors.updateSwitch");
           return;
         }
-        this.localStats = { ...this.localStats, of_version: updated.of_version ?? null };
+        this.localStats = {
+          ...this.localStats,
+          of_version: updated.of_version ?? null,
+        };
         this.switchOpenflowSuccess = true;
       } catch (error) {
         this.switchOpenflowError = this.$t("node.errors.updateSwitch");
@@ -285,7 +308,9 @@ export default {
       <div class="modal-ui tab-panel" :class="{ 'is-hidden': !isDetailsTab }">
         <div v-if="isController" class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.controllerSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.controllerSection") }}
+            </div>
             <button class="modal-button" @click="triggerControllerEdit">
               {{ $t("node.editController") }}
             </button>
@@ -294,13 +319,19 @@ export default {
 
         <div v-if="isSwitch" class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.switchConfigSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.switchConfigSection") }}
+            </div>
             <span class="modal-muted">{{ $t("node.openflowVersion") }}</span>
           </div>
           <div class="modal-form-grid">
             <label class="modal-field">
               {{ $t("node.openflowVersion") }}
-              <select v-model="switchOpenflow" class="modal-select" :disabled="!canSetOpenflow">
+              <select
+                v-model="switchOpenflow"
+                class="modal-select"
+                :disabled="!canSetOpenflow"
+              >
                 <option value="">{{ $t("node.openflowAuto") }}</option>
                 <option value="OpenFlow10">OpenFlow10</option>
                 <option value="OpenFlow11">OpenFlow11</option>
@@ -312,27 +343,51 @@ export default {
             </label>
           </div>
           <div class="modal-actions">
-            <button class="modal-button modal-button--primary" :disabled="switchOpenflowBusy || !canSetOpenflow" @click="saveSwitchOpenflow">
+            <button
+              class="modal-button modal-button--primary"
+              :disabled="switchOpenflowBusy || !canSetOpenflow"
+              @click="saveSwitchOpenflow"
+            >
               {{ $t("actions.save") }}
             </button>
-            <span v-if="switchOpenflowSuccess" class="modal-success">{{ $t("actions.saved") }}</span>
-            <span v-if="switchOpenflowError" class="modal-error">{{ switchOpenflowError }}</span>
-            <span v-if="!canSetOpenflow" class="modal-error">{{ $t("node.openflowUnsupported") }}</span>
+            <span v-if="switchOpenflowSuccess" class="modal-success">{{
+              $t("actions.saved")
+            }}</span>
+            <span v-if="switchOpenflowError" class="modal-error">{{
+              switchOpenflowError
+            }}</span>
+            <span v-if="!canSetOpenflow" class="modal-error">{{
+              $t("node.openflowUnsupported")
+            }}</span>
           </div>
         </div>
 
         <div v-if="isHost" class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.hostConfigSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.hostConfigSection") }}
+            </div>
             <div class="modal-actions">
-              <button v-if="!isEditingHost" class="modal-button" @click="startHostEdit">
+              <button
+                v-if="!isEditingHost"
+                class="modal-button"
+                @click="startHostEdit"
+              >
                 {{ $t("actions.edit") }}
               </button>
               <div v-else class="modal-actions">
-                <button class="modal-button modal-button--primary" :disabled="hostEditBusy" @click="saveHostEdit">
+                <button
+                  class="modal-button modal-button--primary"
+                  :disabled="hostEditBusy"
+                  @click="saveHostEdit"
+                >
                   {{ $t("actions.save") }}
                 </button>
-                <button class="modal-button" :disabled="hostEditBusy" @click="cancelHostEdit">
+                <button
+                  class="modal-button"
+                  :disabled="hostEditBusy"
+                  @click="cancelHostEdit"
+                >
                   {{ $t("actions.cancel") }}
                 </button>
               </div>
@@ -355,21 +410,32 @@ export default {
               {{ $t("node.interface") }}
               <select v-model="hostEdit.routeDev" class="modal-select">
                 <option value="">{{ $t("node.selectInterface") }}</option>
-                <option v-for="intf in (localStats?.interfaces || [])" :key="intf" :value="intf">
+                <option
+                  v-for="intf in localStats?.interfaces || []"
+                  :key="intf"
+                  :value="intf"
+                >
                   {{ intf }}
                 </option>
               </select>
             </label>
             <label v-if="hostEdit.routeType === 'ip'" class="modal-field">
               {{ $t("node.gatewayIp") }}
-              <input v-model="hostEdit.routeIp" type="text" class="modal-input" placeholder="10.0.0.254" />
+              <input
+                v-model="hostEdit.routeIp"
+                type="text"
+                class="modal-input"
+                placeholder="10.0.0.254"
+              />
             </label>
           </div>
         </div>
 
         <div class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.detailsSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.detailsSection") }}
+            </div>
           </div>
           <div class="modal-table__wrapper">
             <table class="modal-table modal-table--compact">
@@ -391,43 +457,96 @@ export default {
       <div class="modal-ui tab-panel" :class="{ 'is-hidden': !isFlowTableTab }">
         <div class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.flowTableSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.flowTableSection") }}
+            </div>
             <div class="modal-actions">
-              <button class="modal-button" :disabled="flowBusy" @click="showFlowForm = !showFlowForm">
-                {{ showFlowForm ? $t("node.hideFlowForm") : $t("node.addFlow") }}
+              <button
+                class="modal-button"
+                :disabled="flowBusy"
+                @click="showFlowForm = !showFlowForm"
+              >
+                {{
+                  showFlowForm ? $t("node.hideFlowForm") : $t("node.addFlow")
+                }}
               </button>
-              <button class="modal-button" :disabled="flowBusy" @click="refreshFlows">{{ $t("actions.refresh") }}</button>
+              <button
+                class="modal-button"
+                :disabled="flowBusy"
+                @click="refreshFlows"
+              >
+                {{ $t("actions.refresh") }}
+              </button>
             </div>
           </div>
           <div v-if="showFlowForm" class="flow-editor">
             <div class="modal-form-grid">
               <label class="modal-field">
                 {{ $t("node.flow.match") }}
-                <input v-model="flowForm.match" type="text" class="modal-input" placeholder="ip,nw_src=10.0.0.1" />
+                <input
+                  v-model="flowForm.match"
+                  type="text"
+                  class="modal-input"
+                  placeholder="ip,nw_src=10.0.0.1"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.actions") }}
-                <input v-model="flowForm.actions" type="text" class="modal-input" placeholder="output:2" />
+                <input
+                  v-model="flowForm.actions"
+                  type="text"
+                  class="modal-input"
+                  placeholder="output:2"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.priority") }}
-                <input v-model="flowForm.priority" type="number" min="0" class="modal-input" placeholder="100" />
+                <input
+                  v-model="flowForm.priority"
+                  type="number"
+                  min="0"
+                  class="modal-input"
+                  placeholder="100"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.table") }}
-                <input v-model="flowForm.table" type="number" min="0" class="modal-input" placeholder="0" />
+                <input
+                  v-model="flowForm.table"
+                  type="number"
+                  min="0"
+                  class="modal-input"
+                  placeholder="0"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.idleTimeout") }}
-                <input v-model="flowForm.idle_timeout" type="number" min="0" class="modal-input" placeholder="30" />
+                <input
+                  v-model="flowForm.idle_timeout"
+                  type="number"
+                  min="0"
+                  class="modal-input"
+                  placeholder="30"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.hardTimeout") }}
-                <input v-model="flowForm.hard_timeout" type="number" min="0" class="modal-input" placeholder="0" />
+                <input
+                  v-model="flowForm.hard_timeout"
+                  type="number"
+                  min="0"
+                  class="modal-input"
+                  placeholder="0"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.cookie") }}
-                <input v-model="flowForm.cookie" type="text" class="modal-input" placeholder="0x1" />
+                <input
+                  v-model="flowForm.cookie"
+                  type="text"
+                  class="modal-input"
+                  placeholder="0x1"
+                />
               </label>
               <label class="modal-field">
                 {{ $t("node.flow.openflow") }}
@@ -443,7 +562,13 @@ export default {
               </label>
             </div>
             <div class="modal-actions">
-              <button class="modal-button modal-button--primary" :disabled="flowBusy" @click="submitFlow">{{ $t("node.addFlow") }}</button>
+              <button
+                class="modal-button modal-button--primary"
+                :disabled="flowBusy"
+                @click="submitFlow"
+              >
+                {{ $t("node.addFlow") }}
+              </button>
             </div>
           </div>
           <p v-if="flowError" class="modal-error">{{ flowError }}</p>
@@ -465,7 +590,10 @@ export default {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(flow, index) in (localStats?.flow_table || [])" :key="index">
+                <tr
+                  v-for="(flow, index) in localStats?.flow_table || []"
+                  :key="index"
+                >
                   <td>{{ index + 1 }}</td>
                   <td>{{ flow.cookie }}</td>
                   <td>{{ flow.duration }}</td>
@@ -477,8 +605,14 @@ export default {
                   <td>{{ formatMatchFields(flow.match_fields) }}</td>
                   <td>{{ flow.actions }}</td>
                   <td>
-                    <button class="modal-button modal-button--danger flow-delete" :disabled="flowBusy" @click="deleteFlow(flow, index + 1)">
-                      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                    <button
+                      class="modal-button modal-button--danger flow-delete"
+                      :disabled="flowBusy"
+                      @click="deleteFlow(flow, index + 1)"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true"
+                        >delete</span
+                      >
                     </button>
                   </td>
                 </tr>
@@ -486,7 +620,9 @@ export default {
             </table>
           </div>
           <div class="flow-dump">
-            <div class="modal-section__title">{{ $t("node.flow.rawDump") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.flow.rawDump") }}
+            </div>
             <pre class="modal-pre">{{ flowDump }}</pre>
           </div>
         </div>
@@ -495,7 +631,9 @@ export default {
       <div class="modal-ui tab-panel" :class="{ 'is-hidden': !isArpTableTab }">
         <div class="modal-section">
           <div class="modal-section__header">
-            <div class="modal-section__title">{{ $t("node.arpTableSection") }}</div>
+            <div class="modal-section__title">
+              {{ $t("node.arpTableSection") }}
+            </div>
           </div>
           <div class="modal-table__wrapper">
             <table class="modal-table">
@@ -507,7 +645,10 @@ export default {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="entry in (localStats?.arp_table || [])" :key="entry.ip">
+                <tr
+                  v-for="entry in localStats?.arp_table || []"
+                  :key="entry.ip"
+                >
                   <td>{{ entry.ip }}</td>
                   <td>{{ entry.mac }}</td>
                   <td>{{ entry.interface }}</td>

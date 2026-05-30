@@ -1,5 +1,3 @@
-from mininet_gui_backend.sniffer import SnifferManager
-
 net = None
 controllers = {}
 switches = {}
@@ -10,7 +8,7 @@ links = {}
 link_attrs = {}
 terminals = {}
 sniffers = {}
-sniffer_manager = SnifferManager()
+sniffer_manager = None
 pingall_running = False
 iperf_running = False
 
@@ -29,6 +27,6 @@ def reset_state():
     link_attrs.clear()
     terminals.clear()
     sniffers.clear()
-    sniffer_manager = SnifferManager()
+    sniffer_manager = None
     pingall_running = False
     iperf_running = False

@@ -8,7 +8,9 @@
         <table class="modal-table">
           <thead>
             <tr>
-              <th v-for="header in headers" :key="header">{{ $t(`pingall.headers.${header}`) }}</th>
+              <th v-for="header in headers" :key="header">
+                {{ $t(`pingall.headers.${header}`) }}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -33,12 +35,21 @@ export default {
   props: {
     pingResults: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     headers() {
-      return ["src", "dst", "packets_sent", "packets_recv", "min", "avg", "max", "mdev"];
+      return [
+        "src",
+        "dst",
+        "packets_sent",
+        "packets_recv",
+        "min",
+        "avg",
+        "max",
+        "mdev",
+      ];
     },
     parsedResults() {
       if (!this.pingResults) return [];
@@ -63,16 +74,15 @@ export default {
           min: cleanedData[i + 4],
           avg: cleanedData[i + 5],
           max: cleanedData[i + 6],
-          mdev: cleanedData[i + 7]
+          mdev: cleanedData[i + 7],
         };
         rows.push(row);
       }
 
       return rows;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

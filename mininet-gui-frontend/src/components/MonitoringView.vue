@@ -13,9 +13,18 @@
         </label>
         <label class="monitoring-select">
           {{ $t("monitoring.interface") }}
-          <select v-model="selectedInterface" :disabled="!availableInterfaces.length">
-            <option disabled value="">{{ $t("monitoring.selectInterface") }}</option>
-            <option v-for="intf in availableInterfaces" :key="intf" :value="intf">
+          <select
+            v-model="selectedInterface"
+            :disabled="!availableInterfaces.length"
+          >
+            <option disabled value="">
+              {{ $t("monitoring.selectInterface") }}
+            </option>
+            <option
+              v-for="intf in availableInterfaces"
+              :key="intf"
+              :value="intf"
+            >
               {{ intf }}
             </option>
           </select>
@@ -30,7 +39,9 @@
           @click="toggleMonitoring"
         >
           <span class="material-symbols-outlined">monitoring</span>
-          <span>{{ isMonitoring ? $t("monitoring.stop") : $t("monitoring.start") }}</span>
+          <span>{{
+            isMonitoring ? $t("monitoring.stop") : $t("monitoring.start")
+          }}</span>
         </button>
         <button
           class="monitoring-clear"
@@ -48,7 +59,11 @@
           @click="exportChartsAsPNG"
         >
           <span class="material-symbols-outlined">download</span>
-          <span>{{ isExporting ? $t("monitoring.exporting") : $t("monitoring.exportCharts") }}</span>
+          <span>{{
+            isExporting
+              ? $t("monitoring.exporting")
+              : $t("monitoring.exportCharts")
+          }}</span>
         </button>
         <span class="monitoring-status" :class="status">
           {{ statusMessage }}
@@ -57,7 +72,7 @@
     </div>
 
     <div class="monitoring-charts">
-        <div class="chart-card">
+      <div class="chart-card">
         <div class="chart-label">{{ $t("monitoring.txLabel") }}</div>
         <div class="chart-container" ref="txChart"></div>
       </div>
@@ -100,10 +115,10 @@ export default {
     nodeOptions() {
       const merged = [];
       const seen = new Set();
-      this.graphNodes.forEach(graphNode => {
+      this.graphNodes.forEach((graphNode) => {
         const nodeType = graphNode.type;
         if (nodeType !== "sw" && nodeType !== "switch") return;
-        const backendNode = this.nodes.find(n => n.id === graphNode.id);
+        const backendNode = this.nodes.find((n) => n.id === graphNode.id);
         merged.push({
           id: graphNode.id,
           label: graphNode.label || graphNode.name || graphNode.id,
@@ -112,7 +127,7 @@ export default {
         });
         seen.add(graphNode.id);
       });
-      this.nodes.forEach(backendNode => {
+      this.nodes.forEach((backendNode) => {
         const nodeType = backendNode.type;
         if (nodeType !== "sw" && nodeType !== "switch") return;
         if (seen.has(backendNode.id)) return;
@@ -127,7 +142,9 @@ export default {
       return merged;
     },
     currentNodeInfo() {
-      return this.nodeOptions.find(item => item.id === this.selectedNode) || null;
+      return (
+        this.nodeOptions.find((item) => item.id === this.selectedNode) || null
+      );
     },
     availableInterfaces() {
       return this.currentNodeInfo?.intfs || [];
@@ -209,7 +226,9 @@ export default {
         this.selectedNode = "";
         return;
       }
-      const exists = this.nodeOptions.some(node => node.id === this.selectedNode);
+      const exists = this.nodeOptions.some(
+        (node) => node.id === this.selectedNode,
+      );
       if (!exists) {
         this.selectedNode = this.nodeOptions[0].id;
       }
@@ -275,7 +294,9 @@ export default {
     createChartLayout() {
       const bg = this.isLightTheme ? "#f5f5f5" : "#0b0f17";
       const text = this.isLightTheme ? "#2b2b2b" : "#d1d5db";
-      const grid = this.isLightTheme ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)";
+      const grid = this.isLightTheme
+        ? "rgba(0,0,0,0.08)"
+        : "rgba(255,255,255,0.08)";
       const axisLine = this.isLightTheme ? "#cfcfcf" : "#2f2f37";
       const tick = this.isLightTheme ? "#6b6b6b" : "#9fa6af";
       return {
@@ -342,7 +363,9 @@ export default {
         node: this.selectedNode,
         intf: this.selectedInterface,
       });
-      const ws = new WebSocket(`${this.backendWsUrl}/api/mininet/monitor?${params.toString()}`);
+      const ws = new WebSocket(
+        `${this.backendWsUrl}/api/mininet/monitor?${params.toString()}`,
+      );
       this.socket = ws;
 
       ws.onopen = () => {
@@ -353,13 +376,14 @@ export default {
         });
       };
 
-      ws.onmessage = event => {
+      ws.onmessage = (event) => {
         let parsed = null;
         try {
           parsed = JSON.parse(event.data);
         } catch (error) {
           this.status = "error";
-          this.statusMessage = event.data || this.$t("monitoring.connectionDropped");
+          this.statusMessage =
+            event.data || this.$t("monitoring.connectionDropped");
           this.stopMonitoring();
           return;
         }
@@ -677,6 +701,4 @@ export default {
   width: 100%;
   height: 100%;
 }
-
-
 </style>

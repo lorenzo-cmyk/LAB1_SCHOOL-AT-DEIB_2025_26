@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timezone
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
-from mininet.node import Node
+from mininet.net import Mininet
 
 from mininet_gui_backend.schema import Host, Switch, Controller, Nat, Router
 from mininet_gui_backend.utils import parse_ip_addrs
@@ -62,18 +62,16 @@ net.stop()
 
 
 def export_net_to_script(
-    switches: List[Switch], 
-    hosts: List[Host], 
+    switches: List[Switch],
+    hosts: List[Host],
     controllers: List[Controller],
     nats: List[Nat],
     routers: List[Router],
-    links: List[Tuple[str, str]]
+    links: List[Tuple[str, str]],
 ) -> str:
     template = str(SCRIPT_TEMPLATE)
 
-    controllers_str = "\n".join([
-        c.format_controller() for c in controllers.values()
-    ])
+    controllers_str = "\n".join([c.format_controller() for c in controllers.values()])
 
     ryu_class_str = ""
     if any((c.controller_type or "").lower() == "ryu" for c in controllers.values()):
@@ -134,43 +132,46 @@ class Ryu(Node):
         return self.ip
 """
 
-    switches_str = "\n".join([
-        s.format_switch() for s in switches.values()
-    ])
+    switches_str = "\n".join([s.format_switch() for s in switches.values()])
 
-    hosts_str = "\n".join([
-        f'{h.name} = net.addHost("{h.name}", ip="{h.ip}", mac="{h.mac}")' for h in hosts.values()
-    ])
+    hosts_str = "\n".join(
+        [
+            f'{h.name} = net.addHost("{h.name}", ip="{h.ip}", mac="{h.mac}")'
+            for h in hosts.values()
+        ]
+    )
 
-    routers_str = "\n".join([
-        r.format_router()
-        for r in routers.values()
-    ])
+    routers_str = "\n".join([r.format_router() for r in routers.values()])
 
-    nats_str = "\n".join([
-        nat.format_nat()
-        for nat in nats.values()
-    ])
+    nats_str = "\n".join([nat.format_nat() for nat in nats.values()])
 
-    links_str = "\n".join([
-        f'net.addLink({link_list[0]}, {link_list[1]})'
-        for link_list in (list(link) for link in links.keys())
-    ])
+    links_str = "\n".join(
+        [
+            f"net.addLink({link_list[0]}, {link_list[1]})"
+            for link_list in (list(link) for link in links.keys())
+        ]
+    )
 
-    controller_start_str = "\n".join([
-        f"{c.name}.start()" for c in controllers.values()
-    ])
+    controller_start_str = "\n".join(
+        [f"{c.name}.start()" for c in controllers.values()]
+    )
 
-    switch_start_str = "\n".join([
-        f'{s.name}.start([{s.controller}])' if s.controller else f'{s.name}.start([])'
-        for s in switches.values()
-    ])
+    switch_start_str = "\n".join(
+        [
+            f"{s.name}.start([{s.controller}])"
+            if s.controller
+            else f"{s.name}.start([])"
+            for s in switches.values()
+        ]
+    )
 
-    openflow_versions_str = "\n".join([
-        f'errRun("ovs-vsctl --if-exists set bridge {s.name} protocols={s.of_version}")'
-        for s in switches.values()
-        if getattr(s, "of_version", None)
-    ])
+    openflow_versions_str = "\n".join(
+        [
+            f'errRun("ovs-vsctl --if-exists set bridge {s.name} protocols={s.of_version}")'
+            for s in switches.values()
+            if getattr(s, "of_version", None)
+        ]
+    )
 
     router_class_str = ""
     if len(routers) > 0:
@@ -195,7 +196,7 @@ class LinuxRouter(Node):
         links=links_str,
         openflow_versions=openflow_versions_str,
         controller_start=controller_start_str,
-        switch_start=switch_start_str
+        switch_start=switch_start_str,
     )
 
 
@@ -206,12 +207,12 @@ class LinuxRouter(Node):
 
 # json schema
 def export_net_to_json(
-    switches: List[Switch], 
-    hosts: List[Host], 
+    switches: List[Switch],
+    hosts: List[Host],
     controllers: List[Controller],
     nats: List[Nat],
     routers: List[Router],
-    links: List[Tuple[str, str]]
+    links: List[Tuple[str, str]],
 ) -> str:
     net_data = {
         "switches": [switch.model_dump() for switch in switches.values()],
@@ -219,13 +220,13 @@ def export_net_to_json(
         "routers": [router.model_dump() for router in routers.values()],
         "controllers": [controller.model_dump() for controller in controllers.values()],
         "nats": [nat.model_dump() for nat in nats.values()],
-        "links": [list(link) for link in links]
+        "links": [list(link) for link in links],
     }
 
     return json.dumps(net_data, indent=4)
 
 
-def build_addressing_plan(net: "Mininet") -> dict:
+def build_addressing_plan(net: Mininet) -> dict:
     nodes = []
     for node_id, node in net.nameToNode.items():
         node_type = getattr(node, "type", None)

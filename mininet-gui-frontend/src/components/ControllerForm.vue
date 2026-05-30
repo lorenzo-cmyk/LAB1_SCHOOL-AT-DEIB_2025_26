@@ -1,6 +1,9 @@
 <template>
   <div class="modal-ui controller-form">
-    <form class="modal-section controller-form__body" @submit.prevent="submitForm">
+    <form
+      class="modal-section controller-form__body"
+      @submit.prevent="submitForm"
+    >
       <div class="modal-section__header">
         <div class="modal-section__title">{{ titleText }}</div>
       </div>
@@ -45,7 +48,9 @@
               size="8"
               required
             >
-              <option v-for="app in ryuApps" :key="app" :value="app">{{ app }}</option>
+              <option v-for="app in ryuApps" :key="app" :value="app">
+                {{ app }}
+              </option>
             </select>
             <input
               v-else
@@ -63,17 +68,21 @@
         <div class="modal-field">
           {{ $t("controller.color") }}
           <div class="controller-form__colors">
-          <button
-            v-for="color in colorChoices"
-            :key="color"
-            type="button"
-            class="controller-form__color"
-            :class="{ selected: color === colorCode }"
-            :style="{ backgroundColor: color }"
-            @click="selectColor(color)"
-          >
-            <span v-if="color === colorCode" class="controller-form__color-check">✓</span>
-          </button>
+            <button
+              v-for="color in colorChoices"
+              :key="color"
+              type="button"
+              class="controller-form__color"
+              :class="{ selected: color === colorCode }"
+              :style="{ backgroundColor: color }"
+              @click="selectColor(color)"
+            >
+              <span
+                v-if="color === colorCode"
+                class="controller-form__color-check"
+                >✓</span
+              >
+            </button>
           </div>
         </div>
       </div>
@@ -88,10 +97,16 @@
           {{ $t("actions.edit") }}
         </button>
         <div v-else-if="isEditMode" class="controller-form__edit-actions">
-          <button class="modal-button modal-button--primary" type="submit">{{ $t("actions.save") }}</button>
-          <button class="modal-button" type="button" @click="cancelEdit">{{ $t("actions.cancel") }}</button>
+          <button class="modal-button modal-button--primary" type="submit">
+            {{ $t("actions.save") }}
+          </button>
+          <button class="modal-button" type="button" @click="cancelEdit">
+            {{ $t("actions.cancel") }}
+          </button>
         </div>
-        <button v-else class="modal-button modal-button--primary" type="submit">{{ $t("actions.create") }}</button>
+        <button v-else class="modal-button modal-button--primary" type="submit">
+          {{ $t("actions.create") }}
+        </button>
       </div>
     </form>
   </div>
@@ -123,7 +138,14 @@ export default {
       ryuAppText: "",
       colorCode: "#ffffff",
       isEditing: false,
-      colorChoices: ["#ffffff", "#007acc", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6"],
+      colorChoices: [
+        "#ffffff",
+        "#007acc",
+        "#22c55e",
+        "#f59e0b",
+        "#ef4444",
+        "#8b5cf6",
+      ],
     };
   },
   computed: {
@@ -144,7 +166,9 @@ export default {
     },
     titleText() {
       if (this.isEditMode) return this.$t("controller.title");
-      return this.isRyu ? this.$t("controller.ryuTitle") : this.$t("controller.remoteTitle");
+      return this.isRyu
+        ? this.$t("controller.ryuTitle")
+        : this.$t("controller.remoteTitle");
     },
   },
   watch: {
@@ -165,8 +189,8 @@ export default {
         const apps = Array.isArray(value.ryu_app)
           ? value.ryu_app
           : value.ryu_app
-          ? [value.ryu_app]
-          : [];
+            ? [value.ryu_app]
+            : [];
         this.ryuApp = apps;
         this.ryuAppText = apps.join(", ");
         this.colorCode = value.color || "#ffffff";
@@ -209,7 +233,8 @@ export default {
     },
     cancelEdit() {
       if (this.controller) {
-        this.type = (this.controller.controller_type || "").toLowerCase() || "remote";
+        this.type =
+          (this.controller.controller_type || "").toLowerCase() || "remote";
         this.ip = this.controller.ip || "127.0.0.1";
         this.port = this.controller.port ?? "";
         this.ryuApp = this.controller.ryu_app || "";
@@ -219,7 +244,9 @@ export default {
     },
     submitForm() {
       const normalizedRyuApp = this.hasRyuApps
-        ? (this.ryuApp || []).map((app) => String(app || "").trim()).filter(Boolean)
+        ? (this.ryuApp || [])
+            .map((app) => String(app || "").trim())
+            .filter(Boolean)
         : String(this.ryuAppText || "")
             .split(",")
             .map((app) => app.trim())

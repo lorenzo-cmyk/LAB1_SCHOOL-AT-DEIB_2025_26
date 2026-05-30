@@ -14,15 +14,15 @@ export const llmTools = [
               type: "object",
               properties: {
                 x: { type: "number" },
-                y: { type: "number" }
+                y: { type: "number" },
               },
-              required: ["x", "y"]
-            }
-          }
+              required: ["x", "y"],
+            },
+          },
         },
-        required: ["nodes"]
-      }
-    }
+        required: ["nodes"],
+      },
+    },
   },
   {
     type: "function",
@@ -39,15 +39,15 @@ export const llmTools = [
               type: "object",
               properties: {
                 x: { type: "number" },
-                y: { type: "number" }
+                y: { type: "number" },
               },
-              required: ["x", "y"]
-            }
-          }
+              required: ["x", "y"],
+            },
+          },
         },
-        required: ["nodes"]
-      }
-    }
+        required: ["nodes"],
+      },
+    },
   },
   {
     type: "function",
@@ -65,17 +65,23 @@ export const llmTools = [
               properties: {
                 x: { type: "number" },
                 y: { type: "number" },
-                remote: { type: "boolean", description: "True for remote controller." },
+                remote: {
+                  type: "boolean",
+                  description: "True for remote controller.",
+                },
                 ip: { type: "string", description: "Remote controller IP." },
-                port: { type: "number", description: "Remote controller port." }
+                port: {
+                  type: "number",
+                  description: "Remote controller port.",
+                },
               },
-              required: ["x", "y"]
-            }
-          }
+              required: ["x", "y"],
+            },
+          },
         },
-        required: ["nodes"]
-      }
-    }
+        required: ["nodes"],
+      },
+    },
   },
   {
     type: "function",
@@ -86,11 +92,11 @@ export const llmTools = [
         type: "object",
         properties: {
           from: { type: "string", description: "Source node id, e.g. h1" },
-          to: { type: "string", description: "Destination node id, e.g. s1" }
+          to: { type: "string", description: "Destination node id, e.g. s1" },
         },
-        required: ["from", "to"]
-      }
-    }
+        required: ["from", "to"],
+      },
+    },
   },
   {
     type: "function",
@@ -101,11 +107,14 @@ export const llmTools = [
         type: "object",
         properties: {
           switch_id: { type: "string", description: "Switch id, e.g. s1" },
-          controller_id: { type: "string", description: "Controller id, e.g. c1" }
+          controller_id: {
+            type: "string",
+            description: "Controller id, e.g. c1",
+          },
         },
-        required: ["switch_id", "controller_id"]
-      }
-    }
+        required: ["switch_id", "controller_id"],
+      },
+    },
   },
   {
     type: "function",
@@ -114,9 +123,9 @@ export const llmTools = [
       description: "Get current topology nodes and edges as JSON.",
       parameters: {
         type: "object",
-        properties: {}
-      }
-    }
+        properties: {},
+      },
+    },
   },
   {
     type: "function",
@@ -127,11 +136,11 @@ export const llmTools = [
         type: "object",
         properties: {
           node_id: { type: "string", description: "Node id, e.g. h1" },
-          command: { type: "string", description: "Command to execute" }
+          command: { type: "string", description: "Command to execute" },
         },
-        required: ["node_id", "command"]
-      }
-    }
+        required: ["node_id", "command"],
+      },
+    },
   },
   {
     type: "function",
@@ -141,12 +150,12 @@ export const llmTools = [
       parameters: {
         type: "object",
         properties: {
-          node_id: { type: "string", description: "Node id, e.g. h1" }
+          node_id: { type: "string", description: "Node id, e.g. h1" },
         },
-        required: ["node_id"]
-      }
-    }
-  }
+        required: ["node_id"],
+      },
+    },
+  },
 ];
 
 export const buildLlmsActions = (handlers) => ({

@@ -12,30 +12,86 @@
           {{ $t("menu.file") }}
         </button>
         <div v-if="fileMenuOpen" class="menu-dropdown" @click.stop>
-          <button type="button" class="menu-action" @click="$emit('new-topology'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('new-topology');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.newTopology") }}
           </button>
-          <button type="button" class="menu-action" @click="closeFileMenu(); openFileDialog()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              closeFileMenu();
+              openFileDialog();
+            "
+          >
             {{ $t("menu.openTopology") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('save-topology'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('save-topology');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.saveTopology") }}
           </button>
           <div class="menu-separator"></div>
-          <button type="button" class="menu-action" @click="$emit('export-script'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('export-script');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.exportScript") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('export-sniffer'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('export-sniffer');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.exportSniffer") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('export-png'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('export-png');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.exportPng") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('export-addressing-plan'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('export-addressing-plan');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.exportAddressing") }}
           </button>
           <div class="menu-separator"></div>
-          <button type="button" class="menu-action" @click="$emit('open-settings'); closeFileMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('open-settings');
+              closeFileMenu();
+            "
+          >
             {{ $t("menu.settings") }}
           </button>
         </div>
@@ -50,39 +106,103 @@
           {{ $t("menu.view") }}
         </button>
         <div v-if="viewMenuOpen" class="menu-dropdown" @click.stop>
-          <button type="button" class="menu-action" @click="$emit('collapse-all-views'); closeViewMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('collapse-all-views');
+              closeViewMenu();
+            "
+          >
             {{ $t("menu.collapseViews") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('expand-all-views'); closeViewMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('expand-all-views');
+              closeViewMenu();
+            "
+          >
             {{ $t("menu.expandViews") }}
           </button>
           <div class="menu-separator"></div>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showHosts" @change="$emit('update-show-hosts', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showHosts"
+              @change="$emit('update-show-hosts', $event.target.checked)"
+            />
             {{ $t("menu.showHosts") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showControllers" @change="$emit('update-show-controllers', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showControllers"
+              @change="$emit('update-show-controllers', $event.target.checked)"
+            />
             {{ $t("menu.showControllers") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showSpecialSwitches" @change="$emit('update-setting', 'showSpecialSwitches', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showSpecialSwitches"
+              @change="
+                $emit(
+                  'update-setting',
+                  'showSpecialSwitches',
+                  $event.target.checked,
+                )
+              "
+            />
             {{ $t("menu.showSpecialSwitches") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showSpecialControllers" @change="$emit('update-setting', 'showSpecialControllers', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showSpecialControllers"
+              @change="
+                $emit(
+                  'update-setting',
+                  'showSpecialControllers',
+                  $event.target.checked,
+                )
+              "
+            />
             {{ $t("menu.showSpecialControllers") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showHostIp" @change="$emit('update-setting', 'showHostIp', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showHostIp"
+              @change="
+                $emit('update-setting', 'showHostIp', $event.target.checked)
+              "
+            />
             {{ $t("menu.showHostIp") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showSwitchDpids" @change="$emit('update-setting', 'showSwitchDpids', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showSwitchDpids"
+              @change="
+                $emit(
+                  'update-setting',
+                  'showSwitchDpids',
+                  $event.target.checked,
+                )
+              "
+            />
             {{ $t("menu.showSwitchDpids") }}
           </label>
           <label class="menu-checkbox">
-            <input type="checkbox" :checked="settings.showPortLabels" @change="$emit('update-setting', 'showPortLabels', $event.target.checked)" />
+            <input
+              type="checkbox"
+              :checked="settings.showPortLabels"
+              @change="
+                $emit('update-setting', 'showPortLabels', $event.target.checked)
+              "
+            />
             {{ $t("menu.showPortLabels") }}
           </label>
           <div class="menu-separator"></div>
@@ -90,7 +210,13 @@
             <input
               type="checkbox"
               :checked="settings.theme === 'light'"
-              @change="$emit('update-setting', 'theme', $event.target.checked ? 'light' : 'dark')"
+              @change="
+                $emit(
+                  'update-setting',
+                  'theme',
+                  $event.target.checked ? 'light' : 'dark',
+                )
+              "
             />
             {{ $t("menu.lightTheme") }}
           </label>
@@ -109,23 +235,36 @@
           <button
             type="button"
             class="menu-action"
-            @click="$emit('start-network'); closeRunMenu()"
-            :disabled="networkStarted || networkCommandInFlight || !mininetConnected"
+            @click="
+              $emit('start-network');
+              closeRunMenu();
+            "
+            :disabled="
+              networkStarted || networkCommandInFlight || !mininetConnected
+            "
           >
             {{ $t("menu.startNetwork") }}
           </button>
           <button
             type="button"
             class="menu-action"
-            @click="$emit('stop-network'); closeRunMenu()"
-            :disabled="!networkStarted || networkCommandInFlight || !mininetConnected"
+            @click="
+              $emit('stop-network');
+              closeRunMenu();
+            "
+            :disabled="
+              !networkStarted || networkCommandInFlight || !mininetConnected
+            "
           >
             {{ $t("menu.stopNetwork") }}
           </button>
           <button
             type="button"
             class="menu-action"
-            @click="$emit('restart-network'); closeRunMenu()"
+            @click="
+              $emit('restart-network');
+              closeRunMenu();
+            "
             :disabled="networkCommandInFlight || !mininetConnected"
           >
             {{ $t("menu.restartNetwork") }}
@@ -142,20 +281,55 @@
           {{ $t("menu.tools") }}
         </button>
         <div v-if="toolsMenuOpen" class="menu-dropdown" @click.stop>
-          <button type="button" class="menu-action" @click="$emit('run-iperf'); closeToolsMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('run-iperf');
+              closeToolsMenu();
+            "
+          >
             {{ $t("menu.runIperf") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('run-pingall'); closeToolsMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('run-pingall');
+              closeToolsMenu();
+            "
+          >
             {{ $t("menu.runPingall") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('generate-topology'); closeToolsMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('generate-topology');
+              closeToolsMenu();
+            "
+          >
             {{ $t("menu.generateTopology") }}
           </button>
           <div class="menu-separator"></div>
-          <button type="button" class="menu-action" @click="$emit('start-sniffer'); closeToolsMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('start-sniffer');
+              closeToolsMenu();
+            "
+          >
             {{ $t("menu.startSniffer") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('stop-sniffer'); closeToolsMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('stop-sniffer');
+              closeToolsMenu();
+            "
+          >
             {{ $t("menu.stopSniffer") }}
           </button>
         </div>
@@ -170,13 +344,34 @@
           {{ $t("menu.help") }}
         </button>
         <div v-if="helpMenuOpen" class="menu-dropdown" @click.stop>
-          <button type="button" class="menu-action" @click="$emit('open-usage'); closeHelpMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('open-usage');
+              closeHelpMenu();
+            "
+          >
             {{ $t("menu.usage") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('open-docs'); closeHelpMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('open-docs');
+              closeHelpMenu();
+            "
+          >
             {{ $t("menu.openDocs") }}
           </button>
-          <button type="button" class="menu-action" @click="$emit('open-about'); closeHelpMenu()">
+          <button
+            type="button"
+            class="menu-action"
+            @click="
+              $emit('open-about');
+              closeHelpMenu();
+            "
+          >
             {{ $t("menu.about") }}
           </button>
         </div>
@@ -202,15 +397,30 @@ export default {
     mininetConnected: { type: Boolean, default: true },
   },
   emits: [
-    "start-network", "stop-network", "restart-network",
-    "new-topology", "open-topology", "save-topology",
-    "export-script", "export-sniffer", "export-png", "export-addressing-plan",
+    "start-network",
+    "stop-network",
+    "restart-network",
+    "new-topology",
+    "open-topology",
+    "save-topology",
+    "export-script",
+    "export-sniffer",
+    "export-png",
+    "export-addressing-plan",
     "open-settings",
-    "run-iperf", "run-pingall", "generate-topology",
-    "start-sniffer", "stop-sniffer",
-    "collapse-all-views", "expand-all-views",
-    "open-usage", "open-docs", "open-about",
-    "update-show-hosts", "update-show-controllers", "update-setting",
+    "run-iperf",
+    "run-pingall",
+    "generate-topology",
+    "start-sniffer",
+    "stop-sniffer",
+    "collapse-all-views",
+    "expand-all-views",
+    "open-usage",
+    "open-docs",
+    "open-about",
+    "update-show-hosts",
+    "update-show-controllers",
+    "update-setting",
     "file-upload",
   ],
   data() {
@@ -330,11 +540,21 @@ export default {
       this.viewMenuOpen = false;
       this.runMenuOpen = !this.runMenuOpen;
     },
-    closeFileMenu() { this.fileMenuOpen = false; },
-    closeHelpMenu() { this.helpMenuOpen = false; },
-    closeToolsMenu() { this.toolsMenuOpen = false; },
-    closeViewMenu() { this.viewMenuOpen = false; },
-    closeRunMenu() { this.runMenuOpen = false; },
+    closeFileMenu() {
+      this.fileMenuOpen = false;
+    },
+    closeHelpMenu() {
+      this.helpMenuOpen = false;
+    },
+    closeToolsMenu() {
+      this.toolsMenuOpen = false;
+    },
+    closeViewMenu() {
+      this.viewMenuOpen = false;
+    },
+    closeRunMenu() {
+      this.runMenuOpen = false;
+    },
     openFileDialog() {
       this.$refs.topologyFileInput?.click();
     },

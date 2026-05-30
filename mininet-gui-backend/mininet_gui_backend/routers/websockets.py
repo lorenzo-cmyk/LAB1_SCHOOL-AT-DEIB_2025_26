@@ -22,6 +22,7 @@ from mininet_gui_backend.utils import (
 
 router = APIRouter()
 
+
 @router.websocket("/api/mininet/terminal/{node_id}")
 async def websocket_terminal(websocket: WebSocket, node_id: str):
     """WebSocket endpoint for accessing a Mininet node terminal"""
@@ -62,7 +63,7 @@ async def websocket_terminal(websocket: WebSocket, node_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            debug("RECEIVED",data.encode())
+            debug("RECEIVED", data.encode())
             os.write(master_fd, data.encode())
     except WebSocketDisconnect:
         process.terminate()
@@ -74,6 +75,7 @@ async def websocket_terminal(websocket: WebSocket, node_id: str):
         else:
             state.terminals[node_id] = sessions
         print(f"Closed terminal session for {node_id} ({session_id})")
+
 
 @router.websocket("/api/mininet/logs")
 async def websocket_logs(websocket: WebSocket):
@@ -100,6 +102,7 @@ async def websocket_logs(websocket: WebSocket):
         pass
     finally:
         process.terminate()
+
 
 @router.websocket("/api/mininet/sniffer")
 async def websocket_sniffer(websocket: WebSocket):
@@ -155,7 +158,9 @@ async def websocket_interface_monitor(websocket: WebSocket):
     nodes = list_mininet_interfaces()
     node_info = next((node for node in nodes if node["id"] == node_id), None)
     if not node_info or intf_name not in node_info.get("intfs", []):
-        await websocket.send_text(f"Error: interface {intf_name} for node {node_id} was not found.")
+        await websocket.send_text(
+            f"Error: interface {intf_name} for node {node_id} was not found."
+        )
         await websocket.close()
         return
 
@@ -163,7 +168,9 @@ async def websocket_interface_monitor(websocket: WebSocket):
     tx_path = stats.get("tx")
     rx_path = stats.get("rx")
     if not tx_path or not rx_path or not os.path.isdir(os.path.dirname(tx_path)):
-        await websocket.send_text(f"Error: statistics for interface {intf_name} are unavailable.")
+        await websocket.send_text(
+            f"Error: statistics for interface {intf_name} are unavailable."
+        )
         await websocket.close()
         return
 
@@ -176,7 +183,9 @@ async def websocket_interface_monitor(websocket: WebSocket):
             tx_bytes = read_interface_counter(tx_path)
             rx_bytes = read_interface_counter(rx_path)
             if tx_bytes is None or rx_bytes is None:
-                await websocket.send_text(f"Error: failed to read counters for {intf_name}.")
+                await websocket.send_text(
+                    f"Error: failed to read counters for {intf_name}."
+                )
                 break
 
             if last_tx is not None and last_rx is not None and last_time:
