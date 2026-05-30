@@ -549,7 +549,7 @@ import logoImage from "@/assets/logo-mininet-gui.png";
                     target="_blank"
                     rel="noreferrer"
                   >
-                     ""
+                    ""
                   </a>
                 </p>
                 <p>{{ $t("about.license") }}</p>
@@ -1140,11 +1140,7 @@ export default {
       this.showModal = true;
     },
     handleOpenDocumentation() {
-      window.open(
-        "",
-        "_blank",
-        "noopener,noreferrer",
-      );
+      window.open("", "_blank", "noopener,noreferrer");
     },
     handleOpenAbout() {
       this.modalHeader = this.$t("menu.about");

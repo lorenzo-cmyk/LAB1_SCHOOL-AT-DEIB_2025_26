@@ -7,8 +7,6 @@ import NetworkGraph from "./components/NetworkGraph.vue";
 </template>
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Fira Sans");
-
 html {
   height: 100%;
   width: 100%;
