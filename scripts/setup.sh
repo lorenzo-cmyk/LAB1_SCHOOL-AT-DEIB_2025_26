@@ -39,11 +39,13 @@ BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
 FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
 
 echo "Installing backend Python deps"
-sudo python3 -m pip install --no-cache-dir -r "$BACKEND_DIR/requirements.txt"
+sudo python3 -m pip install --break-system-packages --no-cache-dir -r "$BACKEND_DIR/requirements.txt"
 
 # ---- Node / nvm ----
-echo "Installing nvm"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+  echo "Installing nvm"
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
