@@ -48,14 +48,6 @@
         >
           {{ $t("webshell.tabs.logs") }}
         </button>
-        <button
-          type="button"
-          class="view-tab"
-          :class="{ active: activeView === 'chat' }"
-          @click="activeView = 'chat'"
-        >
-          {{ $t("webshell.tabs.chat") }}
-        </button>
       </div>
       <div class="webshell-actions">
         <button class="icon-button" type="button" @click="toggleMinimize">
@@ -136,34 +128,6 @@
     >
       <div ref="logTerminal" class="terminal-instance active"></div>
     </div>
-    <div v-show="!isMinimized && activeView === 'chat'" class="chat-window">
-      <div class="chat-messages" ref="chatMessages">
-        <div
-          v-for="(message, index) in chatMessages.filter(
-            (m) => m.role !== 'system',
-          )"
-          :key="index"
-          class="chat-message"
-          :class="`chat-${message.role}`"
-        >
-          <strong>{{ $t(`webshell.roles.${message.role}`) }}:</strong>
-          <span class="chat-content">{{ message.content }}</span>
-        </div>
-      </div>
-      <div class="chat-input">
-        <textarea
-          v-model="chatInput"
-          :placeholder="$t('webshell.chatPlaceholder')"
-          @keydown.enter.exact.prevent="sendChat"
-          :disabled="chatBusy"
-          rows="2"
-        ></textarea>
-        <button :disabled="chatBusy" @click="sendChat">
-          {{ $t("actions.send") }}
-        </button>
-      </div>
-      <p v-if="chatError" class="chat-error">{{ chatError }}</p>
-    </div>
   </div>
 </template>
 
@@ -173,8 +137,6 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import TrafficView from "./TrafficView.vue";
 import MonitoringView from "./MonitoringView.vue";
-import { llmTools, runToolCalls } from "@/llm/actions";
-import { buildGraphStateMessage, buildSystemPrompt } from "@/llm/systemPrompt";
 
 export default {
   components: { TrafficView, MonitoringView },
@@ -187,9 +149,6 @@ export default {
     preferredView: { type: String, default: null },
     focusNodeId: { type: String, default: null },
     minimized: { type: Boolean, default: false },
-    openaiKey: { type: String, default: "" },
-    openaiModel: { type: String, default: "gpt-4o-mini" },
-    llmHandlers: { type: Object, default: () => ({}) },
     theme: { type: String, default: "dark" },
   },
   data() {
@@ -210,10 +169,6 @@ export default {
       panelHeight: 320,
       isResizing: false,
       activeView: "terminal",
-      chatMessages: [],
-      chatInput: "",
-      chatBusy: false,
-      chatError: "",
       graphNodeList: [],
       graphVersion: 0,
       nodeDatasetRef: null,
@@ -270,9 +225,6 @@ export default {
         this.setActiveTab(value);
       }
     },
-    openaiKey() {
-      this.chatError = "";
-    },
     minimized(value) {
       this.isMinimized = !!value;
     },
@@ -296,11 +248,6 @@ export default {
     },
   },
   mounted() {
-    if (!this.chatMessages.length) {
-      this.chatMessages = [
-        { role: "system", content: this.$t("webshell.systemPrompt") },
-      ];
-    }
     this.isMinimized = !!this.minimized;
     this.syncNodes();
     if (this.preferredView) {
@@ -635,116 +582,6 @@ export default {
         intfs: Array.isArray(node.intfs) ? [...node.intfs] : [],
       }));
     },
-    async sendChat() {
-      if (!this.chatInput.trim()) return;
-      if (!this.openaiKey) {
-        this.chatError = this.$t("webshell.errors.missingKey");
-        return;
-      }
-      const graphStateMessage = this.buildGraphContext();
-      const content = graphStateMessage
-        ? `${this.chatInput.trim()}\n\n${graphStateMessage}`
-        : this.chatInput.trim();
-      const userMessage = { role: "user", content };
-      console.log("[AI] user message", userMessage);
-      this.chatMessages.push(userMessage);
-      this.$nextTick(this.scrollChatToBottom);
-      this.chatInput = "";
-      this.chatError = "";
-      this.chatBusy = true;
-      try {
-        let response = await this.callOpenAI(this.chatMessages);
-        console.log("[AI] response", response);
-        let assistant = response?.choices?.[0]?.message;
-        if (!assistant) throw new Error(this.$t("webshell.errors.noAssistant"));
-        console.log("[AI] assistant message", assistant);
-        this.chatMessages.push(assistant);
-        this.$nextTick(this.scrollChatToBottom);
-        while (assistant?.tool_calls?.length) {
-          console.log("[AI] tool_calls", assistant.tool_calls);
-          const toolMessages = await runToolCalls(
-            assistant.tool_calls,
-            this.llmHandlers,
-          );
-          console.log("[AI] tool responses", toolMessages);
-          this.chatMessages.push(...toolMessages);
-          this.$nextTick(this.scrollChatToBottom);
-          response = await this.callOpenAI(this.chatMessages);
-          console.log("[AI] follow-up response", response);
-          assistant = response?.choices?.[0]?.message;
-          if (!assistant) break;
-          console.log("[AI] assistant message", assistant);
-          this.chatMessages.push(assistant);
-          this.$nextTick(this.scrollChatToBottom);
-        }
-      } catch (error) {
-        this.chatError = error?.message || String(error);
-      } finally {
-        this.chatBusy = false;
-      }
-    },
-    async callOpenAI(messages) {
-      const systemPrompt = buildSystemPrompt();
-      const payloadMessages = systemPrompt
-        ? [{ role: "system", content: systemPrompt }, ...messages]
-        : messages;
-      console.log("[AI] sending messages", payloadMessages);
-      const payload = {
-        model: this.openaiModel || "gpt-4o-mini",
-        messages: payloadMessages,
-        tools: llmTools,
-        tool_choice: "auto",
-      };
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.openaiKey}`,
-          },
-          body: JSON.stringify(payload),
-        },
-      );
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || this.$t("webshell.errors.requestFailed"));
-      }
-      return response.json();
-    },
-    scrollChatToBottom() {
-      const el = this.$refs.chatMessages;
-      if (!el) return;
-      el.scrollTop = el.scrollHeight;
-    },
-    buildGraphContext() {
-      try {
-        const nodes = this.nodes?.get ? this.nodes.get() : [];
-        const edges = this.edges?.get ? this.edges.get() : [];
-        const summarizedNodes = nodes.map((node) => ({
-          id: node.id,
-          type: node.type,
-          name: node.name,
-          label: node.label,
-          ip: node.ip,
-          controller: node.controller,
-        }));
-        const summarizedEdges = edges.map((edge) => ({
-          from: edge.from,
-          to: edge.to,
-          title: edge.title,
-          dashes: edge.dashes,
-          color: edge.color,
-        }));
-        return buildGraphStateMessage({
-          nodes: summarizedNodes,
-          edges: summarizedEdges,
-        });
-      } catch (error) {
-        console.warn("Failed to build graph context", error);
-        return "";
-      }
-    },
   },
 };
 </script>
@@ -971,86 +808,6 @@ export default {
 .monitoring-window {
   flex: 1;
   min-height: 0;
-}
-
-.chat-window {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 10px;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.85rem;
-}
-
-.chat-message {
-  background: var(--theme-webshell-chat-bg);
-  border: 1px solid var(--theme-webshell-chat-border);
-  padding: 8px 10px;
-  border-radius: 8px;
-}
-
-.chat-content {
-  white-space: pre-wrap;
-}
-
-.chat-user {
-  border-color: #2a5d7a;
-}
-
-.chat-assistant {
-  border-color: #2f6b3c;
-}
-
-.chat-tool {
-  border-color: #5a3c6b;
-  font-family: "Fira Code", Consolas, monospace;
-  font-size: 0.75rem;
-}
-
-.chat-input {
-  display: flex;
-  gap: 8px;
-}
-
-.chat-input textarea {
-  flex: 1;
-  background: var(--theme-webshell-chat-input-bg);
-  color: var(--theme-webshell-chat-input-color);
-  border: 1px solid var(--theme-webshell-chat-input-border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  resize: none;
-  max-height: 140px;
-  overflow: auto;
-}
-
-.chat-input button {
-  background: var(--theme-webshell-chat-button-bg);
-  color: var(--theme-webshell-chat-button-color);
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.chat-input button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.chat-error {
-  color: var(--theme-webshell-chat-error);
-  font-size: 0.8rem;
 }
 
 .resize-handle-top {

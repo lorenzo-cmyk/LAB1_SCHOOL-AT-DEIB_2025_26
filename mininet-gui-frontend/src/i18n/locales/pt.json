@@ -69,19 +69,15 @@
   },
   "settings": {
     "language": "Idioma",
-    "openaiKey": "Chave da API OpenAI",
-    "openaiModel": "Modelo OpenAI",
     "defaultLinkAttributes": "Atributos Padrão do Link",
     "defaultOpenflow": "Versão OpenFlow padrão",
     "lightTheme": "Tema claro",
     "tabs": {
       "view": "Visualização",
-      "defaults": "Padrões",
-      "integrations": "Integrações"
+      "defaults": "Padrões"
     },
     "viewTitle": "Interface",
-    "defaultsTitle": "Padrões",
-    "integrationsTitle": "Integrações"
+    "defaultsTitle": "Padrões"
   },
   "language": {
     "english": "Inglês",
@@ -367,22 +363,9 @@
       "webshell": "Webshell",
       "sniffer": "Sniffer",
       "monitoring": "Monitoramento",
-      "logs": "Logs",
-      "chat": "Chat"
+      "logs": "Logs"
     },
     "noSessions": "Nenhum webshell ainda. Clique com o botão direito em um nó e escolha \"Abrir Webshell\".",
-    "chatPlaceholder": "Peça ao assistente para modificar a topologia...",
-    "systemPrompt": "Você é um assistente de rede. Use ferramentas para criar nós e links quando necessário.",
-    "errors": {
-      "missingKey": "A chave da API OpenAI não foi informada. Adicione em Configurações.",
-      "noAssistant": "Nenhuma resposta do assistente.",
-      "requestFailed": "Falha na requisição OpenAI."
-    },
-    "roles": {
-      "user": "Usuário",
-      "assistant": "Assistente",
-      "tool": "Ferramenta"
-    },
     "closeTerminal": "Fechar terminal"
   },
   "header": {

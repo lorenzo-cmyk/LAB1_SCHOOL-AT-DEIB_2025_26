@@ -69,19 +69,15 @@
   },
   "settings": {
     "language": "Language",
-    "openaiKey": "OpenAI API Key",
-    "openaiModel": "OpenAI Model",
     "defaultLinkAttributes": "Default Link Attributes",
     "defaultOpenflow": "Default OpenFlow version",
     "lightTheme": "Light theme",
     "tabs": {
       "view": "View",
-      "defaults": "Defaults",
-      "integrations": "Integrations"
+      "defaults": "Defaults"
     },
     "viewTitle": "Visibility",
-    "defaultsTitle": "Defaults",
-    "integrationsTitle": "Integrations"
+    "defaultsTitle": "Defaults"
   },
   "language": {
     "english": "English",
@@ -367,22 +363,9 @@
       "webshell": "Webshell",
       "sniffer": "Sniffer",
       "monitoring": "Monitoring",
-      "logs": "Logs",
-      "chat": "Chat"
+      "logs": "Logs"
     },
     "noSessions": "No webshells yet. Right-click a node and choose \"Open Webshell\".",
-    "chatPlaceholder": "Ask the assistant to modify the topology...",
-    "systemPrompt": "You are a network assistant. Use tools to create nodes and links when needed.",
-    "errors": {
-      "missingKey": "OpenAI API key is missing. Add it in Settings.",
-      "noAssistant": "No assistant response.",
-      "requestFailed": "OpenAI request failed."
-    },
-    "roles": {
-      "user": "User",
-      "assistant": "Assistant",
-      "tool": "Tool"
-    },
     "closeTerminal": "Close terminal"
   },
   "header": {

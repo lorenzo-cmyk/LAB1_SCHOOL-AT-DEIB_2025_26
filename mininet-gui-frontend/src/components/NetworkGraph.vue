@@ -201,9 +201,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
           :preferredView="webshellView"
           :focusNodeId="webshellFocusId"
           :minimized="webshellMinimized"
-          :openaiKey="settings.openaiApiKey"
-          :openaiModel="settings.openaiModel"
-          :llmHandlers="llmHandlers"
           :theme="settings.theme"
           @viewChange="handleWebshellViewChange"
           @toggleSniffer="toggleSniffer"
@@ -731,38 +728,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
               </label>
             </div>
           </div>
-          <div class="modal-section">
-            <div class="modal-section__header">
-              <div class="modal-section__title">
-                {{ $t("settings.integrationsTitle") }}
-              </div>
-            </div>
-            <div class="modal-form-grid">
-              <label class="modal-field">
-                {{ $t("settings.openaiKey") }}
-                <input
-                  type="password"
-                  v-model="settings.openaiApiKey"
-                  class="modal-input"
-                  @change="persistSettings"
-                  placeholder="sk-..."
-                />
-              </label>
-              <label class="modal-field">
-                {{ $t("settings.openaiModel") }}
-                <select
-                  v-model="settings.openaiModel"
-                  class="modal-input"
-                  @change="persistSettings"
-                >
-                  <option value="gpt-4o">gpt-4o</option>
-                  <option value="gpt-4o-mini">gpt-4o-mini</option>
-                  <option value="gpt-4-turbo">gpt-4-turbo</option>
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                </select>
-              </label>
-            </div>
-          </div>
         </div>
         <div v-if="modalOption === 'confirmReset'" class="modal-ui">
           <div class="modal-section">
@@ -894,8 +859,6 @@ export default {
         theme: "dark",
         language: "en",
         switchOpenflow: "",
-        openaiApiKey: "",
-        openaiModel: "gpt-4o-mini",
         linkOptions: {
           bw: "",
           delay: "",
@@ -945,18 +908,6 @@ export default {
       return this.networkStarted
         ? "network-state--started"
         : "network-state--stopped";
-    },
-    llmHandlers() {
-      return {
-        createHost: this.llmCreateHost,
-        createSwitch: this.llmCreateSwitch,
-        createController: this.llmCreateController,
-        createLink: this.llmCreateLink,
-        associateSwitch: this.llmAssociateSwitch,
-        getTopology: this.llmGetTopology,
-        runCommand: this.llmRunCommand,
-        deleteNode: this.llmDeleteNode,
-      };
     },
     selectionRectStyle() {
       const left = Math.min(this.selectionBox.startX, this.selectionBox.endX);
@@ -1979,141 +1930,6 @@ export default {
       });
       this.applyPortLabels();
       return link;
-    },
-    async llmCreateHost({ nodes } = {}) {
-      if (!Array.isArray(nodes) || nodes.length === 0) {
-        throw new Error("nodes array is required.");
-      }
-      const created = [];
-      for (const entry of nodes) {
-        if (!Number.isFinite(entry?.x) || !Number.isFinite(entry?.y)) {
-          throw new Error("Each node requires numeric x and y.");
-        }
-        const host = await this.createHost({ x: entry.x, y: entry.y });
-        created.push(host.id);
-      }
-      return { ids: created };
-    },
-    async llmCreateSwitch({ nodes } = {}) {
-      if (!Array.isArray(nodes) || nodes.length === 0) {
-        throw new Error("nodes array is required.");
-      }
-      const created = [];
-      for (const entry of nodes) {
-        if (!Number.isFinite(entry?.x) || !Number.isFinite(entry?.y)) {
-          throw new Error("Each node requires numeric x and y.");
-        }
-        const sw = await this.createSwitch({ x: entry.x, y: entry.y });
-        created.push(sw.id);
-      }
-      return { ids: created };
-    },
-    async llmCreateController({ nodes } = {}) {
-      if (!Array.isArray(nodes) || nodes.length === 0) {
-        throw new Error("nodes array is required.");
-      }
-      const created = [];
-      for (const entry of nodes) {
-        if (!Number.isFinite(entry?.x) || !Number.isFinite(entry?.y)) {
-          throw new Error("Each node requires numeric x and y.");
-        }
-        const remote = Boolean(entry?.remote);
-        const ip = remote ? entry?.ip : null;
-        const port = remote ? entry?.port : null;
-        const controllerType =
-          entry?.controller_type || (remote ? "remote" : "default");
-        const ryuApp = controllerType === "ryu" ? entry?.ryu_app : null;
-        await this.createController(
-          { x: entry.x, y: entry.y },
-          remote,
-          ip,
-          port,
-          controllerType,
-          ryuApp,
-        );
-        const lastId = Object.keys(this.controllers)
-          .sort(this.compareNodeIds)
-          .pop();
-        if (lastId) created.push(lastId);
-      }
-      return { ids: created };
-    },
-    async llmCreateLink({ from, to } = {}) {
-      if (!from || !to) throw new Error("from and to are required.");
-      const link = await this.createLinkBetween(from, to);
-      return { from: link.from ?? from, to: link.to ?? to };
-    },
-    async llmAssociateSwitch({ switch_id, controller_id } = {}) {
-      if (!switch_id || !controller_id)
-        throw new Error("switch_id and controller_id are required.");
-      await assocSwitch(switch_id, controller_id);
-      this.edges.add({
-        from: switch_id,
-        to: controller_id,
-        color: { color: this.controllerLinkColor() },
-        dashes: [10, 10],
-      });
-      if (this.switches[switch_id]) {
-        this.switches[switch_id].controller = controller_id;
-      }
-      return { ok: true };
-    },
-    async llmGetTopology() {
-      const nodes = [
-        ...Object.values(this.hosts || {}),
-        ...Object.values(this.switches || {}),
-        ...Object.values(this.controllers || {}),
-      ].map((node) => ({
-        id: node.id,
-        type: node.type,
-        name: node.name,
-        label: node.label,
-        ip: node.ip,
-        controller: node.controller,
-      }));
-      const edges = (this.edges?.get ? this.edges.get() : []).map((edge) => ({
-        from: edge.from,
-        to: edge.to,
-        title: edge.title,
-        dashes: edge.dashes,
-        color: edge.color,
-      }));
-      return { nodes, edges };
-    },
-    async llmRunCommand({ node_id, command } = {}) {
-      if (!node_id || !command)
-        throw new Error("node_id and command are required.");
-      const wsUrl = `${import.meta.env.VITE_BACKEND_WS_URL}/api/mininet/terminal/${node_id}`;
-      return await new Promise((resolve, reject) => {
-        const ws = new WebSocket(wsUrl);
-        const timeout = setTimeout(() => {
-          ws.close();
-          reject(new Error("Command timed out."));
-        }, 4000);
-        ws.onopen = () => {
-          ws.send(command + "\n");
-          setTimeout(() => {
-            clearTimeout(timeout);
-            ws.close();
-            resolve({ ok: true });
-          }, 300);
-        };
-        ws.onerror = () => {
-          clearTimeout(timeout);
-          reject(new Error("WebSocket error while running command."));
-        };
-      });
-    },
-    async llmDeleteNode({ node_id } = {}) {
-      if (!node_id) throw new Error("node_id is required.");
-      await deleteNode(node_id);
-      this.nodes.remove(node_id);
-      delete this.hosts[node_id];
-      delete this.switches[node_id];
-      delete this.controllers[node_id];
-      delete this.nats[node_id];
-      delete this.routers[node_id];
-      return { deleted: node_id };
     },
     intToDpid(number) {
       return number
@@ -3217,14 +3033,6 @@ export default {
   --theme-webshell-tab-active-color: #ffffff;
   --theme-webshell-icon-color: #cccccc;
   --theme-webshell-tabs-bg: #2d2d2d;
-  --theme-webshell-chat-bg: #1f1f1f;
-  --theme-webshell-chat-border: #2d2d2d;
-  --theme-webshell-chat-input-bg: #121212;
-  --theme-webshell-chat-input-border: #333;
-  --theme-webshell-chat-input-color: #e5e5e5;
-  --theme-webshell-chat-button-bg: #007acc;
-  --theme-webshell-chat-button-color: #ffffff;
-  --theme-webshell-chat-error: #f87171;
   --theme-node-context-bg: #1f1f1f;
   --theme-node-context-border: #333;
   --theme-node-context-color: #e5e5e5;
@@ -3321,14 +3129,6 @@ export default {
   --theme-webshell-tab-active-color: #000000;
   --theme-webshell-icon-color: #2b2b2b;
   --theme-webshell-tabs-bg: #f8f8f8;
-  --theme-webshell-chat-bg: #ffffff;
-  --theme-webshell-chat-border: #d0d0d0;
-  --theme-webshell-chat-input-bg: #ffffff;
-  --theme-webshell-chat-input-border: #d0d0d0;
-  --theme-webshell-chat-input-color: #000000;
-  --theme-webshell-chat-button-bg: #007acc;
-  --theme-webshell-chat-button-color: #ffffff;
-  --theme-webshell-chat-error: #f87171;
   --theme-modal-pre-bg: #f5f5f5;
   --theme-modal-pre-border: #d0d0d0;
   --theme-monitoring-toolbar-bg: #f8f8f8;
