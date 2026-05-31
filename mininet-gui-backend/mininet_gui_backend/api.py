@@ -919,11 +919,11 @@ def _run_iperf(client, server, l4Type="TCP", udpBw="10M", fmt=None,
     if fmt:
         iperf_args += f"-f {fmt} "
 
-    server.sendCmd(iperf_args + "-s")
+    server.sendCmd(f"timeout {seconds + 5} " + iperf_args + "-s")
     sleep(0.5)
 
     client.sendCmd(
-        iperf_args + f"-t {seconds} -c " + server.IP() + " " + bw_args
+        f"timeout {seconds + 5} " + iperf_args + f"-t {seconds} -c " + server.IP() + " " + bw_args
     )
 
     client_output = ""
