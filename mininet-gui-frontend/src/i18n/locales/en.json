@@ -27,7 +27,8 @@
     "saving": "Saving...",
     "saved": "Saved.",
     "clear": "Clear",
-    "send": "Send"
+    "send": "Send",
+    "delete": "Delete"
   },
   "status": {
     "backendDisconnected": "Mininet backend is disconnected. Actions are disabled until the service recovers.",
