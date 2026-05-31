@@ -11,8 +11,6 @@
     "saveTopology": "Save Topology As...",
     "collapseViews": "Collapse all views",
     "expandViews": "Expand all views",
-    "showHosts": "Show hosts",
-    "showControllers": "Show controllers",
     "showHostIp": "Show host IP addresses",
     "showSwitchDpids": "Show switch DPIDs",
     "showPortLabels": "Show port labels"
@@ -131,9 +129,7 @@
     "mainNodes": "Main Nodes",
     "shortcutDelete": "Delete selected nodes",
     "hotkeys": "Hotkeys",
-    "shortcutSelectAll": "Select all nodes",
-    "shortcutToggleHosts": "Toggle hosts visibility",
-    "shortcutToggleControllers": "Toggle controllers visibility"
+    "shortcutSelectAll": "Select all nodes"
   },
   "nodes": {
     "host": "Host",

@@ -5,8 +5,6 @@
     class="flex h-full w-[80vw] min-w-[220px] max-w-[320px] flex-col outline-none sm:w-[60vw] lg:w-[280px]"
     tabindex="0"
     @keydown.esc="$emit('closeAllActiveModes')"
-    @keydown.h="$emit('toggleShowHosts')"
-    @keydown.c="$emit('toggleShowControllers')"
     @keydown.e="$emit('toggleAddEdgeMode')"
     @keydown.d="$emit('deleteSelected')"
     @keydown.delete="$emit('deleteSelected')"
@@ -359,8 +357,6 @@ export default {
     "runIperf",
     "deleteSelected",
     "closeAllActiveModes",
-    "toggleShowHosts",
-    "toggleShowControllers",
     "createTopology",
     "doSelectAll",
     "toggleSidebar",

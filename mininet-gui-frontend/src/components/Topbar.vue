@@ -78,22 +78,6 @@
           <label class="menu-checkbox">
             <input
               type="checkbox"
-              :checked="settings.showHosts"
-              @change="$emit('update-show-hosts', $event.target.checked)"
-            />
-            {{ $t("menu.showHosts") }}
-          </label>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
-              :checked="settings.showControllers"
-              @change="$emit('update-show-controllers', $event.target.checked)"
-            />
-            {{ $t("menu.showControllers") }}
-          </label>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
               :checked="settings.showHostIp"
               @change="
                 $emit('update-setting', 'showHostIp', $event.target.checked)
@@ -150,8 +134,6 @@ export default {
     "save-topology",
     "collapse-all-views",
     "expand-all-views",
-    "update-show-hosts",
-    "update-show-controllers",
     "update-setting",
     "file-upload",
   ],

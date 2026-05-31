@@ -64,8 +64,6 @@ import hostImgLight from "@/assets/light-host.svg";
       @save-topology="saveTopologyAs"
       @collapse-all-views="handleCollapseAllViews"
       @expand-all-views="handleExpandAllViews"
-      @update-show-hosts="handleShowHostsSetting"
-      @update-show-controllers="handleShowControllersSetting"
       @update-setting="handleSettingChange"
       @file-upload="importTopology"
     />
@@ -77,8 +75,6 @@ import hostImgLight from "@/assets/light-host.svg";
           @runPingall="showPingallModal"
           @runIperf="showIperfModal"
           @closeAllActiveModes="closeAllActiveModes"
-          @toggleShowHosts="toggleShowHosts"
-          @toggleShowControllers="toggleShowControllers"
           @createTopology="showTopologyFormModal"
           @toggleSidebar="handleSidebarToggle"
           @doSelectAll="doSelectAll"
@@ -110,8 +106,6 @@ import hostImgLight from "@/assets/light-host.svg";
             @dragover.prevent
             @click="hideContextMenu"
             @keydown.esc="closeAllActiveModes"
-            @keydown.h="toggleShowHosts"
-            @keydown.c="toggleShowControllers"
             @keydown.e="enterAddEdgeMode"
             @keydown.d="doDeleteSelected"
             @keydown.delete="doDeleteSelected"
@@ -458,8 +452,6 @@ export default {
         port: "",
       },
       snifferActive: false,
-      hostsHidden: false,
-      controllersHidden: false,
       sidebarCollapsed: false,
       webshellMinimized: false,
       showModal: false,
@@ -505,8 +497,6 @@ export default {
       boundPanMouseUp: null,
       boundContextMenu: null,
       settings: {
-        showHosts: true,
-        showControllers: true,
         showHostIp: false,
         showSwitchDpids: false,
         showPortLabels: false,
@@ -887,7 +877,6 @@ export default {
         console.warn("Failed to load settings", error);
       }
       this.applyLocaleSetting();
-      this.applyVisibilitySettings();
       this.applyPortLabels();
       this.applyNetworkTheme();
     },
@@ -900,20 +889,11 @@ export default {
       } catch (error) {
         console.warn("Failed to persist settings", error);
       }
-      this.applyVisibilitySettings();
       this.applyHostLabels();
       this.applySwitchLabels();
       this.applyPortLabels();
     },
-    handleShowHostsSetting() {
-      this.applyHostsVisibility();
-      this.persistSettings();
-    },
-    handleShowControllersSetting() {
-      this.applyControllersVisibility();
-      this.persistSettings();
-    },
-    applyLocaleSetting() {
+    computeNetwork() {
       const locale = this.settings.language || "en";
       if (this.$i18n?.locale && this.$i18n.locale !== locale) {
         this.$i18n.locale = locale;
@@ -978,29 +958,11 @@ export default {
         this.nodes.update({ id: sw.id, label });
       });
     },
-    applyHostsVisibility() {
-      this.hostsHidden = !this.settings.showHosts;
-      if (!this.nodes || !this.nodes.forEach) return;
-      this.nodes.forEach((node) => {
-        if (node.type === "host") {
-          node.hidden = this.hostsHidden;
-          this.nodes.updateOnly(node);
-        }
-      });
-    },
-    applyControllersVisibility() {
-      this.controllersHidden = !this.settings.showControllers;
-      if (!this.nodes || !this.nodes.forEach) return;
-      this.nodes.forEach((node) => {
-        if (node.type === "controller") {
-          node.hidden = this.controllersHidden;
-          this.nodes.updateOnly(node);
-        }
-      });
-    },
-    applyVisibilitySettings() {
-      this.applyHostsVisibility();
-      this.applyControllersVisibility();
+    applyLocaleSetting() {
+      const locale = this.settings.language || "en";
+      if (this.$i18n?.locale && this.$i18n.locale !== locale) {
+        this.$i18n.locale = locale;
+      }
     },
     applyPortLabels() {
       if (!this.edges || !this.edges.forEach) return;
@@ -1058,7 +1020,6 @@ export default {
           host.color = this.nodeBaseColor();
           host.image = this.currentAssets().host;
           host.label = this.hostLabel(host);
-          host.hidden = this.hostsHidden;
           return host;
         });
 
@@ -1078,7 +1039,6 @@ export default {
             this.controllerIconColor(ctl),
           );
           ctl.label = this.controllerLabel(ctl);
-          ctl.hidden = this.controllersHidden;
           return ctl;
         });
 
@@ -1110,7 +1070,6 @@ export default {
         ];
         this.nodes.clear();
         this.nodes.add(initialNodes);
-        this.applyVisibilitySettings();
         this.selectInitialWebshell();
         this.applyPortLabels();
         console.log("network inside mounted, before setup:", this.network);
@@ -1395,7 +1354,6 @@ export default {
       };
       host.label = this.hostLabel(host);
       host.image = this.currentAssets().host;
-      host.hidden = !this.settings.showHosts;
       if (position) {
         host.x = position.x;
         host.y = position.y;
@@ -1564,7 +1522,6 @@ export default {
       };
       ctl.label = this.controllerLabel(ctl);
       ctl.image = this.controllerImageForColor(this.controllerIconColor(ctl));
-      ctl.hidden = !this.settings.showControllers;
       if (await deployController(ctl)) {
         this.nodes.add(ctl);
         this.controllers[ctl.name] = ctl;
@@ -1649,16 +1606,6 @@ export default {
       } else {
         this.closeAddEdgeMode();
       }
-    },
-    toggleShowHosts() {
-      this.settings.showHosts = !this.settings.showHosts;
-      this.applyHostsVisibility();
-      this.persistSettings();
-    },
-    toggleShowControllers() {
-      this.settings.showControllers = !this.settings.showControllers;
-      this.applyControllersVisibility();
-      this.persistSettings();
     },
     async doDeleteSelected() {
       this.closeAllActiveModes();
