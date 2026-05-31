@@ -630,6 +630,16 @@ def delete_node(node_id: str):
     if node_id not in state.net.nameToNode:
         raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
     node = state.net.nameToNode[node_id]
+
+    stale_keys = [key for key in state.links if node_id in key]
+    for key in stale_keys:
+        try:
+            state.net.delLink(state.links[key])
+        except Exception:
+            pass
+        state.links.pop(key, None)
+        state.link_attrs.pop(key, None)
+
     state.net.delNode(node)
     if node.type == "sw":
         del state.switches[node_id]
