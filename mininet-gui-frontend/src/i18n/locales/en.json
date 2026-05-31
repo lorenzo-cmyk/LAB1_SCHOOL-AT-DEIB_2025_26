@@ -151,6 +151,8 @@
     "start": "Start Monitoring",
     "stop": "Stop Monitoring",
     "clearGraphs": "Clear graphs",
+    "txLabel": "TX (Gbps)",
+    "rxLabel": "RX (Gbps)",
     "idleMessage": "Select node and interface to begin monitoring.",
     "connecting": "Connecting to monitor...",
     "streaming": "Streaming {node} ({intf})",

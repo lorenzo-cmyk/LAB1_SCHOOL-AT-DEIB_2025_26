@@ -107,7 +107,6 @@
         :enabled="snifferActive"
         :graphNodes="graphNodeList"
         :graphVersion="graphVersion"
-        :theme="theme"
         @toggleSniffer="$emit('toggleSniffer')"
       />
     </div>
@@ -118,7 +117,6 @@
       <MonitoringView
         :graphNodes="graphNodeList"
         :graphVersion="graphVersion"
-        :theme="theme"
       />
     </div>
     <div
