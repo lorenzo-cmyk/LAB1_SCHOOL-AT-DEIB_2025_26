@@ -11,7 +11,7 @@ restore_terminal() {
 trap restore_terminal EXIT
 
 # ---- cleanup previous runs ----
-printf "Stopping previous processes...\n"
+echo "Stopping previous processes..."
 sudo pkill -9 -f "uvicorn mininet_gui_backend" 2>/dev/null || true
 sudo pkill -9 -f "vite.*mininet-gui" 2>/dev/null || true
 sudo pkill -9 -f "tshark" 2>/dev/null || true
@@ -35,30 +35,30 @@ trim_log "$FRONTEND_DIR/nohup.out"
 
 if [ -f "$BACKEND_LOG_FILE" ]; then
   sudo truncate -s 0 "$BACKEND_LOG_FILE"
-  printf "✔ Cleared backend log file\n"
+  echo "✔ Cleared backend log file"
 fi
 
 # ---- start backend ----
-printf "Starting backend...\n"
+echo "Starting backend..."
 (cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000 --log-level debug > /dev/null 2>&1 &)
 sleep 3
 
 if ! pgrep -f "uvicorn mininet_gui_backend" >/dev/null 2>&1; then
-  printf "✘ Backend process not found. Check:\n"
+  echo "✘ Backend process not found. Check:"
   tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
   exit 1
 fi
 
 # wait for backend to be ready
-printf "Waiting for backend...\n"
+echo "Waiting for backend..."
 for i in $(seq 1 30); do
   if curl -s http://127.0.0.1:8000/api/health 2>/dev/null | grep -q '"status"'; then
-    printf "✔ Backend ready\n"
+    echo "✔ Backend ready"
     break
   fi
   if [ "$i" -eq 30 ]; then
-    printf "✘ Backend failed to start within 30 seconds\n"
-    printf "  Check: %s\n" "$BACKEND_DIR/nohup.out"
+    echo "✘ Backend failed to start within 30 seconds"
+    echo "  Check: $BACKEND_DIR/nohup.out"
     tail -30 "$BACKEND_DIR/nohup.out" 2>/dev/null || true
     exit 1
   fi
@@ -66,7 +66,7 @@ for i in $(seq 1 30); do
 done
 
 # ---- start frontend ----
-printf "Starting frontend...\n"
+echo "Starting frontend..."
 (
   cd "$FRONTEND_DIR"
   if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -84,8 +84,10 @@ printf "Starting frontend...\n"
 )
 
 # ---- done ----
+stty sane 2>/dev/null || true
 ALL_IPS="$(hostname -I)"
-printf "\nMininet-GUI is available at:\n"
+echo ""
+echo "Mininet-GUI is available at:"
 for ip in $ALL_IPS; do
-  printf "  http://%s:5173\n" "$ip"
+  echo "  http://$ip:5173"
 done
