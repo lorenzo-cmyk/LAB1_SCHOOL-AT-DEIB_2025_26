@@ -127,55 +127,6 @@
           </label>
         </div>
       </div>
-      <div class="menu-item-wrapper" @mouseenter="handleMenuHover('run')">
-        <button
-          type="button"
-          class="menu-item"
-          :class="{ open: runMenuOpen }"
-          @click.stop="toggleRunMenu"
-        >
-          {{ $t("menu.run") }}
-        </button>
-        <div v-if="runMenuOpen" class="menu-dropdown" @click.stop>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('start-network');
-              closeRunMenu();
-            "
-            :disabled="
-              networkStarted || networkCommandInFlight || !mininetConnected
-            "
-          >
-            {{ $t("menu.startNetwork") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('stop-network');
-              closeRunMenu();
-            "
-            :disabled="
-              !networkStarted || networkCommandInFlight || !mininetConnected
-            "
-          >
-            {{ $t("menu.stopNetwork") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('restart-network');
-              closeRunMenu();
-            "
-            :disabled="networkCommandInFlight || !mininetConnected"
-          >
-            {{ $t("menu.restartNetwork") }}
-          </button>
-        </div>
-      </div>
     </div>
     <input
       ref="topologyFileInput"
@@ -192,14 +143,8 @@ export default {
   name: "Topbar",
   props: {
     settings: { type: Object, required: true },
-    networkStarted: { type: Boolean, default: false },
-    networkCommandInFlight: { type: Boolean, default: false },
-    mininetConnected: { type: Boolean, default: true },
   },
   emits: [
-    "start-network",
-    "stop-network",
-    "restart-network",
     "new-topology",
     "open-topology",
     "save-topology",
@@ -213,7 +158,6 @@ export default {
   data() {
     return {
       fileMenuOpen: false,
-      runMenuOpen: false,
       viewMenuOpen: false,
       boundHandleGlobalClick: null,
     };
@@ -242,54 +186,38 @@ export default {
       if (this.fileMenuOpen && !topbar.contains(event.target)) {
         this.fileMenuOpen = false;
       }
-      if (this.runMenuOpen && !topbar.contains(event.target)) {
-        this.runMenuOpen = false;
-      }
       if (this.viewMenuOpen && !topbar.contains(event.target)) {
         this.viewMenuOpen = false;
       }
     },
     isAnyMenuOpen() {
-      return this.fileMenuOpen || this.runMenuOpen || this.viewMenuOpen;
+      return this.fileMenuOpen || this.viewMenuOpen;
     },
     openMenuByKey(menuKey) {
       this.fileMenuOpen = false;
-      this.runMenuOpen = false;
       this.viewMenuOpen = false;
       if (menuKey === "file") this.fileMenuOpen = true;
-      if (menuKey === "run") this.runMenuOpen = true;
       if (menuKey === "view") this.viewMenuOpen = true;
     },
     handleMenuHover(menuKey) {
       if (!this.isAnyMenuOpen()) return;
       if (menuKey === "file" && this.fileMenuOpen) return;
-      if (menuKey === "run" && this.runMenuOpen) return;
       if (menuKey === "view" && this.viewMenuOpen) return;
       this.openMenuByKey(menuKey);
     },
     toggleFileMenu() {
-      this.runMenuOpen = false;
       this.viewMenuOpen = false;
       this.fileMenuOpen = !this.fileMenuOpen;
     },
     toggleViewMenu() {
       this.fileMenuOpen = false;
-      this.runMenuOpen = false;
       this.viewMenuOpen = !this.viewMenuOpen;
-    },
-    toggleRunMenu() {
-      this.fileMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.runMenuOpen = !this.runMenuOpen;
     },
     closeFileMenu() {
       this.fileMenuOpen = false;
     },
     closeViewMenu() {
       this.viewMenuOpen = false;
-    },
-    closeRunMenu() {
-      this.runMenuOpen = false;
     },
     openFileDialog() {
       this.$refs.topologyFileInput?.click();

@@ -67,6 +67,43 @@
           <span class="label">{{ $t("side.generateTopology") }}</span>
         </button>
         <button
+          id="button-toggle-network"
+          class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
+          :disabled="networkCommandInFlight || !networkConnected"
+          @mouseenter="
+            handleTooltipMouseEnter(
+              $event,
+              networkStarted ? $t('side.stopNetwork') : $t('side.startNetwork'),
+            )
+          "
+          @mousemove="handleTooltipMouseMove"
+          @mouseleave="hideTooltip"
+          @click="$emit(networkStarted ? 'stopNetwork' : 'startNetwork')"
+        >
+          <span class="material-symbols-outlined">{{
+            networkStarted ? "stop" : "play_arrow"
+          }}</span>
+          <span class="label">{{
+            networkStarted ? $t("side.stopNetwork") : $t("side.startNetwork")
+          }}</span>
+        </button>
+        <button
+          id="button-restart-network"
+          class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
+          :disabled="
+            !networkStarted || networkCommandInFlight || !networkConnected
+          "
+          @mouseenter="
+            handleTooltipMouseEnter($event, $t('side.restartNetwork'))
+          "
+          @mousemove="handleTooltipMouseMove"
+          @mouseleave="hideTooltip"
+          @click="$emit('restartNetwork')"
+        >
+          <span class="material-symbols-outlined">restart_alt</span>
+          <span class="label">{{ $t("side.restartNetwork") }}</span>
+        </button>
+        <button
           id="button-pingall"
           class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
           :class="pingallRunning ? 'opacity-60 cursor-not-allowed' : ''"
@@ -265,6 +302,7 @@ export default {
   props: {
     networkStarted: { type: Boolean, default: true },
     networkConnected: { type: Boolean, default: true },
+    networkCommandInFlight: { type: Boolean, default: false },
     addEdgeMode: { type: Boolean, default: false },
     pingallRunning: { type: Boolean, default: false },
     iperfRunning: { type: Boolean, default: false },
@@ -312,6 +350,9 @@ export default {
     "createTopology",
     "doSelectAll",
     "toggleSidebar",
+    "startNetwork",
+    "stopNetwork",
+    "restartNetwork",
   ],
   methods: {
     toggleSide() {
