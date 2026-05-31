@@ -9,6 +9,7 @@
     "newTopology": "New Topology",
     "openTopology": "Open Topology...",
     "saveTopology": "Save Topology As...",
+    "runIperf": "Run Iperf",
     "collapseViews": "Collapse all views",
     "expandViews": "Expand all views",
     "showHostIp": "Show host IP addresses",
