@@ -1,16 +1,11 @@
-export const buildOptions = (theme = "dark") => {
-  const isLight = theme === "light";
-  const edgeColor = isLight ? "#7a7a7a" : "#848484";
-  const nodeBackground = isLight ? "#f3f3f3" : "#252526";
-  const nodeHighlight = isLight ? "#bdbdbd" : "#848484";
-  const fontColor = isLight ? "#2b2b2b" : "#cccccc";
+export const buildOptions = () => {
   return {
     edges: {
       width: 5,
       color: {
-        color: edgeColor,
-        highlight: edgeColor,
-        hover: edgeColor,
+        color: "#848484",
+        highlight: "#848484",
+        hover: "#848484",
         inherit: "from",
         opacity: 1.0,
       },
@@ -22,20 +17,20 @@ export const buildOptions = (theme = "dark") => {
         maximum: 200,
       },
       font: {
-        color: fontColor,
+        color: "#cccccc",
         size: 14,
         face: "Fira Sans",
       },
       color: {
         border: "#00000000",
-        background: nodeBackground,
+        background: "#252526",
         highlight: {
-          border: nodeHighlight,
-          background: nodeHighlight,
+          border: "#848484",
+          background: "#848484",
         },
         hover: {
-          border: nodeHighlight,
-          background: nodeHighlight,
+          border: "#848484",
+          background: "#848484",
         },
       },
     },
@@ -50,4 +45,4 @@ export const buildOptions = (theme = "dark") => {
   };
 };
 
-export const options = buildOptions("dark");
+export const options = buildOptions();

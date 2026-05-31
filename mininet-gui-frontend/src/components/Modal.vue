@@ -23,10 +23,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  theme: {
-    type: String,
-    default: "dark",
-  },
 });
 
 const emit = defineEmits(["close"]);
@@ -37,11 +33,6 @@ const open = computed({
     if (!value) emit("close");
   },
 });
-
-const isLightTheme = computed(() => props.theme === "light");
-const themeClass = computed(() =>
-  isLightTheme.value ? "theme-light" : "theme-dark",
-);
 
 const modalBodyRef = ref(null);
 const tabPanelSize = ref({ width: 0, height: 0 });
@@ -177,7 +168,7 @@ onBeforeUnmount(() => {
       <DialogContent
         :class="[
           'modal-surface fixed left-[50%] top-[50%] z-50 flex flex-col translate-x-[-50%] translate-y-[-50%] p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
-          themeClass,
+          'theme-dark',
           sizeClass,
           contentClass,
         ]"
@@ -501,132 +492,5 @@ onBeforeUnmount(() => {
 .modal-tab-panels > .tab-panel.is-hidden {
   visibility: hidden;
   pointer-events: none;
-}
-
-.theme-light .modal-surface {
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
-  color: #2b2b2b;
-}
-
-.theme-light .modal-header {
-  border-bottom: 1px solid #d0d0d0;
-  background: #f5f5f5;
-}
-
-.theme-light .modal-title {
-  color: #2b2b2b;
-}
-
-.theme-light .modal-close {
-  color: #6b6b6b;
-}
-
-.theme-light .modal-body {
-  color: #2b2b2b;
-}
-
-.theme-light .modal-section {
-  background: #f7f7f7;
-  border: 1px solid #d0d0d0;
-}
-
-.theme-light .modal-section__title {
-  color: #2b2b2b;
-}
-
-.theme-light .modal-muted {
-  color: #6b6b6b;
-}
-
-.theme-light .modal-divider {
-  background: #d0d0d0;
-}
-
-.theme-light .modal-tabs {
-  border-bottom: 1px solid #d0d0d0;
-}
-
-.theme-light .modal-tab {
-  border: 1px solid #d0d0d0;
-  background: #f5f5f5;
-  color: #2b2b2b;
-}
-
-.theme-light .modal-tab:hover {
-  background: #e6e6e6;
-  color: #1f1f1f;
-}
-
-.theme-light .modal-tab.is-active {
-  background: #e6f2ff;
-  color: #0b2b3b;
-  border-color: #007acc;
-  box-shadow: inset 0 0 0 1px #007acc;
-}
-
-.theme-light .modal-field {
-  color: #2b2b2b;
-}
-
-.theme-light .modal-input,
-.theme-light .modal-select,
-.theme-light .modal-textarea {
-  background: #ffffff;
-  color: #2b2b2b;
-  border: 1px solid #d0d0d0;
-}
-
-.theme-light .modal-input::placeholder,
-.theme-light .modal-textarea::placeholder {
-  color: #888888;
-}
-
-.theme-light .modal-select option:checked {
-  background-color: #007acc;
-  color: #ffffff;
-}
-
-.theme-light .modal-button {
-  border: 1px solid #d0d0d0;
-  background: #f5f5f5;
-  color: #2b2b2b;
-}
-
-.theme-light .modal-button:hover {
-  background: #e6e6e6;
-}
-
-.theme-light .modal-table th,
-.theme-light .modal-table td {
-  border-bottom: 1px solid #d0d0d0;
-}
-
-.theme-light .modal-table thead th {
-  color: #6b6b6b;
-}
-
-.theme-light .modal-table tbody th {
-  color: #2b2b2b;
-}
-
-.theme-light .modal-table tbody tr:hover {
-  background: #f0f0f0;
-}
-
-.theme-light .modal-table__wrapper {
-  border: 1px solid #d0d0d0;
-}
-
-.theme-light .modal-pre {
-  background: #f3f3f3;
-  border: 1px solid #d0d0d0;
-  color: #2b2b2b;
-}
-
-.theme-light .modal-pill {
-  background: #f5f5f5;
-  border: 1px solid #d0d0d0;
-  color: #2b2b2b;
 }
 </style>

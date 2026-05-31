@@ -1,5 +1,5 @@
 <template>
-  <div ref="topbar" :class="['topbar', themeClass]">
+  <div ref="topbar" class="topbar theme-dark">
     <div class="topbar-title">{{ $t("app.title") }}</div>
     <div class="menu-bar">
       <div class="menu-item-wrapper" @mouseenter="handleMenuHover('file')">
@@ -205,21 +205,6 @@
             />
             {{ $t("menu.showPortLabels") }}
           </label>
-          <div class="menu-separator"></div>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
-              :checked="settings.theme === 'light'"
-              @change="
-                $emit(
-                  'update-setting',
-                  'theme',
-                  $event.target.checked ? 'light' : 'dark',
-                )
-              "
-            />
-            {{ $t("menu.lightTheme") }}
-          </label>
         </div>
       </div>
       <div class="menu-item-wrapper" @mouseenter="handleMenuHover('run')">
@@ -334,48 +319,6 @@
           </button>
         </div>
       </div>
-      <div class="menu-item-wrapper" @mouseenter="handleMenuHover('help')">
-        <button
-          type="button"
-          class="menu-item"
-          :class="{ open: helpMenuOpen }"
-          @click.stop="toggleHelpMenu"
-        >
-          {{ $t("menu.help") }}
-        </button>
-        <div v-if="helpMenuOpen" class="menu-dropdown" @click.stop>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('open-usage');
-              closeHelpMenu();
-            "
-          >
-            {{ $t("menu.usage") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('open-docs');
-              closeHelpMenu();
-            "
-          >
-            {{ $t("menu.openDocs") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('open-about');
-              closeHelpMenu();
-            "
-          >
-            {{ $t("menu.about") }}
-          </button>
-        </div>
-      </div>
     </div>
     <input
       ref="topologyFileInput"
@@ -415,9 +358,6 @@ export default {
     "stop-sniffer",
     "collapse-all-views",
     "expand-all-views",
-    "open-usage",
-    "open-docs",
-    "open-about",
     "update-show-hosts",
     "update-show-controllers",
     "update-setting",
@@ -426,17 +366,11 @@ export default {
   data() {
     return {
       fileMenuOpen: false,
-      helpMenuOpen: false,
       runMenuOpen: false,
       toolsMenuOpen: false,
       viewMenuOpen: false,
       boundHandleGlobalClick: null,
     };
-  },
-  computed: {
-    themeClass() {
-      return this.settings?.theme === "light" ? "theme-light" : "theme-dark";
-    },
   },
   mounted() {
     this.bindTopbarEvents();
@@ -462,9 +396,6 @@ export default {
       if (this.fileMenuOpen && !topbar.contains(event.target)) {
         this.fileMenuOpen = false;
       }
-      if (this.helpMenuOpen && !topbar.contains(event.target)) {
-        this.helpMenuOpen = false;
-      }
       if (this.runMenuOpen && !topbar.contains(event.target)) {
         this.runMenuOpen = false;
       }
@@ -478,7 +409,6 @@ export default {
     isAnyMenuOpen() {
       return (
         this.fileMenuOpen ||
-        this.helpMenuOpen ||
         this.runMenuOpen ||
         this.toolsMenuOpen ||
         this.viewMenuOpen
@@ -486,12 +416,10 @@ export default {
     },
     openMenuByKey(menuKey) {
       this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
       this.runMenuOpen = false;
       this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       if (menuKey === "file") this.fileMenuOpen = true;
-      if (menuKey === "help") this.helpMenuOpen = true;
       if (menuKey === "run") this.runMenuOpen = true;
       if (menuKey === "tools") this.toolsMenuOpen = true;
       if (menuKey === "view") this.viewMenuOpen = true;
@@ -499,52 +427,37 @@ export default {
     handleMenuHover(menuKey) {
       if (!this.isAnyMenuOpen()) return;
       if (menuKey === "file" && this.fileMenuOpen) return;
-      if (menuKey === "help" && this.helpMenuOpen) return;
       if (menuKey === "run" && this.runMenuOpen) return;
       if (menuKey === "tools" && this.toolsMenuOpen) return;
       if (menuKey === "view" && this.viewMenuOpen) return;
       this.openMenuByKey(menuKey);
     },
     toggleFileMenu() {
-      this.helpMenuOpen = false;
       this.runMenuOpen = false;
       this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       this.fileMenuOpen = !this.fileMenuOpen;
     },
-    toggleHelpMenu() {
-      this.fileMenuOpen = false;
-      this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.helpMenuOpen = !this.helpMenuOpen;
-    },
     toggleToolsMenu() {
       this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
       this.runMenuOpen = false;
       this.viewMenuOpen = false;
       this.toolsMenuOpen = !this.toolsMenuOpen;
     },
     toggleViewMenu() {
       this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
       this.runMenuOpen = false;
       this.toolsMenuOpen = false;
       this.viewMenuOpen = !this.viewMenuOpen;
     },
     toggleRunMenu() {
       this.fileMenuOpen = false;
-      this.helpMenuOpen = false;
       this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       this.runMenuOpen = !this.runMenuOpen;
     },
     closeFileMenu() {
       this.fileMenuOpen = false;
-    },
-    closeHelpMenu() {
-      this.helpMenuOpen = false;
     },
     closeToolsMenu() {
       this.toolsMenuOpen = false;

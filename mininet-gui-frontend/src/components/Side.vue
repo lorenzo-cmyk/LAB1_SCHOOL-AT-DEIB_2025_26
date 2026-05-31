@@ -1,7 +1,7 @@
 <template>
   <div
     id="side"
-    :class="['side', themeClass, { collapsed: !sideIsActive }]"
+    :class="['side', 'theme-dark', { collapsed: !sideIsActive }]"
     class="flex h-full w-[80vw] min-w-[220px] max-w-[320px] flex-col outline-none sm:w-[60vw] lg:w-[280px]"
     tabindex="0"
     @keydown.esc="$emit('closeAllActiveModes')"
@@ -430,15 +430,6 @@ import switchOvsImgLight from "@/assets/light-switch-ovs.svg";
 import switchUserImgLight from "@/assets/light-switch-user.svg";
 import switchOvsBridgeImgLight from "@/assets/light-switch-ovsbridge.svg";
 
-import hostImgDark from "@/assets/host.svg";
-import switchImgDark from "@/assets/switch.svg";
-import controllerImgDark from "@/assets/controller.svg";
-import natImgDark from "@/assets/nat.svg";
-import routerImgDark from "@/assets/router.svg";
-import switchOvsImgDark from "@/assets/switch-ovs.svg";
-import switchUserImgDark from "@/assets/switch-user.svg";
-import switchOvsBridgeImgDark from "@/assets/switch-ovsbridge.svg";
-
 export default {
   props: {
     networkStarted: { type: Boolean, default: true },
@@ -448,7 +439,6 @@ export default {
     addEdgeMode: { type: Boolean, default: false },
     pingallRunning: { type: Boolean, default: false },
     iperfRunning: { type: Boolean, default: false },
-    theme: { type: String, default: "dark" },
     collapsed: { type: Boolean, default: false },
   },
   data() {
@@ -469,25 +459,7 @@ export default {
         left: `${this.tooltip.left}px`,
       };
     },
-    isLightTheme() {
-      return this.theme === "light";
-    },
-    themeClass() {
-      return this.isLightTheme ? "theme-light" : "theme-dark";
-    },
     icons() {
-      if (this.isLightTheme) {
-        return {
-          host: hostImgDark,
-          switch: switchImgDark,
-          controller: controllerImgDark,
-          nat: natImgDark,
-          router: routerImgDark,
-          switchOvs: switchOvsImgDark,
-          switchUser: switchUserImgDark,
-          switchOvsBridge: switchOvsBridgeImgDark,
-        };
-      }
       return {
         host: hostImgLight,
         switch: switchImgLight,

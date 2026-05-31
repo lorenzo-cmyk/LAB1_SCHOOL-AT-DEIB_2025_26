@@ -78,11 +78,6 @@ from mininet_gui_backend.routers.websockets import router as ws_router
 from mininet_gui_backend.routers.sniffer_api import router as sniffer_router
 from mininet_gui_backend import __version__ as BACKEND_VERSION
 
-try:
-    from mininet.net import VERSION as MININET_VERSION
-except Exception:
-    MININET_VERSION = None
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -144,11 +139,6 @@ app.add_middleware(
 
 app.include_router(ws_router)
 app.include_router(sniffer_router)
-
-
-@app.get("/api/version")
-def get_version():
-    return {"version": app.version, "mininet_version": MININET_VERSION}
 
 
 @app.get("/api/health")

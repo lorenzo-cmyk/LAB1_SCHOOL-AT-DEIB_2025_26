@@ -32,11 +32,7 @@
     "showSpecialControllers": "Show special controllers",
     "showHostIp": "Show host IP addresses",
     "showSwitchDpids": "Show switch DPIDs",
-    "showPortLabels": "Show port labels",
-    "lightTheme": "Light theme",
-    "usage": "Usage",
-    "openDocs": "Open documentation",
-    "about": "About"
+    "showPortLabels": "Show port labels"
   },
   "actions": {
     "retry": "Retry",
@@ -56,8 +52,6 @@
     "backendDisconnected": "Mininet backend is disconnected. Actions are disabled until the service recovers.",
     "connected": "Connected to Mininet",
     "disconnected": "Disconnected",
-    "mininetVersion": "Mininet {version}",
-    "unknown": "unknown",
     "networkState": "Network {state}",
     "started": "Started",
     "stopped": "Stopped",
@@ -70,7 +64,6 @@
   "settings": {
     "defaultLinkAttributes": "Default Link Attributes",
     "defaultOpenflow": "Default OpenFlow version",
-    "lightTheme": "Light theme",
     "tabs": {
       "view": "View",
       "defaults": "Defaults"
@@ -101,35 +94,6 @@
     "errorDifferentHosts": "Client and server must be different hosts.",
     "errorAlreadyRunning": "Iperf already running.",
     "errorFailed": "Failed to run iperf."
-  },
-  "help": {
-    "welcomeTab": "Welcome",
-    "shortcutsTab": "Shortcuts",
-    "devicesTab": "Devices",
-    "welcomeLine1": "Drag hosts, switches, or controllers from the sidebar onto the canvas to add devices.",
-    "welcomeLine2": "Use right/middle click to pan and the mouse wheel to zoom.",
-    "welcomeLine3": "Right-click a node to open its web shell or view stats.",
-    "welcomeLine4": "The Run menu starts, stops, or restarts Mininet without erasing the topology.",
-    "shortcuts1": "H – toggle host visibility.",
-    "shortcuts2": "C – toggle controllers.",
-    "shortcuts3": "E – enter edge mode (click two nodes to connect).",
-    "shortcuts4": "D/Delete – remove selection.",
-    "shortcuts5": "Ctrl+A – select all nodes.",
-    "shortcuts6": "Esc – cancel a mode or close the modal.",
-    "deviceHost": "Host – emulates a Linux host.",
-    "deviceSwitch": "Switch – standard or special switch types (Ovskernel, OVS, user, bridge).",
-    "deviceController": "Controller – default controller or remote/Ryu-based ones.",
-    "deviceRouter": "Router – Linux router with IP forwarding.",
-    "deviceNat": "NAT – network address translation box."
-  },
-  "about": {
-    "title": "Mininet GUI",
-    "frontendVersion": "Frontend version: {version}",
-    "backendVersion": "Backend version: {version}",
-    "mininetVersion": "Mininet version: {version}",
-    "authors": "",
-    "repository": "Repository:",
-    "license": "License: MIT"
   },
   "link": {
     "optionsTitle": "Link Options",

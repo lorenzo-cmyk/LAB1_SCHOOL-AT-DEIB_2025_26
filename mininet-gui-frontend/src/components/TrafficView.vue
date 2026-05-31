@@ -1,5 +1,5 @@
 <template>
-  <div :class="['traffic-view', themeClass]">
+  <div class="traffic-view theme-dark">
     <div class="traffic-toolbar">
       <button
         class="sniffer-toggle"
@@ -107,7 +107,6 @@ export default {
     enabled: { type: Boolean, default: false },
     graphNodes: { type: Array, default: () => [] },
     graphVersion: { type: Number, default: 0 },
-    theme: { type: String, default: "dark" },
   },
   emits: ["toggleSniffer"],
   data() {
@@ -179,19 +178,14 @@ export default {
           }
         }
         if (text) {
-          const hay =
-            `${item.raw || ""} ${item.src || ""} ${item.dst || ""} ${item.info || ""}`.toLowerCase();
+          const hay = `${item.raw || ""} ${item.src || ""} ${item.dst || ""} ${
+            item.info || ""
+          }`.toLowerCase();
           if (!hay.includes(text)) return false;
         }
         return true;
       });
       return items.sort((a, b) => this.toEpochNs(a.ts) - this.toEpochNs(b.ts));
-    },
-    isLightTheme() {
-      return this.theme === "light";
-    },
-    themeClass() {
-      return this.isLightTheme ? "theme-light" : "theme-dark";
     },
   },
   watch: {

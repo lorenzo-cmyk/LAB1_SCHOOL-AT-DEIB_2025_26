@@ -36,7 +36,6 @@ import {
   startSniffer,
   stopSniffer,
   exportSnifferPcap,
-  getBackendVersion,
   getRyuApps,
 } from "../core/api";
 import { buildOptions } from "../core/options";
@@ -49,7 +48,6 @@ import PingallResults from "./PingallResults.vue";
 import ControllerForm from "./ControllerForm.vue";
 import TopologyForm from "./TopologyForm.vue";
 import Topbar from "./Topbar.vue";
-import frontendPackage from "../../package.json";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -60,15 +58,6 @@ import switchUserImgLight from "@/assets/light-switch-user.svg";
 import hostImgLight from "@/assets/light-host.svg";
 import natImgLight from "@/assets/light-nat.svg";
 import routerImgLight from "@/assets/light-router.svg";
-
-import switchImgDark from "@/assets/switch.svg";
-import switchOvsImgDark from "@/assets/switch-ovs.svg";
-import switchOvsBridgeImgDark from "@/assets/switch-ovsbridge.svg";
-import switchUserImgDark from "@/assets/switch-user.svg";
-import hostImgDark from "@/assets/host.svg";
-import natImgDark from "@/assets/nat.svg";
-import routerImgDark from "@/assets/router.svg";
-import logoImage from "@/assets/logo-mininet-gui.png";
 </script>
 
 <template>
@@ -108,9 +97,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
       @stop-sniffer="toggleSniffer"
       @collapse-all-views="handleCollapseAllViews"
       @expand-all-views="handleExpandAllViews"
-      @open-usage="handleOpenUsage"
-      @open-docs="handleOpenDocumentation"
-      @open-about="handleOpenAbout"
       @update-show-hosts="handleShowHostsSetting"
       @update-show-controllers="handleShowControllersSetting"
       @update-setting="handleSettingChange"
@@ -139,7 +125,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
           :addEdgeMode="addEdgeMode"
           :pingallRunning="pingallRunning"
           :iperfRunning="iperfBusy"
-          :theme="settings.theme"
           :collapsed="sidebarCollapsed"
         />
       </div>
@@ -201,7 +186,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
           :preferredView="webshellView"
           :focusNodeId="webshellFocusId"
           :minimized="webshellMinimized"
-          :theme="settings.theme"
           @viewChange="handleWebshellViewChange"
           @toggleSniffer="toggleSniffer"
           @minimizeChange="handleWebshellMinimizeChange"
@@ -223,13 +207,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
               mininetConnected
                 ? $t("status.connected")
                 : $t("status.disconnected")
-            }}
-          </span>
-          <span class="status-bar__version">
-            {{
-              $t("status.mininetVersion", {
-                version: mininetVersion || $t("status.unknown"),
-              })
             }}
           </span>
           <span class="status-bar__network">
@@ -262,7 +239,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
   <Teleport to="body">
     <modal
       :show="showModal"
-      :theme="settings.theme"
       :size-class="modalSizeClass"
       @close="closeModal"
       @keydown.esc="closeModal"
@@ -459,104 +435,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
           :controllers="controllers"
           @form-submit="handleTopologyFormSubmit"
         />
-        <div v-if="modalOption === 'usage'" class="modal-ui">
-          <div class="modal-tabs">
-            <button
-              type="button"
-              class="modal-tab"
-              :class="{ 'is-active': helpTab === 'welcome' }"
-              @click="helpTab = 'welcome'"
-            >
-              {{ $t("help.welcomeTab") }}
-            </button>
-            <button
-              type="button"
-              class="modal-tab"
-              :class="{ 'is-active': helpTab === 'shortcuts' }"
-              @click="helpTab = 'shortcuts'"
-            >
-              {{ $t("help.shortcutsTab") }}
-            </button>
-            <button
-              type="button"
-              class="modal-tab"
-              :class="{ 'is-active': helpTab === 'devices' }"
-              @click="helpTab = 'devices'"
-            >
-              {{ $t("help.devicesTab") }}
-            </button>
-          </div>
-          <div class="modal-section">
-            <div class="modal-tab-panels">
-              <div
-                class="modal-stack tab-panel"
-                :class="{ 'is-hidden': helpTab !== 'welcome' }"
-              >
-                <p>{{ $t("help.welcomeLine1") }}</p>
-                <p>{{ $t("help.welcomeLine2") }}</p>
-                <p>{{ $t("help.welcomeLine3") }}</p>
-                <p>{{ $t("help.welcomeLine4") }}</p>
-              </div>
-              <div
-                class="modal-stack tab-panel"
-                :class="{ 'is-hidden': helpTab !== 'shortcuts' }"
-              >
-                <p>{{ $t("help.shortcuts1") }}</p>
-                <p>{{ $t("help.shortcuts2") }}</p>
-                <p>{{ $t("help.shortcuts3") }}</p>
-                <p>{{ $t("help.shortcuts4") }}</p>
-                <p>{{ $t("help.shortcuts5") }}</p>
-                <p>{{ $t("help.shortcuts6") }}</p>
-              </div>
-              <div
-                class="modal-stack tab-panel"
-                :class="{ 'is-hidden': helpTab !== 'devices' }"
-              >
-                <p>{{ $t("help.deviceHost") }}</p>
-                <p>{{ $t("help.deviceSwitch") }}</p>
-                <p>{{ $t("help.deviceController") }}</p>
-                <p>{{ $t("help.deviceRouter") }}</p>
-                <p>{{ $t("help.deviceNat") }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div v-if="modalOption === 'about'" class="modal-ui">
-          <div class="modal-section">
-            <div class="modal-section__header">
-              <div class="modal-section__title">{{ $t("about.title") }}</div>
-            </div>
-            <div class="about-grid">
-              <img :src="logoImage" alt="Mininet GUI logo" class="about-logo" />
-              <div class="about-details">
-                <p>
-                  {{
-                    $t("about.frontendVersion", { version: frontendVersion })
-                  }}
-                </p>
-                <p>
-                  {{ $t("about.backendVersion", { version: backendVersion }) }}
-                </p>
-                <p>
-                  {{ $t("about.mininetVersion", { version: mininetVersion }) }}
-                </p>
-                <p>{{ $t("about.authors") }}</p>
-                <p>
-                  {{ $t("about.repository") }}
-                  <a
-                    class="about-link"
-                    href=""
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    ""
-                  </a>
-                </p>
-                <p>{{ $t("about.license") }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
         <div v-if="modalOption === 'settings'" class="modal-ui">
           <div class="modal-section">
             <div class="modal-section__header">
@@ -565,16 +443,6 @@ import logoImage from "@/assets/logo-mininet-gui.png";
               </div>
             </div>
             <div class="settings-grid">
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.theme"
-                  :true-value="'light'"
-                  :false-value="'dark'"
-                  @change="handleThemeSetting"
-                />
-                <span>{{ $t("settings.lightTheme") }}</span>
-              </label>
               <label class="settings-toggle">
                 <input
                   type="checkbox"
@@ -793,7 +661,6 @@ export default {
       modalOption: null,
       modalData: {},
       linkModalEdgeId: null,
-      helpTab: "welcome",
       controllerFormPreset: null,
       controllerFormData: null,
       ryuApps: [],
@@ -808,9 +675,6 @@ export default {
         y: 0,
         nodeId: null,
       },
-      frontendVersion: frontendPackage?.version || "unknown",
-      backendVersion: "unknown",
-      mininetVersion: "unknown",
       selectionBox: {
         active: false,
         startX: 0,
@@ -843,7 +707,6 @@ export default {
         showHostIp: false,
         showSwitchDpids: false,
         showPortLabels: false,
-        theme: "dark",
         language: "en",
         switchOpenflow: "",
         linkOptions: {
@@ -872,11 +735,8 @@ export default {
       }
       return undefined;
     },
-    isLightTheme() {
-      return this.settings.theme === "light";
-    },
     themeClass() {
-      return this.isLightTheme ? "theme-light" : "theme-dark";
+      return "theme-dark";
     },
     network() {
       const computedNetwork = this.computeNetwork();
@@ -913,13 +773,11 @@ export default {
   },
   async mounted() {
     this.loadSettings();
-    this.maybeShowFirstRunHelp();
     await this.syncSnifferState();
     this.snifferStateTimer = setInterval(() => this.syncSnifferState(), 5000);
     await this.loadRyuApps();
     this.setupNetwork();
     this.bindSelectionEvents();
-    this.loadVersions();
     await this.refreshBackendHealth();
     this.healthTimer = setInterval(() => this.refreshBackendHealth(), 2000);
   },
@@ -930,17 +788,6 @@ export default {
   },
   methods: {
     currentAssets() {
-      if (this.isLightTheme) {
-        return {
-          host: hostImgDark,
-          nat: natImgDark,
-          router: routerImgDark,
-          switch: switchImgDark,
-          switchOvs: switchOvsImgDark,
-          switchOvsBridge: switchOvsBridgeImgDark,
-          switchUser: switchUserImgDark,
-        };
-      }
       return {
         host: hostImgLight,
         nat: natImgLight,
@@ -952,48 +799,24 @@ export default {
       };
     },
     nodeBaseColor() {
-      const highlight = this.isLightTheme ? "#bdbdbd" : "#848484";
-      const background = this.isLightTheme ? "#f3f3f3" : "#252526";
       return {
-        background,
+        background: "#252526",
         border: "#00000000",
-        highlight: { background: highlight, border: highlight },
+        highlight: { background: "#848484", border: "#848484" },
       };
     },
     portLabelFontColor() {
-      return this.isLightTheme ? "#2b2b2b" : "#e6e6e6";
+      return "#e6e6e6";
     },
     linkInactiveColor() {
-      return this.isLightTheme ? "#7a7a7aff" : "#999999ff";
+      return "#999999ff";
     },
     controllerLinkColor() {
-      return this.isLightTheme ? "#8a8a8a" : "#777788af";
-    },
-    applyThemeSetting() {
-      const toggleClass = (el, className, enabled) => {
-        if (!el) return;
-        if (enabled) el.classList.add(className);
-        else el.classList.remove(className);
-      };
-      const root = document.documentElement;
-      const body = document.body;
-      const app = document.getElementById("app");
-      const targetSet = [root, body, app];
-      targetSet.forEach((el) =>
-        toggleClass(el, "theme-light", this.isLightTheme),
-      );
-      targetSet.forEach((el) =>
-        toggleClass(el, "theme-dark", !this.isLightTheme),
-      );
-    },
-    handleThemeSetting() {
-      this.applyThemeSetting();
-      this.applyNetworkTheme();
-      this.persistSettings();
+      return "#777788af";
     },
     applyNetworkTheme() {
       if (this.network) {
-        this.network.setOptions(buildOptions(this.settings.theme));
+        this.network.setOptions(buildOptions());
       }
       const assets = this.currentAssets();
       if (this.nodes?.forEach) {
@@ -1067,13 +890,6 @@ export default {
       if (key === "ovskernel") return assets.switch;
       return assets.switch;
     },
-    async loadVersions() {
-      const backendInfo = await getBackendVersion();
-      if (!backendInfo) return;
-      if (backendInfo.version) this.backendVersion = backendInfo.version;
-      if (backendInfo.mininet_version)
-        this.mininetVersion = backendInfo.mininet_version;
-    },
     async loadRyuApps() {
       this.ryuApps = await getRyuApps();
     },
@@ -1132,28 +948,8 @@ export default {
       this.sidebarCollapsed = false;
       this.webshellMinimized = false;
     },
-    handleOpenUsage() {
-      this.modalHeader = this.$t("menu.usage");
-      this.modalOption = "usage";
-      this.modalData = null;
-      this.helpTab = "welcome";
-      this.showModal = true;
-    },
-    handleOpenDocumentation() {
-      window.open("", "_blank", "noopener,noreferrer");
-    },
-    handleOpenAbout() {
-      this.modalHeader = this.$t("menu.about");
-      this.modalOption = "about";
-      this.modalData = null;
-      this.showModal = true;
-    },
     handleSettingChange(key, value) {
       this.settings[key] = value;
-      if (key === "theme") {
-        this.applyThemeSetting();
-        this.applyNetworkTheme();
-      }
       this.persistSettings();
     },
     bindSelectionEvents() {
@@ -1340,7 +1136,6 @@ export default {
       } catch (error) {
         console.warn("Failed to load settings", error);
       }
-      this.applyThemeSetting();
       this.applyLocaleSetting();
       this.applyVisibilitySettings();
       this.applyPortLabels();
@@ -1373,17 +1168,6 @@ export default {
       if (this.$i18n?.locale && this.$i18n.locale !== locale) {
         this.$i18n.locale = locale;
       }
-    },
-    maybeShowFirstRunHelp() {
-      try {
-        const key = "mininetGuiHelpShown";
-        const hasShown = localStorage.getItem(key);
-        if (hasShown) return;
-        localStorage.setItem(key, "true");
-      } catch (error) {
-        console.warn("Failed to persist first-run help flag", error);
-      }
-      this.handleOpenUsage();
     },
     getLinkOptionsPayload() {
       const opts = this.settings.linkOptions || {};
@@ -1469,9 +1253,6 @@ export default {
       return this.nodeBaseColor();
     },
     controllerIconColor(nodeOrColorCode) {
-      if (this.isLightTheme) {
-        return "#000000";
-      }
       const colorCode =
         typeof nodeOrColorCode === "string"
           ? nodeOrColorCode
@@ -1561,7 +1342,7 @@ export default {
       return new Network(
         this.$refs.graph,
         { nodes: this.nodes, edges: this.edges },
-        buildOptions(this.settings.theme),
+        buildOptions(),
       );
     },
     async setupNetwork() {
@@ -2417,7 +2198,9 @@ export default {
     formatIperfResult(result) {
       if (!result) return "";
       if (result.client && result.server) {
-        return `${this.$t("iperf.client")}: ${result.client}\n${this.$t("iperf.server")}: ${result.server}`;
+        return `${this.$t("iperf.client")}: ${result.client}\n${this.$t(
+          "iperf.server",
+        )}: ${result.server}`;
       }
       return JSON.stringify(result, null, 2);
     },
@@ -3098,99 +2881,6 @@ export default {
   --theme-input-border: #333;
 }
 
-:global(.theme-light) {
-  --theme-app-bg: #f8f8f8;
-  --theme-app-color: #000000;
-  --theme-topbar-bg: #f8f8f8;
-  --theme-topbar-color: #000000;
-  --theme-topbar-border: #d0d0d0;
-  --theme-menu-hover: #e6e6e6;
-  --theme-dropdown-bg: #ffffff;
-  --theme-dropdown-border: #d0d0d0;
-  --theme-health-overlay-bg: rgba(248, 248, 248, 0.92);
-  --theme-health-overlay-card-bg: #ffffff;
-  --theme-health-overlay-card-border: #d0d0d0;
-  --theme-health-overlay-card-color: #000000;
-  --theme-statusbar-bg: #f8f8f8;
-  --theme-statusbar-color: #000000;
-  --theme-statusbar-border: #d0d0d0;
-  --theme-statusbar-muted: #6b6b6b;
-  --theme-sidebar-bg: #f8f8f8;
-  --theme-sidebar-color: #000000;
-  --theme-sidebar-border: #d0d0d0;
-  --theme-sidebar-muted: #6b6b6b;
-  --theme-sidebar-button-bg: #ffffff;
-  --theme-sidebar-button-border: #d0d0d0;
-  --theme-sidebar-button-color: #000000;
-  --theme-sidebar-button-hover: #e6e6e6;
-  --theme-sidebar-button-active-bg: #e6f2ff;
-  --theme-sidebar-button-active-border: #007acc;
-  --theme-sidebar-button-active-color: #004175;
-  --theme-icon-button-hover: #d0d0d0;
-  --theme-network-bg: #ffffff;
-  --theme-webshell-bg: #f8f8f8;
-  --theme-webshell-color: #000000;
-  --theme-webshell-border: #d0d0d0;
-  --theme-node-context-bg: #ffffff;
-  --theme-node-context-border: #d0d0d0;
-  --theme-node-context-color: #000000;
-  --theme-webshell-header-bg: #f8f8f8;
-  --theme-webshell-header-border: #d0d0d0;
-  --theme-webshell-tab-bg: transparent;
-  --theme-webshell-tab-color: #2b2b2b;
-  --theme-webshell-tab-hover: #e6e6e6;
-  --theme-webshell-tab-active-bg: #ffffff;
-  --theme-webshell-tab-active-color: #000000;
-  --theme-webshell-icon-color: #2b2b2b;
-  --theme-webshell-tabs-bg: #f8f8f8;
-  --theme-modal-pre-bg: #f5f5f5;
-  --theme-modal-pre-border: #d0d0d0;
-  --theme-monitoring-toolbar-bg: #f8f8f8;
-  --theme-monitoring-toolbar-border: #d0d0d0;
-  --theme-monitoring-select-color: #000000;
-  --theme-monitoring-select-bg: #ffffff;
-  --theme-monitoring-select-border: #d0d0d0;
-  --theme-monitoring-toggle-bg: #ffffff;
-  --theme-monitoring-toggle-border: #d0d0d0;
-  --theme-monitoring-toggle-color: #000000;
-  --theme-monitoring-toggle-active-bg: #e6f2ff;
-  --theme-monitoring-toggle-active-border: #007acc;
-  --theme-monitoring-toggle-active-color: #0b2b3b;
-  --theme-monitoring-export-bg: #ffffff;
-  --theme-monitoring-export-border: #d0d0d0;
-  --theme-monitoring-clear-bg: #ffffff;
-  --theme-monitoring-clear-border: #d0d0d0;
-  --theme-monitoring-status-color: #6b6b6b;
-  --theme-monitoring-status-monitoring: #2f7d46;
-  --theme-monitoring-status-error: #c62828;
-  --theme-chart-card-bg: #ffffff;
-  --theme-chart-card-border: #d0d0d0;
-  --theme-chart-label-color: #6b6b6b;
-  --theme-traffic-toolbar-bg: #f8f8f8;
-  --theme-traffic-toolbar-border: #d0d0d0;
-  --theme-traffic-status-active: #0b6fa5;
-  --theme-traffic-status-inactive: #6b6b6b;
-  --theme-traffic-select-bg: #ffffff;
-  --theme-traffic-select-color: #2b2b2b;
-  --theme-traffic-select-border: #d0d0d0;
-  --theme-traffic-button-bg: #ffffff;
-  --theme-traffic-button-border: #d0d0d0;
-  --theme-traffic-button-color: #2b2b2b;
-  --theme-sniffer-toggle-bg: #f8f8f8;
-  --theme-sniffer-toggle-border: #d0d0d0;
-  --theme-sniffer-toggle-color: #000000;
-  --theme-sniffer-toggle-active-bg: #e6f2ff;
-  --theme-sniffer-toggle-active-border: #007acc;
-  --theme-sniffer-toggle-active-color: #0b2b3b;
-  --theme-traffic-row-color: #2b2b2b;
-  --theme-traffic-row-bg-even: #f5f5f5;
-  --theme-traffic-row-header-bg: #efefef;
-  --theme-traffic-row-header-border: #d0d0d0;
-  --theme-traffic-empty-color: #6b6b6b;
-  --theme-input-bg: #ffffff;
-  --theme-input-border: #d0d0d0;
-}
-
 .health-overlay {
   position: absolute;
   left: 0;
@@ -3275,10 +2965,6 @@ export default {
 
 .status-bar__primary {
   font-weight: 600;
-}
-
-.status-bar__version {
-  color: var(--theme-statusbar-muted);
 }
 
 .status-bar__counts {
@@ -3442,30 +3128,6 @@ export default {
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-}
-
-.about-grid {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 16px;
-  align-items: center;
-}
-
-.about-logo {
-  width: 200px;
-  height: auto;
-  justify-self: center;
-}
-
-.about-details p {
-  margin: 4px 0;
-  font-size: 13px;
-}
-
-.about-link {
-  color: #60a5fa;
-  text-decoration: underline;
-  word-break: break-all;
 }
 
 .settings-grid {

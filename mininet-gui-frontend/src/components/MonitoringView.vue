@@ -1,5 +1,5 @@
 <template>
-  <div :class="['monitoring-view', themeClass]">
+  <div class="monitoring-view theme-dark">
     <div class="monitoring-toolbar">
       <div class="monitoring-filters">
         <label class="monitoring-select">
@@ -93,7 +93,6 @@ export default {
   props: {
     graphNodes: { type: Array, default: () => [] },
     graphVersion: { type: Number, default: 0 },
-    theme: { type: String, default: "dark" },
   },
   data() {
     return {
@@ -159,12 +158,6 @@ export default {
     chartsReady() {
       return !!(this.txChart && this.rxChart);
     },
-    isLightTheme() {
-      return this.theme === "light";
-    },
-    themeClass() {
-      return this.isLightTheme ? "theme-light" : "theme-dark";
-    },
   },
   watch: {
     graphNodes: {
@@ -176,9 +169,6 @@ export default {
     },
     graphVersion() {
       this.loadInterfaces();
-    },
-    theme() {
-      this.applyChartTheme();
     },
     nodes: {
       handler() {
@@ -293,37 +283,30 @@ export default {
     },
 
     createChartLayout() {
-      const bg = this.isLightTheme ? "#f5f5f5" : "#0b0f17";
-      const text = this.isLightTheme ? "#2b2b2b" : "#d1d5db";
-      const grid = this.isLightTheme
-        ? "rgba(0,0,0,0.08)"
-        : "rgba(255,255,255,0.08)";
-      const axisLine = this.isLightTheme ? "#cfcfcf" : "#2f2f37";
-      const tick = this.isLightTheme ? "#6b6b6b" : "#9fa6af";
       return {
         margin: { t: 20, b: 30, l: 40, r: 10 },
-        plot_bgcolor: bg,
-        paper_bgcolor: bg,
-        font: { color: text },
+        plot_bgcolor: "#0b0f17",
+        paper_bgcolor: "#0b0f17",
+        font: { color: "#d1d5db" },
         xaxis: {
           title: "Time",
           type: "date",
-          color: text,
-          gridcolor: grid,
-          linecolor: axisLine,
-          tickcolor: tick,
+          color: "#d1d5db",
+          gridcolor: "rgba(255,255,255,0.08)",
+          linecolor: "#2f2f37",
+          tickcolor: "#9fa6af",
         },
         yaxis: {
           title: "Traffic (Gbps)",
           autorange: true,
-          color: text,
-          gridcolor: grid,
-          linecolor: axisLine,
-          tickcolor: tick,
+          color: "#d1d5db",
+          gridcolor: "rgba(255,255,255,0.08)",
+          linecolor: "#2f2f37",
+          tickcolor: "#9fa6af",
         },
         autosize: true,
         legend: {
-          font: { color: text },
+          font: { color: "#d1d5db" },
         },
       };
     },

@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="['webshell-container', themeClass, { minimized: isMinimized }]"
+    :class="['webshell-container', 'theme-dark', { minimized: isMinimized }]"
     :style="{
       height: isMinimized ? minimizedHeight + 'px' : panelHeight + 'px',
     }"
@@ -150,7 +150,6 @@ export default {
     preferredView: { type: String, default: null },
     focusNodeId: { type: String, default: null },
     minimized: { type: Boolean, default: false },
-    theme: { type: String, default: "dark" },
   },
   data() {
     return {
@@ -180,21 +179,7 @@ export default {
     nodeCount() {
       return this.getSessionList().length;
     },
-    isLightTheme() {
-      return this.theme === "light";
-    },
-    themeClass() {
-      return this.isLightTheme ? "theme-light" : "theme-dark";
-    },
     terminalTheme() {
-      if (this.isLightTheme) {
-        return {
-          background: "#ffffff",
-          foreground: "#2b2b2b",
-          cursor: "#2b2b2b",
-          selection: "#cce8ff",
-        };
-      }
       return {
         background: "#1e1e1e",
         foreground: "#cccccc",
@@ -228,9 +213,6 @@ export default {
     },
     minimized(value) {
       this.isMinimized = !!value;
-    },
-    theme() {
-      this.applyTerminalTheme();
     },
     activeView(value) {
       this.$emit("viewChange", value);

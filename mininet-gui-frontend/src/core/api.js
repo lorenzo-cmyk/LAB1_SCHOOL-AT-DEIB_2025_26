@@ -110,17 +110,6 @@ export const deployRouter = async (router) => {
     return false;
   }
 };
-export const getBackendVersion = async () => {
-  try {
-    const root = baseUrl?.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
-    const response = await axios.get(`${root}/version`);
-    return response.data || null;
-  } catch (error) {
-    console.warn("Failed to fetch backend version", error);
-    return null;
-  }
-};
-
 export const getRyuApps = async () => {
   try {
     const root = baseUrl?.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
