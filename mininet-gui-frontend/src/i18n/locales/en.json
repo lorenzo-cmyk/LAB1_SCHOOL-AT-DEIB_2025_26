@@ -6,19 +6,12 @@
     "file": "File",
     "view": "View",
     "run": "Run",
-    "tools": "Tools",
     "newTopology": "New Topology",
     "openTopology": "Open Topology...",
     "saveTopology": "Save Topology As...",
-    "settings": "Settings",
     "startNetwork": "Start Network",
     "stopNetwork": "Stop Network",
     "restartNetwork": "Restart Network",
-    "runIperf": "Run Iperf",
-    "runPingall": "Run Pingall",
-    "generateTopology": "Generate Topology",
-    "startSniffer": "Start Sniffer",
-    "stopSniffer": "Stop Sniffer",
     "collapseViews": "Collapse all views",
     "expandViews": "Expand all views",
     "showHosts": "Show hosts",
@@ -53,10 +46,6 @@
   "context": {
     "openWebshell": "Open Webshell",
     "viewNodeStats": "View Node Stats"
-  },
-  "settings": {
-    "defaultOpenflow": "Default OpenFlow version",
-    "defaultsTitle": "Defaults"
   },
   "iperf": {
     "configTab": "Config",

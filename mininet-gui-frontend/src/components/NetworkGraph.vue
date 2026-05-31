@@ -68,12 +68,6 @@ import hostImgLight from "@/assets/light-host.svg";
       @restart-network="handleRestartNetwork"
       @new-topology="showResetConfirmModal"
       @save-topology="saveTopologyAs"
-      @open-settings="showSettingsModal"
-      @run-iperf="showIperfModal"
-      @run-pingall="showPingallModal"
-      @generate-topology="showTopologyFormModal"
-      @start-sniffer="toggleSniffer"
-      @stop-sniffer="toggleSniffer"
       @collapse-all-views="handleCollapseAllViews"
       @expand-all-views="handleExpandAllViews"
       @update-show-hosts="handleShowHostsSetting"
@@ -401,26 +395,6 @@ import hostImgLight from "@/assets/light-host.svg";
           :controllers="controllers"
           @form-submit="handleTopologyFormSubmit"
         />
-        <div v-if="modalOption === 'settings'" class="modal-ui">
-          <div class="modal-section">
-            <div class="modal-section__header">
-              <div class="modal-section__title">
-                {{ $t("settings.defaultsTitle") }}
-              </div>
-            </div>
-            <div class="modal-form-grid">
-              <label class="modal-field">
-                {{ $t("settings.defaultOpenflow") }}
-                <input
-                  type="text"
-                  class="modal-input"
-                  value="OpenFlow13"
-                  disabled
-                />
-              </label>
-            </div>
-          </div>
-        </div>
         <div v-if="modalOption === 'confirmReset'" class="modal-ui">
           <div class="modal-section">
             <div class="modal-section__header">
@@ -1065,12 +1039,6 @@ export default {
         color: this.portLabelFontColor(),
       };
       return update;
-    },
-    showSettingsModal() {
-      this.closeAllActiveModes();
-      this.modalHeader = this.$t("menu.settings");
-      this.modalOption = "settings";
-      this.showModal = true;
     },
     computeNetwork() {
       if (this.network) return this.network;

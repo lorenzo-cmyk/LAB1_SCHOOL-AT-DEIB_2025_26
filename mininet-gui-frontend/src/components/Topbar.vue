@@ -42,17 +42,6 @@
           >
             {{ $t("menu.saveTopology") }}
           </button>
-          <div class="menu-separator"></div>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('open-settings');
-              closeFileMenu();
-            "
-          >
-            {{ $t("menu.settings") }}
-          </button>
         </div>
       </div>
       <div class="menu-item-wrapper" @mouseenter="handleMenuHover('view')">
@@ -187,69 +176,6 @@
           </button>
         </div>
       </div>
-      <div class="menu-item-wrapper" @mouseenter="handleMenuHover('tools')">
-        <button
-          type="button"
-          class="menu-item"
-          :class="{ open: toolsMenuOpen }"
-          @click.stop="toggleToolsMenu"
-        >
-          {{ $t("menu.tools") }}
-        </button>
-        <div v-if="toolsMenuOpen" class="menu-dropdown" @click.stop>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('run-iperf');
-              closeToolsMenu();
-            "
-          >
-            {{ $t("menu.runIperf") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('run-pingall');
-              closeToolsMenu();
-            "
-          >
-            {{ $t("menu.runPingall") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('generate-topology');
-              closeToolsMenu();
-            "
-          >
-            {{ $t("menu.generateTopology") }}
-          </button>
-          <div class="menu-separator"></div>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('start-sniffer');
-              closeToolsMenu();
-            "
-          >
-            {{ $t("menu.startSniffer") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('stop-sniffer');
-              closeToolsMenu();
-            "
-          >
-            {{ $t("menu.stopSniffer") }}
-          </button>
-        </div>
-      </div>
     </div>
     <input
       ref="topologyFileInput"
@@ -277,12 +203,6 @@ export default {
     "new-topology",
     "open-topology",
     "save-topology",
-    "open-settings",
-    "run-iperf",
-    "run-pingall",
-    "generate-topology",
-    "start-sniffer",
-    "stop-sniffer",
     "collapse-all-views",
     "expand-all-views",
     "update-show-hosts",
@@ -294,7 +214,6 @@ export default {
     return {
       fileMenuOpen: false,
       runMenuOpen: false,
-      toolsMenuOpen: false,
       viewMenuOpen: false,
       boundHandleGlobalClick: null,
     };
@@ -326,68 +245,45 @@ export default {
       if (this.runMenuOpen && !topbar.contains(event.target)) {
         this.runMenuOpen = false;
       }
-      if (this.toolsMenuOpen && !topbar.contains(event.target)) {
-        this.toolsMenuOpen = false;
-      }
       if (this.viewMenuOpen && !topbar.contains(event.target)) {
         this.viewMenuOpen = false;
       }
     },
     isAnyMenuOpen() {
-      return (
-        this.fileMenuOpen ||
-        this.runMenuOpen ||
-        this.toolsMenuOpen ||
-        this.viewMenuOpen
-      );
+      return this.fileMenuOpen || this.runMenuOpen || this.viewMenuOpen;
     },
     openMenuByKey(menuKey) {
       this.fileMenuOpen = false;
       this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       if (menuKey === "file") this.fileMenuOpen = true;
       if (menuKey === "run") this.runMenuOpen = true;
-      if (menuKey === "tools") this.toolsMenuOpen = true;
       if (menuKey === "view") this.viewMenuOpen = true;
     },
     handleMenuHover(menuKey) {
       if (!this.isAnyMenuOpen()) return;
       if (menuKey === "file" && this.fileMenuOpen) return;
       if (menuKey === "run" && this.runMenuOpen) return;
-      if (menuKey === "tools" && this.toolsMenuOpen) return;
       if (menuKey === "view" && this.viewMenuOpen) return;
       this.openMenuByKey(menuKey);
     },
     toggleFileMenu() {
       this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       this.fileMenuOpen = !this.fileMenuOpen;
-    },
-    toggleToolsMenu() {
-      this.fileMenuOpen = false;
-      this.runMenuOpen = false;
-      this.viewMenuOpen = false;
-      this.toolsMenuOpen = !this.toolsMenuOpen;
     },
     toggleViewMenu() {
       this.fileMenuOpen = false;
       this.runMenuOpen = false;
-      this.toolsMenuOpen = false;
       this.viewMenuOpen = !this.viewMenuOpen;
     },
     toggleRunMenu() {
       this.fileMenuOpen = false;
-      this.toolsMenuOpen = false;
       this.viewMenuOpen = false;
       this.runMenuOpen = !this.runMenuOpen;
     },
     closeFileMenu() {
       this.fileMenuOpen = false;
-    },
-    closeToolsMenu() {
-      this.toolsMenuOpen = false;
     },
     closeViewMenu() {
       this.viewMenuOpen = false;
