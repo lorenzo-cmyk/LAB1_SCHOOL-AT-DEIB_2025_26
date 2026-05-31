@@ -919,10 +919,6 @@ export default {
         this.$i18n.locale = locale;
       }
     },
-    formatPortLabel(intfs) {
-      if (!intfs?.from || !intfs?.to) return "";
-      return `${intfs.from} ↔ ${intfs.to}`;
-    },
     hostLabel(host) {
       if (!host) return "";
       if (this.settings.showHostIp && host.ip) {
@@ -1022,20 +1018,22 @@ export default {
     },
     buildPortLabelUpdate(edge, showLabels) {
       if (!edge || !edge.id) return null;
-      const update = { id: edge.id, label: "" };
-      if (!showLabels) return update;
-      const label = this.formatPortLabel(edge.intfs);
-      if (!label) return update;
-      update.label = label;
-      update.font = {
-        align: "middle",
-        size: 11,
-        color: "#e6e6e6",
-        background: "#252526cc",
-        strokeWidth: 2,
-        strokeColor: "#252526",
+      if (!showLabels || !edge.intfs?.from || !edge.intfs?.to) {
+        return { id: edge.id, label: "", font: null };
+      }
+      const label = `${edge.intfs.from} ↔ ${edge.intfs.to}`;
+      return {
+        id: edge.id,
+        label,
+        font: {
+          align: "middle",
+          size: 11,
+          color: "#e6e6e6",
+          background: "#252526cc",
+          strokeWidth: 2,
+          strokeColor: "#252526",
+        },
       };
-      return update;
     },
     computeNetwork() {
       if (this.network) return this.network;
