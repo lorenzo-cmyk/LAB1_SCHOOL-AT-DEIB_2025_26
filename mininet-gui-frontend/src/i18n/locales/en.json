@@ -138,7 +138,10 @@
   "nodes": {
     "host": "Host",
     "switch": "Switch",
-    "controller": "Controller"
+    "controller": "Controller",
+    "remoteController": "Remote Controller",
+    "remote": "Remote",
+    "remoteShort": "Rem"
   },
   "monitoring": {
     "node": "Node",
