@@ -52,19 +52,6 @@
           <span class="material-symbols-outlined">delete_sweep</span>
           <span>{{ $t("monitoring.clearGraphs") }}</span>
         </button>
-        <button
-          class="monitoring-export"
-          type="button"
-          :disabled="!chartsReady || isExporting"
-          @click="exportChartsAsPNG"
-        >
-          <span class="material-symbols-outlined">download</span>
-          <span>{{
-            isExporting
-              ? $t("monitoring.exporting")
-              : $t("monitoring.exportCharts")
-          }}</span>
-        </button>
         <span class="monitoring-status" :class="status">
           {{ statusMessage }}
         </span>
@@ -107,7 +94,6 @@ export default {
       rxChart: null,
       maxSamples: 120,
       chartObserver: null,
-      isExporting: false,
       interfaceTimer: null,
     };
   },
@@ -461,40 +447,6 @@ export default {
           [0],
           this.maxSamples,
         );
-      }
-    },
-    async exportChartsAsPNG() {
-      if (!this.chartsReady) return;
-      this.isExporting = true;
-      const exports = [
-        this.downloadChart(this.txChart, "tx-traffic"),
-        this.downloadChart(this.rxChart, "rx-traffic"),
-      ];
-      try {
-        await Promise.all(exports);
-      } finally {
-        this.isExporting = false;
-      }
-    },
-    async downloadChart(chart, prefix) {
-      if (!chart) return;
-      try {
-        const width = chart.clientWidth || 800;
-        const height = chart.clientHeight || 400;
-        const dataUrl = await Plotly.toImage(chart, {
-          format: "png",
-          width,
-          height,
-          scale: 2,
-          background: "#0b0f17",
-        });
-        const link = document.createElement("a");
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        link.href = dataUrl;
-        link.download = `${prefix}-${timestamp}.png`;
-        link.click();
-      } catch (error) {
-        console.error("Falha ao exportar gráfico:", error);
       }
     },
   },
