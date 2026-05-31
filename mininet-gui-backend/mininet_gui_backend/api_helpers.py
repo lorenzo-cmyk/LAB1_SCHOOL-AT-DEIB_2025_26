@@ -10,7 +10,6 @@ import select
 import asyncio
 import subprocess
 import logging
-import pkgutil
 from typing import Optional, Set
 
 from pydantic import BaseModel, Field
@@ -19,17 +18,11 @@ from mininet.log import debug as _debug
 from mininet.node import (
     RemoteController,
     Controller as ReferenceController,
-    NOX,
-    UserSwitch,
-    OVSSwitch,
     OVSKernelSwitch,
-    OVSBridge,
-    Node,
 )
-from mininet_gui_backend.nodes import Ryu
 from fastapi import HTTPException, WebSocket
 
-from mininet_gui_backend.schema import Switch, Host, Controller, Nat, Router
+from mininet_gui_backend.schema import Switch, Host, Controller
 from mininet_gui_backend import app_state as state
 
 
@@ -38,7 +31,6 @@ from mininet_gui_backend import app_state as state
 # ---------------------------------------------------------------------------
 
 LOG_FILE = os.path.join(os.path.dirname(__file__), "mininet.log")
-RYU_APP_DIRS = []
 
 FLOW_FIELDS = [
     "cookie",
@@ -69,7 +61,6 @@ class ControllerUpdate(BaseModel):
     remote: Optional[bool] = None
     ip: Optional[str] = None
     port: Optional[int] = None
-    ryu_app: Optional[str | list] = None
     color: Optional[str] = None
     of_version: Optional[str] = None
 
@@ -97,16 +88,6 @@ class IperfRequest(BaseModel):
     port: Optional[int] = None
 
 
-class LinuxRouter(Node):
-    def config(self, **params):
-        super().config(**params)
-        self.cmd("sysctl -w net.ipv4.ip_forward=1")
-
-    def terminate(self):
-        self.cmd("sysctl -w net.ipv4.ip_forward=0")
-        super().terminate()
-
-
 # ---------------------------------------------------------------------------
 # Helper / utility functions
 # ---------------------------------------------------------------------------
@@ -114,63 +95,6 @@ class LinuxRouter(Node):
 
 def debug(msg, *args):
     _debug(str(msg) + " " + " ".join(map(str, args)) + "\n")
-
-
-def list_ryu_apps():
-    apps = set()
-    app_dirs = []
-    env_dirs = os.environ.get("RYU_APP_DIRS", "")
-    if env_dirs:
-        for entry in env_dirs.split(os.pathsep):
-            entry = entry.strip()
-            if entry:
-                app_dirs.append(entry)
-    for app_dir in RYU_APP_DIRS:
-        if os.path.isdir(app_dir):
-            app_dirs.append(app_dir)
-    try:
-        import importlib
-
-        app_pkg = importlib.import_module("ryu.app")
-        if app_pkg and hasattr(app_pkg, "__path__"):
-            for _finder, name, _ispkg in pkgutil.iter_modules(app_pkg.__path__):
-                if name and not name.startswith("__"):
-                    apps.add(name)
-            pkg_dir = os.path.dirname(app_pkg.__file__)
-            if os.path.isdir(pkg_dir):
-                app_dirs.append(pkg_dir)
-    except Exception:
-        pass
-
-    try:
-        result = subprocess.run(
-            ["ryu-manager", "--app-list"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=3,
-        )
-        if result.stdout:
-            for line in result.stdout.splitlines():
-                line = line.strip()
-                if not line:
-                    continue
-                token = line.split()[0]
-                if token.startswith("ryu.app."):
-                    apps.add(token[len("ryu.app.") :])
-    except Exception:
-        pass
-
-    for app_dir in app_dirs:
-        try:
-            entries = os.listdir(app_dir)
-        except OSError:
-            continue
-        for entry in entries:
-            if entry.endswith(".py") and entry != "__init__.py":
-                apps.add(entry[:-3])
-
-    return sorted(apps)
 
 
 def setup_log_file():
@@ -214,34 +138,6 @@ def add_host_to_net(host: Host):
     return host_node
 
 
-def add_router_to_net(router: Router):
-    params = {"ip": router.ip, "mac": router.mac}
-    router_node = state.net.addHost(router.name, cls=LinuxRouter, **params)
-    router_node.x = router.x
-    router_node.y = router.y
-    router_node.ip = router.ip
-    router_node.mac = router.mac
-    router_node.type = "router"
-    return router_node
-
-
-def add_nat_to_net(nat: Nat):
-    params = {}
-    if nat.ip:
-        params["ip"] = nat.ip
-    if nat.mac:
-        params["mac"] = nat.mac
-    nat_node = state.net.addNAT(nat.name, connect=False, **params)
-    nat_node.x = nat.x
-    nat_node.y = nat.y
-    nat_node.type = "nat"
-    if nat.ip:
-        nat_node.ip = nat.ip
-    if nat.mac:
-        nat_node.mac = nat.mac
-    return nat_node
-
-
 def add_controller_to_net(controller: Controller, start=True):
     controller_type = (controller.controller_type or "").lower()
     if controller.remote or controller_type == "remote":
@@ -251,50 +147,6 @@ def add_controller_to_net(controller: Controller, start=True):
             ip=controller.ip,
             port=controller.port,
         )
-    elif controller_type == "ryu":
-        if not controller.port:
-            raise HTTPException(
-                status_code=400, detail="Ryu controller requires a port"
-            )
-        if not controller.ryu_app:
-            raise HTTPException(
-                status_code=400, detail="Ryu controller requires an app"
-            )
-        ryu_apps = (
-            controller.ryu_app
-            if isinstance(controller.ryu_app, list)
-            else [controller.ryu_app]
-        )
-        available_apps = list_ryu_apps()
-        if available_apps and any(
-            app_name not in available_apps for app_name in ryu_apps
-        ):
-            try:
-                import importlib
-
-                for app_name in ryu_apps:
-                    importlib.import_module(f"ryu.app.{app_name}")
-            except Exception:
-                raise HTTPException(status_code=400, detail="Invalid ryu app")
-        elif not available_apps:
-            try:
-                import importlib
-
-                for app_name in ryu_apps:
-                    importlib.import_module(f"ryu.app.{app_name}")
-            except Exception:
-                pass
-        controller.ip = controller.ip or "127.0.0.1"
-        controller_node = state.net.addController(
-            controller.name,
-            controller=Ryu,
-            ip=controller.ip,
-            port=controller.port,
-            ryu_app=ryu_apps,
-            of_version=controller.of_version or "OpenFlow13",
-        )
-    elif controller_type == "nox":
-        controller_node = state.net.addController(controller.name, controller=NOX)
     else:
         if not controller.port or controller.port in _list_listening_ports():
             controller.port = _find_free_controller_port()
@@ -352,21 +204,9 @@ def _find_free_controller_port() -> int:
 def add_switch_to_net(switch: Switch, start=True):
     switch_type = (switch.switch_type or "").lower()
     switch.switch_type = switch_type or switch.switch_type
-    if switch_type == "user":
-        switch_node = state.net.addSwitch(
-            switch.name, ports=switch.ports, cls=UserSwitch
-        )
-    elif switch_type == "ovs":
-        switch_node = state.net.addSwitch(
-            switch.name, ports=switch.ports, cls=OVSSwitch
-        )
-    elif switch_type == "ovskernel":
+    if switch_type == "ovskernel":
         switch_node = state.net.addSwitch(
             switch.name, ports=switch.ports, cls=OVSKernelSwitch
-        )
-    elif switch_type == "ovsbridge":
-        switch_node = state.net.addSwitch(
-            switch.name, ports=switch.ports, cls=OVSBridge
         )
     else:
         switch_node = state.net.addSwitch(switch.name, ports=switch.ports)
@@ -396,7 +236,7 @@ def _apply_switch_openflow_version(
             raise HTTPException(status_code=404, detail="switch not found")
         switch_type = switch.switch_type
     switch_type = (switch_type or "").lower()
-    if switch_type not in ("ovs", "ovskernel", "ovsbridge"):
+    if switch_type != "ovskernel":
         raise HTTPException(
             status_code=400,
             detail="openflow version is only supported for OVS switches",

@@ -25,7 +25,7 @@ from mininet.net import Mininet
 from mininet.log import setLogLevel
 from mininet.topo import Topo
 from mininet.clean import cleanup as mn_cleanup
-from mininet.node import UserSwitch, OVSSwitch, OVSKernelSwitch, OVSBridge
+from mininet.node import OVSKernelSwitch
 from mininet.link import TCLink
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,7 +36,7 @@ from mininet_gui_backend.export import (
     export_net_to_script,
     export_net_to_json,
 )
-from mininet_gui_backend.schema import Switch, Host, Controller, Nat, Router
+from mininet_gui_backend.schema import Switch, Host, Controller
 from mininet_gui_backend import app_state as state
 from mininet_gui_backend.flow_rules import (
     FlowRuleCreate,
@@ -57,12 +57,9 @@ from mininet_gui_backend.api_helpers import (
     IperfRequest,
     FLOW_FIELDS,
     debug,
-    list_ryu_apps,
     setup_log_file,
     clear_log_file,
     add_host_to_net,
-    add_router_to_net,
-    add_nat_to_net,
     add_controller_to_net,
     add_switch_to_net,
     _apply_switch_openflow_version,
@@ -86,8 +83,6 @@ async def lifespan(app: FastAPI):
     state.controllers = dict()
     state.switches = dict()
     state.hosts = dict()
-    state.nats = dict()
-    state.routers = dict()
     state.links = dict()
     state.link_attrs = dict()
     state.terminals = dict()
@@ -153,11 +148,6 @@ def get_health():
     }
 
 
-@app.get("/api/ryu/apps")
-def get_ryu_apps():
-    return {"apps": list_ryu_apps()}
-
-
 @app.get("/api/mininet/addressing_plan")
 def addressing_plan():
     if not state.net.is_started:
@@ -181,13 +171,7 @@ def list_switches():
         if not getattr(sw, "switch_type", None):
             node = state.net.nameToNode.get(sw_id)
             if node:
-                if isinstance(node, UserSwitch):
-                    sw.switch_type = "user"
-                elif isinstance(node, OVSBridge):
-                    sw.switch_type = "ovsbridge"
-                elif isinstance(node, OVSSwitch):
-                    sw.switch_type = "ovs"
-                elif isinstance(node, OVSKernelSwitch):
+                if isinstance(node, OVSKernelSwitch):
                     sw.switch_type = "ovskernel"
     return state.switches
 
@@ -195,16 +179,6 @@ def list_switches():
 @app.get("/api/mininet/controllers")
 def list_controllers():
     return state.controllers
-
-
-@app.get("/api/mininet/nats")
-def list_nats():
-    return state.nats
-
-
-@app.get("/api/mininet/routers")
-def list_routers():
-    return state.routers
 
 
 @app.get("/api/mininet/links")
@@ -285,8 +259,6 @@ async def stop_network():
     # Recreate topology without start
     entries = [
         (add_host_to_net, state.hosts.values(), {}),
-        (add_router_to_net, state.routers.values(), {}),
-        (add_nat_to_net, state.nats.values(), {}),
         (add_controller_to_net, state.controllers.values(), {"start": False}),
         (add_switch_to_net, state.switches.values(), {"start": False}),
     ]
@@ -307,7 +279,7 @@ async def stop_network():
         if state.net.is_started:
             for node_id in (src, dst):
                 node = state.net.nameToNode[node_id]
-                if node.type in ("host", "nat", "router"):
+                if node.type == "host":
                     node.configDefault()
                 elif node.type == "sw" and node.controller:
                     node.start([node.controller])
@@ -340,8 +312,6 @@ async def full_reset_network():
     state.controllers = dict()
     state.switches = dict()
     state.hosts = dict()
-    state.nats = dict()
-    state.routers = dict()
     state.links = dict()
     state.link_attrs = dict()
     state.terminals = dict()
@@ -405,18 +375,6 @@ def create_host(host: Host):
     return {"status": "ok"}
 
 
-@app.post("/api/mininet/routers")
-def create_router(router: Router):
-    if router.id in state.routers:
-        state.routers[router.id] = router
-        return {"status": "updated"}
-    debug(router)
-    new_router = add_router_to_net(router)
-    state.routers[router.name] = router
-    debug(new_router)
-    return {"status": "ok"}
-
-
 @app.patch("/api/mininet/hosts/{host_id}")
 def update_host(host_id: str, payload: HostUpdate):
     if host_id not in state.net.nameToNode:
@@ -469,18 +427,6 @@ def update_host(host_id: str, payload: HostUpdate):
             node.cmd("ip route del default")
     state.hosts[host_id] = host
     return {"status": "ok", "host": host.model_dump()}
-
-
-@app.post("/api/mininet/nats")
-def create_nat(nat: Nat):
-    if nat.id in state.nats:
-        state.nats[nat.id] = nat
-        return {"status": "updated"}
-    debug(nat)
-    new_nat = add_nat_to_net(nat)
-    state.nats[nat.name] = nat
-    debug(new_nat)
-    return {"status": "ok"}
 
 
 @app.post("/api/mininet/switches")
@@ -603,7 +549,7 @@ def create_link(payload: Union[Tuple[str, str], LinkCreate]):
     if state.net.is_started:
         for node in (src, dst):
             node = state.net.nameToNode[node]
-            if node.type in ("host", "nat", "router"):
+            if node.type == "host":
                 node.configDefault()
             elif node.type == "sw" and node.controller:
                 controller_node = (
@@ -676,12 +622,6 @@ def node_position(data: dict):
     elif node.type == "controller":
         state.controllers[node_id].x = x
         state.controllers[node_id].y = y
-    elif node.type == "nat":
-        state.nats[node_id].x = x
-        state.nats[node_id].y = y
-    elif node.type == "router":
-        state.routers[node_id].x = x
-        state.routers[node_id].y = y
     return {"message": f"Node {node_id} updated successfully"}
 
 
@@ -703,10 +643,6 @@ def delete_node(node_id: str):
                 debug("CONTROLLER", switch.controller, node_id)
                 state.switches[switch_id].controller = None
                 state.net.nameToNode[switch_id].start([])
-    elif node.type == "nat":
-        del state.nats[node_id]
-    elif node.type == "router":
-        del state.routers[node_id]
     return {"message": f"Node {node_id} deleted successfully"}
 
 
@@ -753,8 +689,6 @@ def get_node_stats(node_id: str):
         state.switches.get(node_id)
         or state.hosts.get(node_id)
         or state.controllers.get(node_id)
-        or state.nats.get(node_id)
-        or state.routers.get(node_id)
     )
     if not base_data:
         raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
@@ -800,7 +734,7 @@ def get_node_stats(node_id: str):
             flow["match_fields"] = match_fields
             parsed_flows.append(flow)
         result["flow_table"] = parsed_flows
-    elif node.type in ("host", "router"):
+    elif node.type == "host":
         arp_table = node.cmd("arp -a -n")
         print("ARP TABLE", arp_table)
         parsed_arp_table = []
@@ -1102,8 +1036,6 @@ def export_network():
         state.switches,
         state.hosts,
         state.controllers,
-        state.nats,
-        state.routers,
         state.links,
     ).encode("utf-8")
 
@@ -1115,8 +1047,6 @@ def export_network_json():
         state.switches,
         state.hosts,
         state.controllers,
-        state.nats,
-        state.routers,
         state.links,
     ).encode("utf-8")
 
@@ -1135,8 +1065,6 @@ async def import_json(file: UploadFile = File(...)):
             controllers = []
             switches = []
             hosts = []
-            routers = []
-            nats = []
 
             for node in nodes:
                 node_type = (node.get("type") or "").lower()
@@ -1146,10 +1074,6 @@ async def import_json(file: UploadFile = File(...)):
                     switches.append(node)
                 elif node_type in ("host", "h"):
                     hosts.append(node)
-                elif node_type == "router":
-                    routers.append(node)
-                elif node_type == "nat":
-                    nats.append(node)
 
             controller_ids = {c.get("id") for c in controllers if c.get("id")}
             switch_ids = {s.get("id") for s in switches if s.get("id")}
@@ -1185,8 +1109,6 @@ async def import_json(file: UploadFile = File(...)):
                 "controllers": controllers,
                 "switches": switches,
                 "hosts": hosts,
-                "routers": routers,
-                "nats": nats,
                 "links": links,
             }
 
@@ -1205,14 +1127,6 @@ async def import_json(file: UploadFile = File(...)):
         for host_data in data.get("hosts", []):
             host = Host(**host_data)
             create_host(host)
-
-        for router_data in data.get("routers", []):
-            router = Router(**router_data)
-            create_router(router)
-
-        for nat_data in data.get("nats", []):
-            nat = Nat(**nat_data)
-            create_nat(nat)
 
         for link in data.get("links", []):
             debug("LINKS: ", data["links"])

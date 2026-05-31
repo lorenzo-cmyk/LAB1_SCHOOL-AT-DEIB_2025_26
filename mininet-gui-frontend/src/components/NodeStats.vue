@@ -78,7 +78,7 @@ export default {
     },
     canSetOpenflow() {
       const type = (this.localStats?.switch_type || "").toLowerCase();
-      return this.isSwitch && ["ovs", "ovskernel", "ovsbridge"].includes(type);
+      return this.isSwitch && ["ovskernel"].includes(type);
     },
   },
   watch: {

@@ -6,13 +6,9 @@ import {
   getHosts,
   getSwitches,
   getControllers,
-  getNats,
-  getRouters,
   getEdges,
   getNodeStats,
   deployHost,
-  deployNat,
-  deployRouter,
   deployLink,
   deployController,
   deploySwitch,
@@ -32,7 +28,6 @@ import {
   getHealthStatus,
   startSniffer,
   stopSniffer,
-  getRyuApps,
 } from "../core/api";
 import { buildOptions } from "../core/options";
 import Side from "./Side.vue";
@@ -45,12 +40,7 @@ import TopologyForm from "./TopologyForm.vue";
 import Topbar from "./Topbar.vue";
 
 import switchImgLight from "@/assets/light-switch.svg";
-import switchOvsImgLight from "@/assets/light-switch-ovs.svg";
-import switchOvsBridgeImgLight from "@/assets/light-switch-ovsbridge.svg";
-import switchUserImgLight from "@/assets/light-switch-user.svg";
 import hostImgLight from "@/assets/light-host.svg";
-import natImgLight from "@/assets/light-nat.svg";
-import routerImgLight from "@/assets/light-router.svg";
 </script>
 
 <template>
@@ -109,8 +99,6 @@ import routerImgLight from "@/assets/light-router.svg";
           @keydown.ctrl.a.prevent="doSelectAll"
           :networkStarted="networkStarted"
           :networkConnected="mininetConnected"
-          :showSpecialSwitches="settings.showSpecialSwitches"
-          :showSpecialControllers="settings.showSpecialControllers"
           :addEdgeMode="addEdgeMode"
           :pingallRunning="pingallRunning"
           :iperfRunning="iperfBusy"
@@ -226,12 +214,7 @@ import routerImgLight from "@/assets/light-router.svg";
   </div>
 
   <Teleport to="body">
-    <modal
-      :show="showModal"
-      :size-class="modalSizeClass"
-      @close="closeModal"
-      @keydown.esc="closeModal"
-    >
+    <modal :show="showModal" @close="closeModal" @keydown.esc="closeModal">
       <template #header>
         <h3>{{ modalHeader }}</h3>
       </template>
@@ -409,7 +392,6 @@ import routerImgLight from "@/assets/light-router.svg";
         <controller-form
           v-if="modalOption === 'controllerForm'"
           :preset-type="controllerFormPreset"
-          :ryu-apps="ryuApps"
           :controller="controllerFormData"
           @form-submit="handleControllerFormSubmit"
           @form-update="handleControllerFormUpdate"
@@ -481,8 +463,6 @@ export default {
       hosts: {},
       switches: {},
       controllers: {},
-      nats: {},
-      routers: {},
       links: [],
       nodes: new DataSet(),
       edges: new DataSet(),
@@ -516,7 +496,7 @@ export default {
       modalData: {},
       controllerFormPreset: null,
       controllerFormData: null,
-      ryuApps: [],
+
       webshellView: null,
       webshellFocusId: null,
       webshellActiveView: null,
@@ -555,8 +535,6 @@ export default {
       settings: {
         showHosts: true,
         showControllers: true,
-        showSpecialSwitches: true,
-        showSpecialControllers: true,
         showHostIp: false,
         showSwitchDpids: false,
         showPortLabels: false,
@@ -565,20 +543,6 @@ export default {
     };
   },
   computed: {
-    isRyuControllerModal() {
-      if (this.modalOption !== "controllerForm") return false;
-      const preset = (this.controllerFormPreset || "").toLowerCase();
-      const dataType = (
-        this.controllerFormData?.controller_type || ""
-      ).toLowerCase();
-      return preset === "ryu" || dataType === "ryu";
-    },
-    modalSizeClass() {
-      if (this.isRyuControllerModal) {
-        return "w-[560px] max-w-[95vw] max-h-[90vh]";
-      }
-      return undefined;
-    },
     themeClass() {
       return "theme-dark";
     },
@@ -619,7 +583,6 @@ export default {
     this.loadSettings();
     await this.syncSnifferState();
     this.snifferStateTimer = setInterval(() => this.syncSnifferState(), 5000);
-    await this.loadRyuApps();
     this.setupNetwork();
     this.bindSelectionEvents();
     await this.refreshBackendHealth();
@@ -634,12 +597,7 @@ export default {
     currentAssets() {
       return {
         host: hostImgLight,
-        nat: natImgLight,
-        router: routerImgLight,
         switch: switchImgLight,
-        switchOvs: switchOvsImgLight,
-        switchOvsBridge: switchOvsBridgeImgLight,
-        switchUser: switchUserImgLight,
       };
     },
     nodeBaseColor() {
@@ -691,21 +649,6 @@ export default {
             });
             return;
           }
-          if (node.type === "nat") {
-            this.nodes.updateOnly({
-              id: node.id,
-              color: this.nodeBaseColor(),
-              image: assets.nat,
-            });
-            return;
-          }
-          if (node.type === "router") {
-            this.nodes.updateOnly({
-              id: node.id,
-              color: this.nodeBaseColor(),
-              image: assets.router,
-            });
-          }
         });
       }
       if (this.edges?.forEach) {
@@ -728,14 +671,8 @@ export default {
     switchImageForType(type) {
       const assets = this.currentAssets();
       const key = (type || "ovskernel").toLowerCase();
-      if (key === "user") return assets.switchUser;
-      if (key === "ovs") return assets.switchOvs;
-      if (key === "ovsbridge") return assets.switchOvsBridge;
       if (key === "ovskernel") return assets.switch;
       return assets.switch;
-    },
-    async loadRyuApps() {
-      this.ryuApps = await getRyuApps();
     },
     async handleStartNetwork() {
       if (this.networkCommandInFlight || this.networkStarted) return;
@@ -1037,21 +974,13 @@ export default {
     controllerLabel(ctl) {
       if (!ctl) return "";
       const controllerType = (ctl.controller_type || "").toLowerCase();
-      const isRyu = controllerType === "ryu";
       const isRemote = ctl.remote || controllerType === "remote";
-      if (isRemote || isRyu) {
+      if (isRemote) {
         const targetParts = [];
         if (ctl.ip) targetParts.push(ctl.ip);
         if (ctl.port) targetParts.push(String(ctl.port));
         const target = targetParts.length ? ` <${targetParts.join(":")}>` : "";
-        const parts = [`${ctl.name}${target}`];
-        if (isRyu && ctl.ryu_app) {
-          const apps = Array.isArray(ctl.ryu_app) ? ctl.ryu_app : [ctl.ryu_app];
-          if (apps.length) {
-            parts.push(`[ryu:${apps.join(",")}]`);
-          }
-        }
-        return parts.join(" ");
+        return `${ctl.name}${target}`;
       }
       return `${ctl.name}`;
     },
@@ -1159,8 +1088,6 @@ export default {
         this.hosts = await getHosts();
         this.switches = await getSwitches();
         this.controllers = await getControllers();
-        this.nats = await getNats();
-        this.routers = await getRouters();
 
         Object.values(this.hosts).map((host) => {
           host.shape = "circularImage";
@@ -1192,22 +1119,6 @@ export default {
           return ctl;
         });
 
-        Object.values(this.nats).map((nat) => {
-          nat.shape = "circularImage";
-          nat.color = this.nodeBaseColor();
-          nat.image = this.currentAssets().nat;
-          nat.label = nat.name || nat.id;
-          return nat;
-        });
-
-        Object.values(this.routers).map((router) => {
-          router.shape = "circularImage";
-          router.color = this.nodeBaseColor();
-          router.image = this.currentAssets().router;
-          router.label = router.name || router.id;
-          return router;
-        });
-
         this.links = await getEdges();
         for (const link of this.links) {
           const intfs = link.intfs || null;
@@ -1233,8 +1144,6 @@ export default {
           ...Object.values(this.hosts),
           ...Object.values(this.switches),
           ...Object.values(this.controllers),
-          ...Object.values(this.nats),
-          ...Object.values(this.routers),
         ];
         this.nodes.clear();
         this.nodes.add(initialNodes);
@@ -1299,8 +1208,6 @@ export default {
                   delete this.hosts[nodeId];
                   delete this.switches[nodeId];
                   delete this.controllers[nodeId];
-                  delete this.nats[nodeId];
-                  delete this.routers[nodeId];
                   results.push(nodeId);
                 } catch (error) {
                   console.log("error deleting node", nodeId, error);
@@ -1538,74 +1445,12 @@ export default {
       }
       return host;
     },
-    async createRouter(position) {
-      let routerId = Object.values(this.routers).length + 1;
-      while (`r${routerId}` in this.routers) {
-        routerId++;
-      }
-      const octet = 100 + routerId;
-      let router = {
-        id: `r${routerId}`,
-        type: "router",
-        name: `r${routerId}`,
-        label: `r${routerId}`,
-        ip: `10.0.0.${octet}/8`,
-        mac: octet.toString(16).toUpperCase().padStart(12, "0"),
-        shape: "circularImage",
-        color: this.nodeBaseColor(),
-      };
-      router.image = this.currentAssets().router;
-      if (position) {
-        router.x = position.x;
-        router.y = position.y;
-      }
-      if (await deployRouter(router)) {
-        this.nodes.add(router);
-        this.routers[router.name] = router;
-      } else {
-        throw "Could not create router " + routerId;
-      }
-      return router;
-    },
-    async createNat(position) {
-      let natId = Object.values(this.nats).length + 1;
-      while (`nat${natId}` in this.nats) {
-        natId++;
-      }
-      const octet = 200 + natId;
-      let nat = {
-        id: `nat${natId}`,
-        type: "nat",
-        name: `nat${natId}`,
-        label: `nat${natId}`,
-        ip: `10.0.0.${octet}/8`,
-        mac: octet.toString(16).toUpperCase().padStart(12, "0"),
-        shape: "circularImage",
-        color: this.nodeBaseColor(),
-      };
-      nat.image = this.currentAssets().nat;
-      if (position) {
-        nat.x = position.x;
-        nat.y = position.y;
-      }
-      if (await deployNat(nat)) {
-        this.nodes.add(nat);
-        this.nats[nat.name] = nat;
-      } else {
-        throw "Could not create NAT " + natId;
-      }
-      return nat;
-    },
     async createSwitch(switchData) {
       let swId = Object.values(this.switches).length + 1;
       while (`s${swId}` in this.switches) {
         swId++;
       }
-      const switchType = switchData?.switch_type || "ovskernel";
-      const isOvsType = ["ovs", "ovskernel", "ovsbridge"].includes(
-        String(switchType || "").toLowerCase(),
-      );
-      const ofVersion = isOvsType ? "OpenFlow13" : null;
+      const ofVersion = "OpenFlow13";
       let sw = {
         id: `s${swId}`,
         type: "sw",
@@ -1613,7 +1458,7 @@ export default {
         label: switchData.label || null,
         ports: switchData.ports || 4,
         controller: null,
-        switch_type: switchType,
+        switch_type: "ovskernel",
         of_version: ofVersion,
         shape: "circularImage",
         color: this.nodeBaseColor(),
@@ -1664,7 +1509,6 @@ export default {
         this.formData.ip,
         this.formData.port,
         this.formData.type,
-        this.formData.ryu_app,
         this.formData.color,
       );
     },
@@ -1698,7 +1542,6 @@ export default {
         remote: data.type === "remote",
         ip: data.ip,
         port: data.port,
-        ryu_app: data.ryu_app,
         color: data.color,
       };
       const updated = await updateController(controllerId, payload);
@@ -1722,7 +1565,6 @@ export default {
         label: merged.label,
         ip: merged.ip,
         port: merged.port,
-        ryu_app: merged.ryu_app,
         controller_type: merged.controller_type,
         color: merged.color,
         image: merged.image,
@@ -1735,15 +1577,12 @@ export default {
       ip,
       port,
       controllerType = "default",
-      ryuApp = null,
       colorCode = null,
     ) {
       let ctlId = Object.values(this.controllers).length + 1;
       while (`c${ctlId}` in this.controllers) {
         ctlId++;
       }
-      const isRyu = controllerType === "ryu";
-      const effectiveIp = ip || (isRyu ? "127.0.0.1" : ip);
       const color = colorCode || "#ffffff";
       let ctl = {
         id: `c${ctlId}`,
@@ -1752,7 +1591,7 @@ export default {
         label: null,
         controller_type: controllerType,
         remote: remote,
-        ip: effectiveIp,
+        ip: ip,
         port: port,
         x: position.x,
         y: position.y,
@@ -1760,7 +1599,6 @@ export default {
         color: this.controllerColor(),
         colorCode: color,
       };
-      if (isRyu) ctl.ryu_app = ryuApp;
       ctl.label = this.controllerLabel(ctl);
       ctl.image = this.controllerImageForColor(this.controllerIconColor(ctl));
       ctl.hidden = !this.settings.showControllers;
@@ -1786,25 +1624,8 @@ export default {
       };
       if (data === "draggable-host") {
         this.createHost(this.network.DOMtoCanvas(domPoint));
-      } else if (data === "draggable-router") {
-        this.createRouter(this.network.DOMtoCanvas(domPoint));
       } else if (data === "draggable-switch") {
         this.createSwitch(this.network.DOMtoCanvas(domPoint));
-      } else if (data === "draggable-switch-ovs") {
-        this.createSwitch({
-          ...this.network.DOMtoCanvas(domPoint),
-          switch_type: "ovs",
-        });
-      } else if (data === "draggable-switch-ovsbridge") {
-        this.createSwitch({
-          ...this.network.DOMtoCanvas(domPoint),
-          switch_type: "ovsbridge",
-        });
-      } else if (data === "draggable-switch-user") {
-        this.createSwitch({
-          ...this.network.DOMtoCanvas(domPoint),
-          switch_type: "user",
-        });
       } else if (data === "draggable-controller-default") {
         this.createController(
           this.network.DOMtoCanvas(domPoint),
@@ -1818,18 +1639,6 @@ export default {
           this.network.DOMtoCanvas(domPoint),
           "remote",
         );
-      } else if (data === "draggable-controller-ryu") {
-        this.showControllerFormModal(this.network.DOMtoCanvas(domPoint), "ryu");
-      } else if (data === "draggable-controller-nox") {
-        this.createController(
-          this.network.DOMtoCanvas(domPoint),
-          false,
-          null,
-          null,
-          "nox",
-        );
-      } else if (data === "draggable-nat") {
-        this.createNat(this.network.DOMtoCanvas(domPoint));
       }
     },
     async handleNodeDragEnd(event) {
@@ -2178,8 +1987,6 @@ export default {
       this.hosts = {};
       this.switches = {};
       this.controllers = {};
-      this.nats = {};
-      this.routers = {};
       this.links = [];
       this.nodes = new DataSet();
       this.edges = new DataSet();
@@ -2308,12 +2115,6 @@ export default {
               ]),
             };
           }
-          if (node.type === "router") {
-            return {
-              ...base,
-              ...pickDefined(node, ["ip", "mac"]),
-            };
-          }
           if (node.type === "controller") {
             return {
               ...base,
@@ -2322,14 +2123,7 @@ export default {
               remote: node.remote ?? false,
               ip: node.ip ?? null,
               port: node.port ?? null,
-              ryu_app: node.ryu_app ?? null,
               color: normalizeControllerColor(node),
-            };
-          }
-          if (node.type === "nat") {
-            return {
-              ...base,
-              ...pickDefined(node, ["ip", "mac"]),
             };
           }
           return {

@@ -23,8 +23,6 @@
     "expandViews": "Expand all views",
     "showHosts": "Show hosts",
     "showControllers": "Show controllers",
-    "showSpecialSwitches": "Show special switches",
-    "showSpecialControllers": "Show special controllers",
     "showHostIp": "Show host IP addresses",
     "showSwitchDpids": "Show switch DPIDs",
     "showPortLabels": "Show port labels"
@@ -139,8 +137,6 @@
     "deleteSelected": "Delete Selected",
     "nodesPalette": "Nodes Palette",
     "mainNodes": "Main Nodes",
-    "specialSwitches": "Special Switches",
-    "specialControllers": "Special Controllers",
     "shortcutDelete": "Delete selected nodes",
     "hotkeys": "Hotkeys",
     "shortcutSelectAll": "Select all nodes",
@@ -150,21 +146,7 @@
   "nodes": {
     "host": "Host",
     "switch": "Switch",
-    "controller": "Controller",
-    "nat": "NAT",
-    "router": "Router",
-    "ovsSwitch": "OVS Switch",
-    "userSwitch": "User Switch",
-    "ovsBridge": "OVS Bridge",
-    "remoteController": "Remote Controller",
-    "ryuController": "Ryu Controller",
-    "noxController": "NOX Controller",
-    "remote": "Remote",
-    "ryu": "Ryu",
-    "nox": "NOX",
-    "remoteShort": "Rem",
-    "ryuShort": "Ryu",
-    "noxShort": "NOX"
+    "controller": "Controller"
   },
   "monitoring": {
     "node": "Node",
@@ -272,11 +254,8 @@
   "controller": {
     "title": "Controller",
     "remoteTitle": "Remote Controller",
-    "ryuTitle": "Ryu Controller",
     "ip": "IP",
     "port": "Port",
-    "ryuApp": "Ryu app",
-    "selectRyuApp": "Select ryu app",
     "color": "Color",
     "formTitle": "Controller Form",
     "editTitle": "Edit Controller: {id}"

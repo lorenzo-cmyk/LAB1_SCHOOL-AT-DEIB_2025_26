@@ -71,56 +71,6 @@ export const deployController = async (ctl) => {
   }
 };
 
-export const deployNat = async (nat) => {
-  try {
-    console.log(nat);
-    const response = await axios.post(
-      baseUrl + "/api/mininet/nats",
-      JSON.stringify(nat),
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    return response.status === 200;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    return false;
-  }
-};
-
-export const deployRouter = async (router) => {
-  try {
-    console.log(router);
-    const response = await axios.post(
-      baseUrl + "/api/mininet/routers",
-      JSON.stringify(router),
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    return response.status === 200;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    return false;
-  }
-};
-export const getRyuApps = async () => {
-  try {
-    const root = baseUrl?.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
-    const response = await axios.get(`${root}/ryu/apps`);
-    return response.data?.apps || [];
-  } catch (error) {
-    console.warn("Failed to fetch ryu apps", error);
-    return [];
-  }
-};
-
 export const getHealthStatus = async () => {
   try {
     const root = baseUrl?.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
@@ -615,14 +565,6 @@ export const updateController = async (controllerId, payload) => {
     alert(error.response ? error.response.data["detail"] : "Network Error");
     return null;
   }
-};
-
-export const getNats = async () => {
-  return await sendGet(baseUrl + "/api/mininet/nats");
-};
-
-export const getRouters = async () => {
-  return await sendGet(baseUrl + "/api/mininet/routers");
 };
 
 export const getEdges = async () => {

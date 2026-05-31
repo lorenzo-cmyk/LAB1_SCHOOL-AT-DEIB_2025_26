@@ -29,41 +29,11 @@
             class="modal-input"
             type="number"
             v-model="port"
-            :placeholder="isRyu ? '6633' : ''"
+            :placeholder="''"
             :disabled="(isEditMode && !isEditing) || isDefault"
             required
           />
         </label>
-
-        <template v-if="isRyu">
-          <label class="modal-field" for="ryu-app">
-            {{ $t("controller.ryuApp") }}
-            <select
-              v-if="hasRyuApps"
-              id="ryu-app"
-              class="modal-select controller-form__ryu-apps"
-              v-model="ryuApp"
-              :disabled="isEditMode && !isEditing"
-              multiple
-              size="8"
-              required
-            >
-              <option v-for="app in ryuApps" :key="app" :value="app">
-                {{ app }}
-              </option>
-            </select>
-            <input
-              v-else
-              id="ryu-app"
-              class="modal-input"
-              type="text"
-              v-model="ryuAppText"
-              :disabled="isEditMode && !isEditing"
-              placeholder="simple_switch_13"
-              required
-            />
-          </label>
-        </template>
 
         <div class="modal-field">
           {{ $t("controller.color") }}
@@ -119,10 +89,6 @@ export default {
       type: String,
       default: null,
     },
-    ryuApps: {
-      type: Array,
-      default: () => [],
-    },
     controller: {
       type: Object,
       default: null,
@@ -134,8 +100,6 @@ export default {
       type: this.presetType || "remote",
       ip: "127.0.0.1",
       port: "",
-      ryuApp: [],
-      ryuAppText: "",
       colorCode: "#ffffff",
       isEditing: false,
       colorChoices: [
@@ -149,9 +113,6 @@ export default {
     };
   },
   computed: {
-    isRyu() {
-      return this.type === "ryu";
-    },
     isRemote() {
       return this.type === "remote";
     },
@@ -161,14 +122,9 @@ export default {
     isEditMode() {
       return !!this.controller;
     },
-    hasRyuApps() {
-      return Array.isArray(this.ryuApps) && this.ryuApps.length > 0;
-    },
     titleText() {
       if (this.isEditMode) return this.$t("controller.title");
-      return this.isRyu
-        ? this.$t("controller.ryuTitle")
-        : this.$t("controller.remoteTitle");
+      return this.$t("controller.remoteTitle");
     },
   },
   watch: {
@@ -186,39 +142,15 @@ export default {
         this.type = (value.controller_type || "").toLowerCase() || "remote";
         this.ip = value.ip || "127.0.0.1";
         this.port = value.port ?? "";
-        const apps = Array.isArray(value.ryu_app)
-          ? value.ryu_app
-          : value.ryu_app
-            ? [value.ryu_app]
-            : [];
-        this.ryuApp = apps;
-        this.ryuAppText = apps.join(", ");
         this.colorCode = value.color || "#ffffff";
         this.isEditing = false;
       },
-    },
-    ryuApps() {
-      if (!this.isRyu || (this.ryuApp && this.ryuApp.length)) return;
-      if (this.hasRyuApps) {
-        this.ryuApp = [this.ryuApps[0]];
-        this.ryuAppText = this.ryuApps[0];
-      } else {
-        this.ryuApp = ["simple_switch_13"];
-        this.ryuAppText = "simple_switch_13";
-      }
     },
   },
   methods: {
     resetForm() {
       this.ip = "127.0.0.1";
       this.port = "";
-      if (this.hasRyuApps) {
-        this.ryuApp = [this.ryuApps[0]];
-        this.ryuAppText = this.ryuApps[0];
-      } else {
-        this.ryuApp = ["simple_switch_13"];
-        this.ryuAppText = "simple_switch_13";
-      }
       this.colorCode = "#ffffff";
       this.isEditing = false;
     },
@@ -237,25 +169,15 @@ export default {
           (this.controller.controller_type || "").toLowerCase() || "remote";
         this.ip = this.controller.ip || "127.0.0.1";
         this.port = this.controller.port ?? "";
-        this.ryuApp = this.controller.ryu_app || "";
         this.colorCode = this.controller.color || "#ffffff";
       }
       this.isEditing = false;
     },
     submitForm() {
-      const normalizedRyuApp = this.hasRyuApps
-        ? (this.ryuApp || [])
-            .map((app) => String(app || "").trim())
-            .filter(Boolean)
-        : String(this.ryuAppText || "")
-            .split(",")
-            .map((app) => app.trim())
-            .filter(Boolean);
       const formData = {
         type: this.type,
-        ip: this.isRyu ? "127.0.0.1" : this.ip,
+        ip: this.ip,
         port: Number(this.port),
-        ryu_app: this.isRyu ? normalizedRyuApp : null,
         color: this.colorCode,
       };
       if (this.isEditMode) {
@@ -306,9 +228,5 @@ export default {
 
 .controller-form__color-check {
   line-height: 1;
-}
-
-.controller-form__ryu-apps {
-  min-height: 200px;
 }
 </style>

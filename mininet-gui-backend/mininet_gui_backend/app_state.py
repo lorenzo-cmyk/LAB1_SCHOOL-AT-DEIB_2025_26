@@ -2,8 +2,6 @@ net = None
 controllers = {}
 switches = {}
 hosts = {}
-nats = {}
-routers = {}
 links = {}
 link_attrs = {}
 terminals = {}
@@ -14,15 +12,13 @@ iperf_running = False
 
 
 def reset_state():
-    global net, controllers, switches, hosts, nats, routers
+    global net, controllers, switches, hosts
     global links, link_attrs, terminals, sniffers, sniffer_manager
     global pingall_running, iperf_running
     net = None
     controllers.clear()
     switches.clear()
     hosts.clear()
-    nats.clear()
-    routers.clear()
     links.clear()
     link_attrs.clear()
     terminals.clear()

@@ -105,34 +105,6 @@
           <label class="menu-checkbox">
             <input
               type="checkbox"
-              :checked="settings.showSpecialSwitches"
-              @change="
-                $emit(
-                  'update-setting',
-                  'showSpecialSwitches',
-                  $event.target.checked,
-                )
-              "
-            />
-            {{ $t("menu.showSpecialSwitches") }}
-          </label>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
-              :checked="settings.showSpecialControllers"
-              @change="
-                $emit(
-                  'update-setting',
-                  'showSpecialControllers',
-                  $event.target.checked,
-                )
-              "
-            />
-            {{ $t("menu.showSpecialControllers") }}
-          </label>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
               :checked="settings.showHostIp"
               @change="
                 $emit('update-setting', 'showHostIp', $event.target.checked)

@@ -215,120 +215,6 @@
                 </figcaption>
               </figure>
               <figure
-                id="draggable-nat"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.nat')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <img
-                  alt="nat"
-                  class="h-10 w-10"
-                  :src="icons.nat"
-                  draggable="false"
-                />
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.nat") }}
-                </figcaption>
-              </figure>
-              <figure
-                id="draggable-router"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.router')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <img
-                  alt="router"
-                  class="h-10 w-10"
-                  :src="icons.router"
-                  draggable="false"
-                />
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.router") }}
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-          <div v-if="showSpecialSwitches" class="palette-group w-full">
-            <div class="palette-title text-[11px] uppercase tracking-wide">
-              {{ $t("side.specialSwitches") }}
-            </div>
-            <div class="palette-items flex flex-col items-center gap-3 pt-2">
-              <figure
-                id="draggable-switch-ovs"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.ovsSwitch')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <img
-                  alt="switch ovs"
-                  class="h-10 w-10"
-                  :src="icons.switchOvs"
-                  draggable="false"
-                />
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.ovsSwitch") }}
-                </figcaption>
-              </figure>
-              <figure
-                id="draggable-switch-user"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.userSwitch')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <img
-                  alt="switch user"
-                  class="h-10 w-10"
-                  :src="icons.switchUser"
-                  draggable="false"
-                />
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.userSwitch") }}
-                </figcaption>
-              </figure>
-              <figure
-                id="draggable-switch-ovsbridge"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.ovsBridge')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <img
-                  alt="switch ovsbridge"
-                  class="h-10 w-10"
-                  :src="icons.switchOvsBridge"
-                  draggable="false"
-                />
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.ovsBridge") }}
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-          <div v-if="showSpecialControllers" class="palette-group w-full">
-            <div class="palette-title text-[11px] uppercase tracking-wide">
-              {{ $t("side.specialControllers") }}
-            </div>
-            <div class="palette-items flex flex-col items-center gap-3 pt-2">
-              <figure
                 id="draggable-controller-remote"
                 class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
                 draggable="true"
@@ -353,56 +239,6 @@
                   {{ $t("nodes.remote") }}
                 </figcaption>
               </figure>
-              <figure
-                id="draggable-controller-ryu"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.ryuController')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <div class="controller-icon">
-                  <img
-                    alt="controller ryu"
-                    class="h-10 w-10"
-                    :src="icons.controller"
-                    draggable="false"
-                  />
-                  <span class="controller-badge">{{
-                    $t("nodes.ryuShort")
-                  }}</span>
-                </div>
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.ryu") }}
-                </figcaption>
-              </figure>
-              <figure
-                id="draggable-controller-nox"
-                class="draggable-node flex w-14 flex-col items-center gap-2 text-center"
-                draggable="true"
-                @dragstart="handleDragStart"
-                :data-tooltip="$t('nodes.noxController')"
-                @mouseenter="handleTooltipMouseEnter($event)"
-                @mousemove="handleTooltipMouseMove"
-                @mouseleave="hideTooltip"
-              >
-                <div class="controller-icon">
-                  <img
-                    alt="controller nox"
-                    class="h-10 w-10"
-                    :src="icons.controller"
-                    draggable="false"
-                  />
-                  <span class="controller-badge">{{
-                    $t("nodes.noxShort")
-                  }}</span>
-                </div>
-                <figcaption class="text-[11px] whitespace-nowrap">
-                  {{ $t("nodes.nox") }}
-                </figcaption>
-              </figure>
             </div>
           </div>
         </div>
@@ -424,18 +260,11 @@
 import hostImgLight from "@/assets/light-host.svg";
 import switchImgLight from "@/assets/light-switch.svg";
 import controllerImgLight from "@/assets/light-controller.svg";
-import natImgLight from "@/assets/light-nat.svg";
-import routerImgLight from "@/assets/light-router.svg";
-import switchOvsImgLight from "@/assets/light-switch-ovs.svg";
-import switchUserImgLight from "@/assets/light-switch-user.svg";
-import switchOvsBridgeImgLight from "@/assets/light-switch-ovsbridge.svg";
 
 export default {
   props: {
     networkStarted: { type: Boolean, default: true },
     networkConnected: { type: Boolean, default: true },
-    showSpecialSwitches: { type: Boolean, default: true },
-    showSpecialControllers: { type: Boolean, default: true },
     addEdgeMode: { type: Boolean, default: false },
     pingallRunning: { type: Boolean, default: false },
     iperfRunning: { type: Boolean, default: false },
@@ -464,11 +293,6 @@ export default {
         host: hostImgLight,
         switch: switchImgLight,
         controller: controllerImgLight,
-        nat: natImgLight,
-        router: routerImgLight,
-        switchOvs: switchOvsImgLight,
-        switchUser: switchUserImgLight,
-        switchOvsBridge: switchOvsBridgeImgLight,
       };
     },
   },
