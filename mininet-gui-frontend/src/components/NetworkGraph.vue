@@ -43,7 +43,6 @@ import Side from "./Side.vue";
 import Modal from "./Modal.vue";
 import Webshell from "./Webshell.vue";
 import NodeStats from "./NodeStats.vue";
-import LinkStats from "./LinkStats.vue";
 import PingallResults from "./PingallResults.vue";
 import ControllerForm from "./ControllerForm.vue";
 import TopologyForm from "./TopologyForm.vue";
@@ -253,11 +252,6 @@ import routerImgLight from "@/assets/light-router.svg";
           @hostUpdated="handleHostUpdated"
           @editController="showControllerEditModal"
         />
-        <link-stats
-          v-if="modalOption === 'linkStats'"
-          :link="modalData"
-          @linkUpdated="handleLinkUpdated"
-        />
         <pingall-results
           v-if="modalOption === 'pingall'"
           :pingResults="modalData"
@@ -439,147 +433,18 @@ import routerImgLight from "@/assets/light-router.svg";
           <div class="modal-section">
             <div class="modal-section__header">
               <div class="modal-section__title">
-                {{ $t("settings.viewTitle") }}
-              </div>
-            </div>
-            <div class="settings-grid">
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showHosts"
-                  @change="handleShowHostsSetting"
-                />
-                <span>{{ $t("menu.showHosts") }}</span>
-              </label>
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showControllers"
-                  @change="handleShowControllersSetting"
-                />
-                <span>{{ $t("menu.showControllers") }}</span>
-              </label>
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showSpecialSwitches"
-                  @change="persistSettings"
-                />
-                <span>{{ $t("menu.showSpecialSwitches") }}</span>
-              </label>
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showSpecialControllers"
-                  @change="persistSettings"
-                />
-                <span>{{ $t("menu.showSpecialControllers") }}</span>
-              </label>
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showHostIp"
-                  @change="persistSettings"
-                />
-                <span>{{ $t("menu.showHostIp") }}</span>
-              </label>
-              <label class="settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.showSwitchDpids"
-                  @change="persistSettings"
-                />
-                <span>{{ $t("menu.showSwitchDpids") }}</span>
-              </label>
-            </div>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section__header">
-              <div class="modal-section__title">
                 {{ $t("settings.defaultsTitle") }}
               </div>
             </div>
             <div class="modal-form-grid">
               <label class="modal-field">
                 {{ $t("settings.defaultOpenflow") }}
-                <select
-                  v-model="settings.switchOpenflow"
-                  class="modal-select"
-                  @change="persistSettings"
-                >
-                  <option value="">{{ $t("node.openflowAuto") }}</option>
-                  <option value="OpenFlow10">OpenFlow10</option>
-                  <option value="OpenFlow11">OpenFlow11</option>
-                  <option value="OpenFlow12">OpenFlow12</option>
-                  <option value="OpenFlow13">OpenFlow13</option>
-                  <option value="OpenFlow14">OpenFlow14</option>
-                  <option value="OpenFlow15">OpenFlow15</option>
-                </select>
-              </label>
-            </div>
-            <div class="modal-divider"></div>
-            <div class="modal-section__title">
-              {{ $t("settings.defaultLinkAttributes") }}
-            </div>
-            <div class="modal-form-grid">
-              <label class="modal-field">
-                {{ $t("link.bandwidth") }}
                 <input
-                  type="number"
-                  v-model="settings.linkOptions.bw"
+                  type="text"
                   class="modal-input"
-                  @change="persistSettings"
-                  min="0"
+                  value="OpenFlow13"
+                  disabled
                 />
-              </label>
-              <label class="modal-field">
-                {{ $t("link.delay") }}
-                <input
-                  type="number"
-                  v-model="settings.linkOptions.delay"
-                  class="modal-input"
-                  @change="persistSettings"
-                  min="0"
-                />
-              </label>
-              <label class="modal-field">
-                {{ $t("link.jitter") }}
-                <input
-                  type="number"
-                  v-model="settings.linkOptions.jitter"
-                  class="modal-input"
-                  @change="persistSettings"
-                  min="0"
-                />
-              </label>
-              <label class="modal-field">
-                {{ $t("link.loss") }}
-                <input
-                  type="number"
-                  v-model="settings.linkOptions.loss"
-                  class="modal-input"
-                  @change="persistSettings"
-                  min="0"
-                  max="100"
-                />
-              </label>
-              <label class="modal-field">
-                {{ $t("link.maxQueue") }}
-                <input
-                  type="number"
-                  v-model="settings.linkOptions.max_queue_size"
-                  class="modal-input"
-                  @change="persistSettings"
-                  min="0"
-                />
-              </label>
-              <label class="modal-field settings-toggle">
-                <input
-                  type="checkbox"
-                  v-model="settings.linkOptions.use_htb"
-                  @change="persistSettings"
-                />
-                <span>{{ $t("link.useHtb") }}</span>
               </label>
             </div>
           </div>
@@ -617,7 +482,6 @@ export default {
     Side,
     Topbar,
     NodeStats,
-    LinkStats,
     PingallResults,
     ControllerForm,
     TopologyForm,
@@ -660,7 +524,6 @@ export default {
       modalHeader: "",
       modalOption: null,
       modalData: {},
-      linkModalEdgeId: null,
       controllerFormPreset: null,
       controllerFormData: null,
       ryuApps: [],
@@ -708,15 +571,6 @@ export default {
         showSwitchDpids: false,
         showPortLabels: false,
         language: "en",
-        switchOpenflow: "",
-        linkOptions: {
-          bw: "",
-          delay: "",
-          jitter: "",
-          loss: "",
-          max_queue_size: "",
-          use_htb: false,
-        },
       },
     };
   },
@@ -1169,44 +1023,6 @@ export default {
         this.$i18n.locale = locale;
       }
     },
-    getLinkOptionsPayload() {
-      const opts = this.settings.linkOptions || {};
-      const payload = {};
-      if (opts.bw !== "" && opts.bw !== null && opts.bw !== undefined)
-        payload.bw = Number(opts.bw);
-      if (opts.delay !== "" && opts.delay !== null && opts.delay !== undefined)
-        payload.delay = Number(opts.delay);
-      if (
-        opts.jitter !== "" &&
-        opts.jitter !== null &&
-        opts.jitter !== undefined
-      )
-        payload.jitter = Number(opts.jitter);
-      if (opts.loss !== "" && opts.loss !== null && opts.loss !== undefined)
-        payload.loss = Number(opts.loss);
-      if (
-        opts.max_queue_size !== "" &&
-        opts.max_queue_size !== null &&
-        opts.max_queue_size !== undefined
-      ) {
-        payload.max_queue_size = Number(opts.max_queue_size);
-      }
-      if (opts.use_htb) payload.use_htb = true;
-      return Object.keys(payload).length ? payload : null;
-    },
-    formatLinkTitle(options) {
-      if (!options) return this.$t("link.noAttributes");
-      const parts = [];
-      if (options.bw !== undefined) parts.push(`bw: ${options.bw} Mbps`);
-      if (options.delay !== undefined) parts.push(`delay: ${options.delay} ms`);
-      if (options.jitter !== undefined)
-        parts.push(`jitter: ${options.jitter} ms`);
-      if (options.loss !== undefined) parts.push(`loss: ${options.loss} %`);
-      if (options.max_queue_size !== undefined)
-        parts.push(`queue: ${options.max_queue_size}`);
-      if (options.use_htb) parts.push("htb: true");
-      return parts.length ? parts.join(" | ") : this.$t("link.noAttributes");
-    },
     formatPortLabel(intfs) {
       if (!intfs?.from || !intfs?.to) return "";
       return `${intfs.from} ↔ ${intfs.to}`;
@@ -1404,14 +1220,11 @@ export default {
 
         this.links = await getEdges();
         for (const link of this.links) {
-          const options = link.options || null;
           const intfs = link.intfs || null;
           this.edges.add({
             from: link.from,
             to: link.to,
             color: this.networkStarted ? "#00aa00ff" : this.linkInactiveColor(),
-            title: this.formatLinkTitle(options),
-            options,
             intfs,
           });
         }
@@ -1474,16 +1287,13 @@ export default {
                 data.color = { color: this.controllerLinkColor() };
                 data.dashes = [10, 10];
               } else {
-                const options = this.getLinkOptionsPayload();
-                let link = await deployLink(data.from, data.to, options);
+                let link = await deployLink(data.from, data.to);
                 data.id = link.id;
                 data.color = {
                   color: this.networkStarted
                     ? "#00aa00ff"
                     : this.linkInactiveColor(),
                 };
-                data.title = this.formatLinkTitle(options);
-                data.options = options;
                 data.intfs = link?.intfs || null;
               }
               callback(data);
@@ -1539,9 +1349,6 @@ export default {
           if (event.nodes.length === 1) {
             this.showStatsModal(event.nodes[0]);
             return;
-          }
-          if (event.edges.length === 1) {
-            this.showLinkModal(event.edges[0]);
           }
         });
         this.network.on("oncontext", (event) => {
@@ -1693,16 +1500,13 @@ export default {
       if (!fromNode || !toNode) {
         throw new Error("Invalid node ids for link.");
       }
-      const options = this.getLinkOptionsPayload();
-      const link = await deployLink(fromId, toId, options);
+      const link = await deployLink(fromId, toId);
       const [edgeId] = this.edges.add({
         from: fromId,
         to: toId,
         color: {
           color: this.networkStarted ? "#00aa00ff" : this.linkInactiveColor(),
         },
-        title: this.formatLinkTitle(options),
-        options,
         intfs: link?.intfs || null,
       });
       this.applyPortLabels();
@@ -1808,12 +1612,10 @@ export default {
         swId++;
       }
       const switchType = switchData?.switch_type || "ovskernel";
-      const defaultOpenflow = this.settings.switchOpenflow || "";
-      const rawOfVersion = (switchData?.of_version ?? defaultOpenflow) || null;
       const isOvsType = ["ovs", "ovskernel", "ovsbridge"].includes(
         String(switchType || "").toLowerCase(),
       );
-      const ofVersion = isOvsType ? rawOfVersion : null;
+      const ofVersion = isOvsType ? "OpenFlow13" : null;
       let sw = {
         id: `s${swId}`,
         type: "sw",
@@ -2067,7 +1869,6 @@ export default {
       this.showModal = false;
       this.modalOption = null;
       this.modalData = null;
-      this.linkModalEdgeId = null;
       this.controllerFormPreset = null;
       this.controllerFormData = null;
       this.formData = null;
@@ -2212,41 +2013,6 @@ export default {
       console.log("nodeStats", nodeStats);
       this.modalData = nodeStats || null;
       this.showModal = true;
-    },
-    showLinkModal(edgeId) {
-      if (!edgeId) return;
-      const link = this.edges.get(edgeId);
-      if (!link?.from || !link?.to) return;
-      const srcNode = this.nodes.get(link.from);
-      const dstNode = this.nodes.get(link.to);
-      if (srcNode?.type === "controller" || dstNode?.type === "controller") {
-        return;
-      }
-      this.closeAllActiveModes();
-      this.modalHeader = this.$t("link.infoTitle", {
-        from: link.from,
-        to: link.to,
-      });
-      this.modalOption = "linkStats";
-      this.modalData = {
-        from: link.from,
-        to: link.to,
-        options: link.options || null,
-      };
-      this.linkModalEdgeId = edgeId;
-      this.showModal = true;
-    },
-    handleLinkUpdated(options) {
-      if (!this.linkModalEdgeId) return;
-      this.edges.update({
-        id: this.linkModalEdgeId,
-        options,
-        title: this.formatLinkTitle(options),
-      });
-      if (this.modalOption === "linkStats") {
-        this.modalData = { ...this.modalData, options };
-      }
-      this.applyPortLabels();
     },
     handleHostUpdated(updatedHost) {
       if (!updatedHost?.id) return;
@@ -2764,8 +2530,6 @@ export default {
           id: edge.id ?? undefined,
           from: edge.from,
           to: edge.to,
-          options: edge.options ?? null,
-          title: edge.title ?? null,
         }));
         return { nodes: nodesExport, edges: edgesExport };
       } catch (error) {

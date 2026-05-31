@@ -62,13 +62,7 @@
     "viewNodeStats": "View Node Stats"
   },
   "settings": {
-    "defaultLinkAttributes": "Default Link Attributes",
     "defaultOpenflow": "Default OpenFlow version",
-    "tabs": {
-      "view": "View",
-      "defaults": "Defaults"
-    },
-    "viewTitle": "Visibility",
     "defaultsTitle": "Defaults"
   },
   "iperf": {
@@ -94,26 +88,6 @@
     "errorDifferentHosts": "Client and server must be different hosts.",
     "errorAlreadyRunning": "Iperf already running.",
     "errorFailed": "Failed to run iperf."
-  },
-  "link": {
-    "optionsTitle": "Link Options",
-    "statsTitle": "Link Stats",
-    "bandwidth": "Bandwidth (Mbps)",
-    "delay": "Delay (ms)",
-    "jitter": "Jitter (ms)",
-    "loss": "Loss (%)",
-    "maxQueue": "Max Queue",
-    "useHtb": "Use HTB",
-    "saveOptions": "Save Options",
-    "interface": "Interface",
-    "tx": "TX",
-    "rx": "RX",
-    "noStats": "No link stats.",
-    "updatedAt": "Updated {time}",
-    "errorFetch": "Failed to fetch link stats.",
-    "errorUpdate": "Failed to update link.",
-    "infoTitle": "Link Info: {from} ↔ {to}",
-    "noAttributes": "No link attributes"
   },
   "confirm": {
     "resetTopologyTitle": "Reset Topology",

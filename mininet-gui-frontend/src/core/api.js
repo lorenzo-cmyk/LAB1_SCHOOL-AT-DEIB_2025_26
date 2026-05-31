@@ -132,13 +132,11 @@ export const getHealthStatus = async () => {
   }
 };
 
-export const deployLink = async (src, dst, options = null) => {
+export const deployLink = async (src, dst) => {
   try {
-    console.log(src, dst, options);
-    const payload = options ? { src, dst, options } : [src, dst];
     const response = await axios.post(
       baseUrl + "/api/mininet/links",
-      JSON.stringify(payload),
+      JSON.stringify([src, dst]),
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
@@ -205,26 +203,6 @@ export const deleteLink = async (srcId, dstId) => {
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
     throw error;
-  }
-};
-
-export const updateLinkOptions = async (src, dst, options = {}) => {
-  try {
-    const payload = { src, dst, options };
-    const response = await axios.put(
-      baseUrl + "/api/mininet/links",
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    return response.status === 200 ? response.data : null;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    return null;
   }
 };
 

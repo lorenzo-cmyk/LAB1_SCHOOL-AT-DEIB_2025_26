@@ -59,25 +59,9 @@ MONITOR_INTERVAL_SECONDS = 0.5
 # ---------------------------------------------------------------------------
 
 
-class LinkOptions(BaseModel):
-    bw: Optional[float] = Field(None, ge=0)
-    delay: Optional[str | float] = None
-    jitter: Optional[str | float] = None
-    loss: Optional[float] = Field(None, ge=0, le=100)
-    max_queue_size: Optional[int] = Field(None, ge=0)
-    use_htb: Optional[bool] = None
-
-
 class LinkCreate(BaseModel):
     src: str
     dst: str
-    options: Optional[LinkOptions] = None
-
-
-class LinkUpdate(BaseModel):
-    src: str
-    dst: str
-    options: Optional[LinkOptions] = None
 
 
 class ControllerUpdate(BaseModel):

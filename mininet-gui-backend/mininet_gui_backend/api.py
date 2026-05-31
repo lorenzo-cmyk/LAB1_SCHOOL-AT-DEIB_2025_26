@@ -51,7 +51,6 @@ from mininet_gui_backend.utils import (
 )
 from mininet_gui_backend.api_helpers import (
     LinkCreate,
-    LinkUpdate,
     ControllerUpdate,
     SwitchUpdate,
     HostUpdate,
@@ -566,10 +565,8 @@ def associate_switch(data: dict):
 def create_link(payload: Union[Tuple[str, str], LinkCreate]):
     if isinstance(payload, (list, tuple)):
         src, dst = payload
-        options = None
     else:
         src, dst = payload.src, payload.dst
-        options = payload.options
 
     if src not in state.net.nameToNode or dst not in state.net.nameToNode:
         raise HTTPException(status_code=400, detail="node not in net")
@@ -602,23 +599,13 @@ def create_link(payload: Union[Tuple[str, str], LinkCreate]):
     key = frozenset((src, dst))
     if key in state.links:
         raise HTTPException(status_code=400, detail="link already exists")
-    link_kwargs = {}
-    if options:
-        opt = options.model_dump(exclude_none=True)
-        if "delay" in opt and isinstance(opt["delay"], (int, float)):
-            opt["delay"] = f"{opt['delay']}ms"
-        if "jitter" in opt and isinstance(opt["jitter"], (int, float)):
-            opt["jitter"] = f"{opt['jitter']}ms"
-        link_kwargs.update(opt)
-        link_kwargs["cls"] = TCLink
-    new_link = state.net.addLink(src, dst, **link_kwargs)
+    new_link = state.net.addLink(src, dst)
     if state.net.is_started:
         for node in (src, dst):
             node = state.net.nameToNode[node]
             if node.type in ("host", "nat", "router"):
                 node.configDefault()
             elif node.type == "sw" and node.controller:
-                # Important, otherwise switch doesnt init the port
                 controller_node = (
                     node.controller
                     if not isinstance(node.controller, str)
@@ -629,45 +616,12 @@ def create_link(payload: Union[Tuple[str, str], LinkCreate]):
                     node.start([controller_node])
                 else:
                     node.start([])
-    # It is important to store this Link object because
-    # mininet (apparently) doesn't have an easy way to access this
     state.links[key] = new_link
-    if options:
-        state.link_attrs[key] = options.model_dump(exclude_none=True)
-    else:
-        state.link_attrs[key] = {}
+    state.link_attrs[key] = {}
     intfs = None
     if getattr(new_link, "intf1", None) and getattr(new_link, "intf2", None):
         intfs = {"from": new_link.intf1.name, "to": new_link.intf2.name}
-    return {"from": src, "to": dst, "options": state.link_attrs[key], "intfs": intfs}
-
-
-@app.put("/api/mininet/links")
-def update_link(payload: LinkUpdate):
-    src, dst = payload.src, payload.dst
-    options = payload.options
-    if src not in state.net.nameToNode or dst not in state.net.nameToNode:
-        raise HTTPException(status_code=400, detail="node not in net")
-    key = frozenset((src, dst))
-    if key not in state.links:
-        raise HTTPException(status_code=404, detail="link not found")
-    stored_opts = options.model_dump(exclude_none=True) if options else {}
-    config_opts = dict(stored_opts)
-    if "delay" in config_opts and isinstance(config_opts["delay"], (int, float)):
-        config_opts["delay"] = f"{config_opts['delay']}ms"
-    if "jitter" in config_opts and isinstance(config_opts["jitter"], (int, float)):
-        config_opts["jitter"] = f"{config_opts['jitter']}ms"
-    state.link_attrs[key] = stored_opts
-
-    link = state.links.get(key)
-    if link and config_opts:
-        try:
-            link.intf1.config(**config_opts)
-            link.intf2.config(**config_opts)
-        except Exception as exc:
-            debug("failed to update link config", exc)
-
-    return {"from": src, "to": dst, "options": state.link_attrs[key]}
+    return {"from": src, "to": dst, "intfs": intfs}
 
 
 @app.get("/api/mininet/links/stats/{src_id}/{dst_id}")
