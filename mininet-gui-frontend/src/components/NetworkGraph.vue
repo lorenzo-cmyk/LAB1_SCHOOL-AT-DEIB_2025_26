@@ -32,7 +32,6 @@ import {
   getHealthStatus,
   startSniffer,
   stopSniffer,
-  exportSnifferPcap,
   getRyuApps,
 } from "../core/api";
 import { buildOptions } from "../core/options";
@@ -79,7 +78,6 @@ import routerImgLight from "@/assets/light-router.svg";
       @restart-network="handleRestartNetwork"
       @new-topology="showResetConfirmModal"
       @save-topology="saveTopologyAs"
-      @export-sniffer="exportSniffer"
       @open-settings="showSettingsModal"
       @run-iperf="showIperfModal"
       @run-pingall="showPingallModal"
@@ -2215,21 +2213,6 @@ export default {
         this.snifferActive = !!state.active;
       } catch (error) {
         // keep previous state; backend may not be ready yet
-      }
-    },
-    async exportSniffer() {
-      try {
-        const blob = await exportSnifferPcap();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "sniffer.pcap";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Failed to export sniffer", error);
       }
     },
     showResetConfirmModal() {

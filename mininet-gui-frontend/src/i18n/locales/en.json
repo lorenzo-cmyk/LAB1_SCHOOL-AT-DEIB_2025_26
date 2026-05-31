@@ -10,7 +10,6 @@
     "newTopology": "New Topology",
     "openTopology": "Open Topology...",
     "saveTopology": "Save Topology As...",
-    "exportSniffer": "Export Sniffer (PCAP)",
     "settings": "Settings",
     "startNetwork": "Start Network",
     "stopNetwork": "Stop Network",
@@ -205,7 +204,9 @@
     "destination": "Destination",
     "length": "Len",
     "info": "Info",
-    "noEvents": "No network events."
+    "noEvents": "No network events.",
+    "exportPcap": "Export PCAP",
+    "exporting": "Exporting…"
   },
   "node": {
     "editController": "Edit Controller",

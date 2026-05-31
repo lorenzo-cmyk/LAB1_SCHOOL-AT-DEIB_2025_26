@@ -47,17 +47,6 @@
             type="button"
             class="menu-action"
             @click="
-              $emit('export-sniffer');
-              closeFileMenu();
-            "
-          >
-            {{ $t("menu.exportSniffer") }}
-          </button>
-          <div class="menu-separator"></div>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
               $emit('open-settings');
               closeFileMenu();
             "
@@ -316,7 +305,6 @@ export default {
     "new-topology",
     "open-topology",
     "save-topology",
-    "export-sniffer",
     "open-settings",
     "run-iperf",
     "run-pingall",

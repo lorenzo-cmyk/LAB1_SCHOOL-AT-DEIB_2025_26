@@ -62,6 +62,17 @@
         >
           {{ $t("actions.clear") }}
         </button>
+        <button
+          class="traffic-button"
+          type="button"
+          :disabled="!enabled || isExporting"
+          @click="exportPcap"
+        >
+          <span class="material-symbols-outlined">download</span>
+          <span>{{
+            isExporting ? $t("traffic.exporting") : $t("traffic.exportPcap")
+          }}</span>
+        </button>
       </div>
     </div>
     <div class="traffic-table">
@@ -99,7 +110,11 @@
 </template>
 
 <script>
-import { getInterfaces, getSnifferHistory } from "@/core/api";
+import {
+  getInterfaces,
+  getSnifferHistory,
+  exportSnifferPcap,
+} from "@/core/api";
 import { backendWsUrl } from "@/core/config";
 
 export default {
@@ -121,6 +136,7 @@ export default {
       selectedProto: "all",
       textFilter: "",
       maxEvents: 1500,
+      isExporting: false,
     };
   },
   computed: {
@@ -297,6 +313,24 @@ export default {
     },
     clearEvents() {
       this.events = [];
+    },
+    async exportPcap() {
+      this.isExporting = true;
+      try {
+        const blob = await exportSnifferPcap();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "sniffer.pcap";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Failed to export PCAP", error);
+      } finally {
+        this.isExporting = false;
+      }
     },
     scrollToBottom() {
       this.$nextTick(() => {
