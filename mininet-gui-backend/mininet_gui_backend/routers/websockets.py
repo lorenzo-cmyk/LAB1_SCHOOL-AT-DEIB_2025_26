@@ -2,6 +2,9 @@ import os
 import pty
 import asyncio
 import uuid
+import struct
+import fcntl
+import termios
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, WebSocketDisconnect, WebSocket
@@ -40,6 +43,8 @@ async def websocket_terminal(websocket: WebSocket, node_id: str):
         return
 
     master_fd, slave_fd = pty.openpty()
+    winsize = struct.pack("HHHH", 24, 80, 0, 0)
+    fcntl.ioctl(slave_fd, termios.TIOCSWINSZ, winsize)
 
     env = dict(os.environ)
     env["PS1"] = f"root@{node_id}:\\w$ "
