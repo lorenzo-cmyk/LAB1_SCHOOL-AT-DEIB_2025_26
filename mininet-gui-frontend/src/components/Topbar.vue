@@ -47,41 +47,11 @@
             type="button"
             class="menu-action"
             @click="
-              $emit('export-script');
-              closeFileMenu();
-            "
-          >
-            {{ $t("menu.exportScript") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
               $emit('export-sniffer');
               closeFileMenu();
             "
           >
             {{ $t("menu.exportSniffer") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('export-png');
-              closeFileMenu();
-            "
-          >
-            {{ $t("menu.exportPng") }}
-          </button>
-          <button
-            type="button"
-            class="menu-action"
-            @click="
-              $emit('export-addressing-plan');
-              closeFileMenu();
-            "
-          >
-            {{ $t("menu.exportAddressing") }}
           </button>
           <div class="menu-separator"></div>
           <button
@@ -346,10 +316,7 @@ export default {
     "new-topology",
     "open-topology",
     "save-topology",
-    "export-script",
     "export-sniffer",
-    "export-png",
-    "export-addressing-plan",
     "open-settings",
     "run-iperf",
     "run-pingall",

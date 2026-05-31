@@ -26,11 +26,8 @@ import {
   deleteNode,
   deleteLink,
   updateNodePosition,
-  requestExportNetwork,
-  requestExportMininetScript,
   requestImportNetwork,
   removeAssociation,
-  getAddressingPlan,
   getSnifferState,
   getHealthStatus,
   startSniffer,
@@ -47,8 +44,6 @@ import PingallResults from "./PingallResults.vue";
 import ControllerForm from "./ControllerForm.vue";
 import TopologyForm from "./TopologyForm.vue";
 import Topbar from "./Topbar.vue";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 import switchImgLight from "@/assets/light-switch.svg";
 import switchOvsImgLight from "@/assets/light-switch-ovs.svg";
@@ -84,10 +79,7 @@ import routerImgLight from "@/assets/light-router.svg";
       @restart-network="handleRestartNetwork"
       @new-topology="showResetConfirmModal"
       @save-topology="saveTopologyAs"
-      @export-script="exportMininetScript"
       @export-sniffer="exportSniffer"
-      @export-png="exportTopologyAsPng"
-      @export-addressing-plan="exportAddressingPlan"
       @open-settings="showSettingsModal"
       @run-iperf="showIperfModal"
       @run-pingall="showPingallModal"
@@ -2240,22 +2232,6 @@ export default {
         console.error("Failed to export sniffer", error);
       }
     },
-    exportTopologyAsPng() {
-      try {
-        const canvas = this.$refs.graph?.querySelector?.("canvas");
-        if (!canvas) return;
-        const dataUrl = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = "topology.png";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      } catch (error) {
-        console.error("Failed to export topology PNG", error);
-        alert(this.$t("errors.exportPng"));
-      }
-    },
     showResetConfirmModal() {
       this.modalHeader = this.$t("confirm.resetTopologyTitle");
       this.modalOption = "confirmReset";
@@ -2265,9 +2241,6 @@ export default {
     async confirmResetTopology() {
       await this.resetTopology();
       this.closeModal();
-    },
-    async exportTopology() {
-      await requestExportNetwork();
     },
     async saveTopologyAs() {
       const payload = this.buildTopologyExportPayload();
@@ -2303,146 +2276,6 @@ export default {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    },
-    async exportMininetScript() {
-      await requestExportMininetScript();
-    },
-    async exportAddressingPlan() {
-      try {
-        const plan = await getAddressingPlan();
-        const createdAt = new Date().toLocaleString();
-        const nodes = plan?.nodes || [];
-        const doc = new jsPDF({
-          orientation: "portrait",
-          unit: "pt",
-          format: "a4",
-        });
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.text(this.$t("addressing.title"), 40, 40);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.text(this.$t("addressing.createdIn", { date: createdAt }), 40, 60);
-        doc.text(
-          this.$t("addressing.repository", {
-            repo: "",
-          }),
-          40,
-          74,
-        );
-
-        const body = [];
-        nodes.forEach((node) => {
-          if (!node.intfs || node.intfs.length === 0) {
-            body.push([node.id, node.type, "-", "-", "-", "-"]);
-            return;
-          }
-          node.intfs.forEach((intf, idx) => {
-            const ipv4 = (intf.ipv4 || []).join("\n");
-            const ipv6 = (intf.ipv6 || []).join("\n");
-            const mac = intf.mac || "";
-            const row = [
-              idx === 0 ? node.id : "",
-              idx === 0 ? node.type : "",
-              intf.name,
-              mac,
-              ipv4 || "-",
-              ipv6 || "-",
-            ];
-            body.push(row);
-          });
-        });
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(this.$t("addressing.nodesTitle"), 40, 86);
-        doc.setFont("helvetica", "normal");
-        autoTable(doc, {
-          startY: 90,
-          head: [
-            [
-              this.$t("addressing.headers.node"),
-              this.$t("addressing.headers.type"),
-              this.$t("addressing.headers.interface"),
-              this.$t("addressing.headers.mac"),
-              this.$t("addressing.headers.ipv4"),
-              this.$t("addressing.headers.ipv6"),
-            ],
-          ],
-          body,
-          styles: { fontSize: 8, cellPadding: 3, valign: "top" },
-          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-        });
-
-        const afterNodes = doc.lastAutoTable?.finalY
-          ? doc.lastAutoTable.finalY + 24
-          : 120;
-        const linkRows = [];
-        const edges = this.edges?.get ? this.edges.get() : [];
-        edges.forEach((edge) => {
-          linkRows.push([edge.from, edge.to, edge.title || "-"]);
-        });
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(this.$t("addressing.linksTitle"), 40, afterNodes - 8);
-        doc.setFont("helvetica", "normal");
-        autoTable(doc, {
-          startY: afterNodes,
-          head: [
-            [
-              this.$t("addressing.links.from"),
-              this.$t("addressing.links.to"),
-              this.$t("addressing.links.attributes"),
-            ],
-          ],
-          body: linkRows.length
-            ? linkRows
-            : [["-", "-", this.$t("addressing.links.none")]],
-          styles: { fontSize: 8, cellPadding: 3, valign: "top" },
-          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-        });
-
-        const canvas = this.$refs.graph?.querySelector?.("canvas");
-        const imageData = canvas ? canvas.toDataURL("image/png") : null;
-        if (imageData) {
-          doc.addPage();
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(14);
-          doc.text(this.$t("addressing.networkGraph"), 40, 40);
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const maxWidth = pageWidth - 80;
-          const maxHeight = pageHeight - 120;
-          const img = new Image();
-          img.src = imageData;
-          const imgRatio =
-            img.width && img.height ? img.width / img.height : 1.6;
-          let imgWidth = maxWidth;
-          let imgHeight = imgWidth / imgRatio;
-          if (imgHeight > maxHeight) {
-            imgHeight = maxHeight;
-            imgWidth = imgHeight * imgRatio;
-          }
-          const x = (pageWidth - imgWidth) / 2;
-          const y = 60;
-          doc.addImage(
-            imageData,
-            "PNG",
-            x,
-            y,
-            imgWidth,
-            imgHeight,
-            undefined,
-            "FAST",
-          );
-        }
-
-        doc.save("addressing-plan.pdf");
-      } catch (error) {
-        console.error("Failed to export addressing plan", error);
-        alert(this.$t("errors.exportAddressing"));
-      }
     },
     async importTopology(file) {
       await this.resetTopology();

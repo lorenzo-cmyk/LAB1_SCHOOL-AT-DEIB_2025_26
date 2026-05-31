@@ -7,14 +7,10 @@
     "view": "View",
     "run": "Run",
     "tools": "Tools",
-    "help": "Help",
     "newTopology": "New Topology",
     "openTopology": "Open Topology...",
     "saveTopology": "Save Topology As...",
-    "exportScript": "Export Topology as Mininet Script",
     "exportSniffer": "Export Sniffer (PCAP)",
-    "exportPng": "Export Topology as PNG",
-    "exportAddressing": "Export Addressing Plan (PDF)",
     "settings": "Settings",
     "startNetwork": "Start Network",
     "stopNetwork": "Stop Network",
@@ -97,9 +93,7 @@
     "connectSelf": "Cannot connect node to itself",
     "controllerToController": "cannot connect controller with controller",
     "hostHasLink": "host already has a link",
-    "hostToController": "cannot associate host with controller",
-    "exportPng": "Failed to export topology PNG.",
-    "exportAddressing": "Failed to export addressing plan."
+    "hostToController": "cannot associate host with controller"
   },
   "topology": {
     "createTitle": "Create Topology",
@@ -303,28 +297,6 @@
   },
   "header": {
     "edit": "Edit"
-  },
-  "addressing": {
-    "title": "Addressing Plan",
-    "createdIn": "Created in Mininet GUI – {date}",
-    "repository": "Repository: {repo}",
-    "nodesTitle": "Nodes",
-    "headers": {
-      "node": "Node",
-      "type": "Type",
-      "interface": "Interface",
-      "mac": "MAC",
-      "ipv4": "IPv4",
-      "ipv6": "IPv6"
-    },
-    "linksTitle": "Links",
-    "links": {
-      "from": "From",
-      "to": "To",
-      "attributes": "Attributes",
-      "none": "No links"
-    },
-    "networkGraph": "Network Graph"
   },
   "modal": {
     "defaultHeader": "default header",
