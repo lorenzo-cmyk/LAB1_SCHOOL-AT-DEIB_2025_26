@@ -981,12 +981,13 @@ export default {
     buildPortLabelUpdate(edge, showLabels) {
       if (!edge || !edge.id) return null;
       if (!showLabels || !edge.intfs?.from || !edge.intfs?.to) {
-        return { id: edge.id, label: "", font: null };
+        return { id: edge.id, label: "", title: null, font: null };
       }
       const label = `${edge.intfs.from} ↔ ${edge.intfs.to}`;
       return {
         id: edge.id,
         label,
+        title: null,
         font: {
           align: "middle",
           size: 11,
