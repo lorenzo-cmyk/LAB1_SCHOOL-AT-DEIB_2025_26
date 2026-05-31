@@ -99,16 +99,6 @@
             />
             {{ $t("menu.showSwitchDpids") }}
           </label>
-          <label class="menu-checkbox">
-            <input
-              type="checkbox"
-              :checked="settings.showPortLabels"
-              @change="
-                $emit('update-setting', 'showPortLabels', $event.target.checked)
-              "
-            />
-            {{ $t("menu.showPortLabels") }}
-          </label>
         </div>
       </div>
     </div>

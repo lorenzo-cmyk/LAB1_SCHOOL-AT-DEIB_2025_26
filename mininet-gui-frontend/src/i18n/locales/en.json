@@ -12,8 +12,7 @@
     "collapseViews": "Collapse all views",
     "expandViews": "Expand all views",
     "showHostIp": "Show host IP addresses",
-    "showSwitchDpids": "Show switch DPIDs",
-    "showPortLabels": "Show port labels"
+    "showSwitchDpids": "Show switch DPIDs"
   },
   "actions": {
     "retry": "Retry",

@@ -499,7 +499,6 @@ export default {
       settings: {
         showHostIp: false,
         showSwitchDpids: false,
-        showPortLabels: false,
         language: "en",
       },
     };
@@ -966,37 +965,30 @@ export default {
     },
     applyPortLabels() {
       if (!this.edges || !this.edges.forEach) return;
-      const showLabels = !!this.settings.showPortLabels;
       const updates = [];
       this.edges.forEach((edge) => {
-        const update = this.buildPortLabelUpdate(edge, showLabels);
-        if (update) {
-          updates.push(update);
+        if (!edge.id) return;
+        if (!edge.intfs?.from || !edge.intfs?.to) {
+          updates.push({ id: edge.id, label: "", title: null, font: null });
+          return;
         }
+        updates.push({
+          id: edge.id,
+          label: `${edge.intfs.from} ↔ ${edge.intfs.to}`,
+          title: null,
+          font: {
+            align: "middle",
+            size: 11,
+            color: "#e6e6e6",
+            background: "#252526cc",
+            strokeWidth: 2,
+            strokeColor: "#252526",
+          },
+        });
       });
       if (updates.length) {
         this.edges.update(updates);
       }
-    },
-    buildPortLabelUpdate(edge, showLabels) {
-      if (!edge || !edge.id) return null;
-      if (!showLabels || !edge.intfs?.from || !edge.intfs?.to) {
-        return { id: edge.id, label: "", title: null, font: null };
-      }
-      const label = `${edge.intfs.from} ↔ ${edge.intfs.to}`;
-      return {
-        id: edge.id,
-        label,
-        title: null,
-        font: {
-          align: "middle",
-          size: 11,
-          color: "#e6e6e6",
-          background: "#252526cc",
-          strokeWidth: 2,
-          strokeColor: "#252526",
-        },
-      };
     },
     computeNetwork() {
       if (this.network) return this.network;
