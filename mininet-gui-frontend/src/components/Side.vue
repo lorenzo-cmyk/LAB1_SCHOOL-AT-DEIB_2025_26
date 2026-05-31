@@ -47,25 +47,11 @@
     <div
       class="side-scroll flex flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-3"
     >
-      <!-- Core Actions Group -->
+      <!-- Network Controls -->
       <div class="sidebar-group flex flex-col gap-2">
         <h2 class="border-b pb-2 text-[13px] font-semibold tracking-wide">
-          {{ $t("side.actions") }}
+          {{ $t("side.network") }}
         </h2>
-        <button
-          class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
-          id="button-create-topology"
-          :disabled="!networkConnected"
-          @mouseenter="
-            handleTooltipMouseEnter($event, $t('side.generateTopology'))
-          "
-          @mousemove="handleTooltipMouseMove($event)"
-          @mouseleave="hideTooltip"
-          @click="createTopology()"
-        >
-          <span class="material-symbols-outlined">scatter_plot</span>
-          <span class="label">{{ $t("side.generateTopology") }}</span>
-        </button>
         <button
           id="button-toggle-network"
           class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
@@ -103,6 +89,13 @@
           <span class="material-symbols-outlined">restart_alt</span>
           <span class="label">{{ $t("side.restartNetwork") }}</span>
         </button>
+      </div>
+
+      <!-- Testing -->
+      <div class="sidebar-group flex flex-col gap-2">
+        <h2 class="border-b pb-2 text-[13px] font-semibold tracking-wide">
+          {{ $t("side.testing") }}
+        </h2>
         <button
           id="button-pingall"
           class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
@@ -136,6 +129,27 @@
           <span class="label">{{
             iperfRunning ? $t("side.iperfRunning") : $t("side.runIperf")
           }}</span>
+        </button>
+      </div>
+
+      <!-- Topology -->
+      <div class="sidebar-group flex flex-col gap-2">
+        <h2 class="border-b pb-2 text-[13px] font-semibold tracking-wide">
+          {{ $t("side.topology") }}
+        </h2>
+        <button
+          class="button-control-network flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors"
+          id="button-create-topology"
+          :disabled="!networkConnected"
+          @mouseenter="
+            handleTooltipMouseEnter($event, $t('side.generateTopology'))
+          "
+          @mousemove="handleTooltipMouseMove($event)"
+          @mouseleave="hideTooltip"
+          @click="createTopology()"
+        >
+          <span class="material-symbols-outlined">scatter_plot</span>
+          <span class="label">{{ $t("side.generateTopology") }}</span>
         </button>
         <button
           id="button-create-link"

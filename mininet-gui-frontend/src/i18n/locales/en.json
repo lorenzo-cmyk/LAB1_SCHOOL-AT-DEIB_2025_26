@@ -108,6 +108,9 @@
   },
   "side": {
     "toggleSidebar": "Toggle sidebar",
+    "network": "Network",
+    "testing": "Testing",
+    "topology": "Topology",
     "actions": "Actions",
     "generateTopology": "Generate Topology",
     "startNetwork": "Start Network",
