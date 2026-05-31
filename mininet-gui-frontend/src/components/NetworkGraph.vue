@@ -579,9 +579,6 @@ export default {
         highlight: { background: "#848484", border: "#848484" },
       };
     },
-    portLabelFontColor() {
-      return "#e6e6e6";
-    },
     linkInactiveColor() {
       return "#999999ff";
     },
@@ -1031,10 +1028,12 @@ export default {
       if (!label) return update;
       update.label = label;
       update.font = {
-        ...(edge.font || {}),
-        align: "horizontal",
-        size: 10,
-        color: this.portLabelFontColor(),
+        align: "middle",
+        size: 11,
+        color: "#e6e6e6",
+        background: "#252526cc",
+        strokeWidth: 2,
+        strokeColor: "#252526",
       };
       return update;
     },
