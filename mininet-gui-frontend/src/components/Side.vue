@@ -292,15 +292,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Hotkeys Help Group
-    <div class="sidebar-group hotkeys">
-      <h2>Hotkeys</h2>
-      <p><strong>d</strong>: {{ $t("side.shortcutDelete") }}</p>
-      <p><strong>ctrl + a</strong>: Select all nodes</p>
-      <p><strong>h</strong>: Toggle hosts visibility</p>
-      <p><strong>c</strong>: Toggle controllers visibility</p>
-    </div> -->
     </div>
   </div>
 </template>
@@ -344,11 +335,6 @@ export default {
         switch: switchImgLight,
         controller: controllerImgLight,
       };
-    },
-  },
-  watch: {
-    collapsed(value) {
-      this.sideIsActive = !value;
     },
   },
   emits: [
@@ -557,27 +543,6 @@ export default {
 
 .side.collapsed img {
   max-height: 40px;
-}
-
-.collapsed-hint {
-  position: relative;
-  padding-top: 14px;
-}
-
-.collapsed-hint::before {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  top: 4px;
-  height: 10px;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 122, 204, 0.4),
-    rgba(0, 122, 204, 0)
-  );
-  border-radius: 999px;
-  pointer-events: none;
 }
 
 .icon-button {

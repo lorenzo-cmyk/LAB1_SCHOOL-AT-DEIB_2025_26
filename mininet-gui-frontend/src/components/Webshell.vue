@@ -253,9 +253,6 @@ export default {
     window.removeEventListener("mouseup", this.stopResize);
   },
   methods: {
-    getNodeList() {
-      return [];
-    },
     getSessionList() {
       return Array.isArray(this.terminalSessions) ? this.terminalSessions : [];
     },
@@ -329,14 +326,12 @@ export default {
         `${this.backendWsUrl}/api/mininet/terminal/${targetNodeId}`,
       );
 
-      ws.onopen = () =>
-        console.log(`Connected to ${targetNodeId} (${sessionId})`);
+      ws.onopen = () => {};
       ws.onmessage = (event) => this.handleTerminalData(sessionId, event.data);
       ws.onerror = (error) =>
         console.error(`WebSocket error (${targetNodeId}):`, error);
       ws.onclose = () => {
         delete this.sockets[sessionId];
-        console.log(`WebSocket closed (${targetNodeId})`);
       };
 
       this.sockets[sessionId] = ws;
@@ -397,29 +392,11 @@ export default {
     focusLogTerminal() {
       if (this.logTerminal) this.logTerminal.focus();
     },
-    applyTerminalTheme() {
-      const theme = this.terminalTheme;
-      Object.values(this.terminals || {}).forEach((term) => {
-        if (term?.setOption) {
-          term.setOption("theme", theme);
-        }
-      });
-      if (this.logTerminal?.setOption) {
-        this.logTerminal.setOption("theme", {
-          background: theme.background,
-          foreground: theme.foreground,
-        });
-      }
-    },
-
     sendChar(sessionId, char) {
       const ws = this.sockets[sessionId];
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(char);
       } else {
-        console.log(
-          `WebSocket for ${sessionId} is not connected. Reconnecting...`,
-        );
         this.initWebSocket(sessionId);
       }
     },

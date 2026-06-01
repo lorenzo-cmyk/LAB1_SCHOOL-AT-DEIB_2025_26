@@ -9,7 +9,7 @@
     "newTopology": "New Topology",
     "openTopology": "Open Topology...",
     "saveTopology": "Save Topology As...",
-    "runIperf": "Run Iperf",
+    "runIperf": "Run IPerf",
     "collapseViews": "Collapse all views",
     "expandViews": "Expand all views",
     "showHostIp": "Show host IP addresses",
@@ -40,13 +40,13 @@
     "counts": "Hosts {hosts} · Controllers {controllers} · Switches {switches}"
   },
   "context": {
-    "openWebshell": "Open Webshell",
+    "openWebshell": "Open WebShell",
     "viewNodeStats": "View Node Stats"
   },
   "iperf": {
     "configTab": "Config",
     "resultsTab": "Results",
-    "configTitle": "Iperf Configuration",
+    "configTitle": "IPerf Configuration",
     "configHint": "Select client/server and parameters before running.",
     "client": "Client",
     "selectClient": "Select client host",
@@ -59,13 +59,13 @@
     "port": "Port",
     "running": "Running...",
     "result": "Result",
-    "resultsTitle": "Iperf Results",
+    "resultsTitle": "IPerf Results",
     "resultReady": "Latest run completed.",
     "noResult": "No results yet.",
-    "noResultBody": "Run iperf to see results here.",
+    "noResultBody": "Run IPerf to see results here.",
     "errorDifferentHosts": "Client and server must be different hosts.",
-    "errorAlreadyRunning": "Iperf already running.",
-    "errorFailed": "Failed to run iperf."
+    "errorAlreadyRunning": "IPerf already running.",
+    "errorFailed": "Failed to run IPerf."
   },
   "confirm": {
     "resetTopologyTitle": "Reset Topology",
@@ -73,9 +73,9 @@
   },
   "errors": {
     "connectSelf": "Cannot connect node to itself",
-    "controllerToController": "cannot connect controller with controller",
-    "hostHasLink": "host already has a link",
-    "hostToController": "cannot associate host with controller"
+    "controllerToController": "Cannot connect controller to controller",
+    "hostHasLink": "Host already has a link",
+    "hostToController": "Cannot associate host with controller"
   },
   "topology": {
     "createTitle": "Create Topology",
@@ -118,8 +118,8 @@
     "runPingall": "Run pingall",
     "pingallRunning": "Pingall running...",
     "runPingallTest": "Run Pingall Test",
-    "runIperf": "Run Iperf",
-    "iperfRunning": "Iperf running...",
+    "runIperf": "Run IPerf",
+    "iperfRunning": "IPerf running...",
     "cancelConnectMode": "Cancel connect mode",
     "toggleConnectMode": "Toggle connect mode",
     "connectNodes": "Connect Nodes",
@@ -183,36 +183,20 @@
   "node": {
     "editController": "Edit Controller",
     "controllerSection": "Controller",
-    "switchConfigSection": "Switch Configuration",
     "hostConfigSection": "Host Configuration",
     "detailsSection": "Details",
     "flowTableSection": "Flow Table",
     "arpTableSection": "ARP Table",
     "hostIp": "Host IP",
-    "defaultRouteType": "Default Route Type",
-    "routeDevice": "Device",
-    "routeGateway": "Gateway IP",
     "interface": "Interface",
     "selectInterface": "Select interface",
-    "gatewayIp": "Gateway IP",
-    "defaultRoute": "default_route",
-    "hideFlowForm": "Hide Flow Form",
-    "addFlow": "Add Flow",
+    "defaultRoute": "Default Route",
     "tabs": {
       "details": "Details",
       "flowTable": "Flow Table",
       "arpTable": "ARP Table"
     },
     "flow": {
-      "match": "Match",
-      "actions": "Actions",
-      "priority": "Priority",
-      "table": "Table",
-      "idleTimeout": "Idle Timeout",
-      "hardTimeout": "Hard Timeout",
-      "cookie": "Cookie",
-      "openflow": "OpenFlow",
-      "auto": "auto",
       "headers": {
         "flowId": "Flow ID",
         "cookie": "Cookie",
@@ -225,7 +209,7 @@
         "matchFields": "Match Fields",
         "actions": "Actions"
       },
-      "rawDump": "Raw dump-flows"
+      "rawDump": "Raw Dump-Flows"
     },
     "arp": {
       "ip": "IP Address",
@@ -257,12 +241,12 @@
   "webshell": {
     "title": "Network Tools",
     "tabs": {
-      "webshell": "Webshell",
+      "webshell": "WebShell",
       "sniffer": "Sniffer",
       "monitoring": "Monitoring",
       "logs": "Logs"
     },
-    "noSessions": "No webshells yet. Right-click a node and choose \"Open Webshell\".",
+    "noSessions": "No webshells yet. Right-click a node and choose \"Open WebShell\".",
     "closeTerminal": "Close terminal"
   },
   "header": {

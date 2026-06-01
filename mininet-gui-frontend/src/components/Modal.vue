@@ -6,6 +6,7 @@ import {
   DialogOverlay,
   DialogContent,
   DialogTitle,
+  DialogDescription,
   DialogClose,
 } from "radix-vue";
 
@@ -173,6 +174,7 @@ onBeforeUnmount(() => {
           contentClass,
         ]"
       >
+        <DialogDescription class="sr-only" />
         <div
           class="modal-header flex items-start justify-between gap-3 px-6 py-5"
         >

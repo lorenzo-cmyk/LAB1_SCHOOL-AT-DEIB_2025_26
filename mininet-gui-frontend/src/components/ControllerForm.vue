@@ -34,27 +34,6 @@
             required
           />
         </label>
-
-        <div class="modal-field">
-          {{ $t("controller.color") }}
-          <div class="controller-form__colors">
-            <button
-              v-for="color in colorChoices"
-              :key="color"
-              type="button"
-              class="controller-form__color"
-              :class="{ selected: color === colorCode }"
-              :style="{ backgroundColor: color }"
-              @click="selectColor(color)"
-            >
-              <span
-                v-if="color === colorCode"
-                class="controller-form__color-check"
-                >✓</span
-              >
-            </button>
-          </div>
-        </div>
       </div>
 
       <div class="modal-actions">
@@ -100,16 +79,7 @@ export default {
       type: this.presetType || "remote",
       ip: "127.0.0.1",
       port: "",
-      colorCode: "#ffffff",
       isEditing: false,
-      colorChoices: [
-        "#ffffff",
-        "#007acc",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444",
-        "#8b5cf6",
-      ],
     };
   },
   computed: {
@@ -142,7 +112,6 @@ export default {
         this.type = (value.controller_type || "").toLowerCase() || "remote";
         this.ip = value.ip || "127.0.0.1";
         this.port = value.port ?? "";
-        this.colorCode = value.color || "#ffffff";
         this.isEditing = false;
       },
     },
@@ -151,14 +120,7 @@ export default {
     resetForm() {
       this.ip = "127.0.0.1";
       this.port = "";
-      this.colorCode = "#ffffff";
       this.isEditing = false;
-    },
-    selectColor(color) {
-      if (this.isEditMode && !this.isEditing) {
-        this.isEditing = true;
-      }
-      this.colorCode = color;
     },
     startEdit() {
       this.isEditing = true;
@@ -169,7 +131,6 @@ export default {
           (this.controller.controller_type || "").toLowerCase() || "remote";
         this.ip = this.controller.ip || "127.0.0.1";
         this.port = this.controller.port ?? "";
-        this.colorCode = this.controller.color || "#ffffff";
       }
       this.isEditing = false;
     },
@@ -178,7 +139,6 @@ export default {
         type: this.type,
         ip: this.ip,
         port: Number(this.port),
-        color: this.colorCode,
       };
       if (this.isEditMode) {
         this.$emit("form-update", formData);
@@ -195,38 +155,5 @@ export default {
 .controller-form__edit-actions {
   display: flex;
   gap: 8px;
-}
-
-.controller-form__colors {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.controller-form__color {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 12px;
-}
-
-.controller-form__color.selected {
-  border-color: #f8fafc;
-}
-
-.controller-form__color:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.controller-form__color-check {
-  line-height: 1;
 }
 </style>

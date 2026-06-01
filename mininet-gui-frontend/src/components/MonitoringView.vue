@@ -296,15 +296,6 @@ export default {
         },
       };
     },
-    applyChartTheme() {
-      const layout = this.createChartLayout();
-      if (this.txChart) {
-        Plotly.relayout(this.txChart, layout);
-      }
-      if (this.rxChart) {
-        Plotly.relayout(this.rxChart, layout);
-      }
-    },
     destroyCharts() {
       if (this.txChart) {
         Plotly.purge(this.txChart);
@@ -421,7 +412,7 @@ export default {
         Plotly.restyle(this.txChart, { x: [[]], y: [[]] });
         Plotly.restyle(this.rxChart, { x: [[]], y: [[]] });
       } catch (error) {
-        console.error("Falha ao limpar gráficos:", error);
+        console.error("Failed to clear charts:", error);
       }
     },
     appendSample(payload) {
@@ -534,29 +525,6 @@ export default {
 .monitoring-toggle:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.monitoring-export {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--theme-monitoring-export-border);
-  padding: 6px 12px;
-  background: var(--theme-monitoring-export-bg);
-  color: var(--theme-monitoring-toggle-color);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.monitoring-export:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.monitoring-export:not(:disabled):hover {
-  background: #272727;
 }
 
 .monitoring-clear {

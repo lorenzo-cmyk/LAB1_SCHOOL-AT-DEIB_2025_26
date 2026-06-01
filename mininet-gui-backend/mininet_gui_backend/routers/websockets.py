@@ -79,7 +79,7 @@ async def websocket_terminal(websocket: WebSocket, node_id: str):
             state.terminals.pop(node_id, None)
         else:
             state.terminals[node_id] = sessions
-        print(f"Closed terminal session for {node_id} ({session_id})")
+
 
 
 @router.websocket("/api/mininet/logs")

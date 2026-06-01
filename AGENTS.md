@@ -1,0 +1,50 @@
+# Mininet-GUI
+
+Lab tool: Vue 3 frontend + FastAPI backend for interactive Mininet network emulation.
+
+## Project layout
+
+- `mininet-gui-frontend/` — Vue 3 SPA (Vite, Tailwind CSS v4, vis-network for topology graph)
+- `mininet-gui-backend/` — FastAPI app (Python, Mininet integration, WebSocket terminals)
+- `scripts/` — `setup.sh` (install deps), `run.sh` (start both), `stop.sh` (kill processes)
+
+## Key commands
+
+```bash
+# Frontend
+cd mininet-gui-frontend
+npm install          # first time only (needs Node 18 via nvm)
+npx vite dev         # dev server on :5173
+npx vite build       # production build
+npx prettier --write # format
+
+# Backend
+cd mininet-gui-backend
+pip install -r requirements.txt
+uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000
+
+# Or just run both:
+./scripts/run.sh     # kills old processes, starts backend + frontend
+./scripts/stop.sh    # kills all mininet-gui processes
+```
+
+## Architecture
+
+- Frontend communicates with backend via HTTP REST (`src/core/api.js`) and WebSockets (terminal, sniffer, monitoring)
+- All network state lives in backend `app_state.py` module-level dicts (no DB)
+- Topology graph rendered by vis-network; single `NetworkGraph.vue` component orchestrates everything
+- i18n: single `en.json` locale file, used via vue-i18n
+
+## Node types supported
+
+Hosts, Switches (ovskernel), Controllers (default/remote). NAT, Router, special switches (OVS, User, OVSBridge), Ryu, and NOX are not supported.
+
+## Gotchas
+
+- `run.sh` runs backend with `sudo nohup uvicorn` — changes to backend require restart
+- Frontend proxies nothing — backend must be on `:8000`, frontend on `:5173`
+- WebSocket endpoints (`/api/mininet/terminal/`, `/api/mininet/sniffer`, `/api/mininet/monitor`) require the Mininet network to be started first
+- `pingFull()` has a 120s timeout; iperf has per-command `timeout` wrapping
+- All processes run as root (required for Mininet/OVS)
+- Port labels are always-on on edges (no toggle)
+- Dark theme only (light theme was removed)

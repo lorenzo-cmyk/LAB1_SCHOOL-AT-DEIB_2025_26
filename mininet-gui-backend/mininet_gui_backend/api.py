@@ -276,13 +276,6 @@ async def stop_network():
             kwargs.update(attrs)
             kwargs["cls"] = TCLink
         new_link = state.net.addLink(src, dst, **kwargs)
-        if state.net.is_started:
-            for node_id in (src, dst):
-                node = state.net.nameToNode[node_id]
-                if node.type == "host":
-                    node.configDefault()
-                elif node.type == "sw" and node.controller:
-                    node.start([node.controller])
         state.links[key] = new_link
     return {"status": "ok"}
 
@@ -753,7 +746,7 @@ def get_node_stats(node_id: str):
         result["flow_table"] = parsed_flows
     elif node.type == "host":
         arp_table = node.cmd("arp -a -n")
-        print("ARP TABLE", arp_table)
+
         parsed_arp_table = []
         for line in arp_table.splitlines():
             parts = line.split()
@@ -1074,7 +1067,7 @@ async def import_json(file: UploadFile = File(...)):
 
     try:
         data = json.loads(contents.decode("utf-8"))
-        print("Received Topology JSON:", data)
+
 
         if "nodes" in data and "edges" in data:
             nodes = data.get("nodes") or []
@@ -1156,4 +1149,4 @@ async def import_json(file: UploadFile = File(...)):
         return {"message": "Topology successfully imported"}
 
     except json.JSONDecodeError:
-        return {"error": "Invalid JSON file"}, 400
+        raise HTTPException(status_code=400, detail="Invalid JSON file")

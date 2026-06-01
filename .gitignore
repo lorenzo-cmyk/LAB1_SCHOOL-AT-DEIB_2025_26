@@ -1,2 +1,3 @@
 *.sqlite3
 .ruff_cache/
+mininet-gui-frontend/dist/
