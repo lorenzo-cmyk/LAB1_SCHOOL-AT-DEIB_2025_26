@@ -52,8 +52,8 @@ else
 fi
 . "$NVM_DIR/nvm.sh"
 
-echo "Installing Node 18"
-nvm install 18
+echo "Installing Node 20"
+nvm install 20
 
 # ---- Frontend ----
 echo "Installing frontend deps"

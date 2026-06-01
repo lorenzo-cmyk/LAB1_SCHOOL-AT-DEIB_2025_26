@@ -1602,7 +1602,10 @@ export default {
     },
     async doDeleteSelected() {
       this.closeAllActiveModes();
+      const selection = this.network.getSelection();
+      if (selection.nodes.length === 0 && selection.edges.length === 0) return;
       this.network.deleteSelected();
+      this.network.unselectAll();
     },
     doSelectAll() {
       console.log("CTRL A PRESSED");

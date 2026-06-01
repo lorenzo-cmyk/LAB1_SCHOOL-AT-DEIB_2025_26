@@ -13,7 +13,7 @@ Lab tool: Vue 3 frontend + FastAPI backend for interactive Mininet network emula
 ```bash
 # Frontend
 cd mininet-gui-frontend
-npm install          # first time only (needs Node 18 via nvm)
+npm install          # first time only (needs Node 20+ via nvm)
 npx vite dev         # dev server on :5173
 npx vite build       # production build
 npx prettier --write # format

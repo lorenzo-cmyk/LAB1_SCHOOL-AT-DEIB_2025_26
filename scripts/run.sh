@@ -79,7 +79,7 @@ echo "Starting frontend..."
     export NVM_DIR="/usr/share/nvm"
     . "$NVM_DIR/nvm.sh"
   fi
-  nvm use 18 2>/dev/null || true
+  nvm use 20 2>/dev/null || true
   nohup npm run dev -- --host 0.0.0.0 &
 )
 

@@ -363,7 +363,7 @@ async def run_pingall():
 
 @app.post("/api/mininet/hosts")
 def create_host(host: Host):
-    if host.id in state.hosts:
+    if host.id in state.hosts and host.name in state.net.nameToNode:
         state.hosts[host.id] = host
         return {"status": "updated"}
     # Create host in the Mininet network using the request data
