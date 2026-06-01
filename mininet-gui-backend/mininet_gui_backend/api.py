@@ -661,7 +661,10 @@ def delete_node(node_id: str):
         state.links.pop(key, None)
         state.link_attrs.pop(key, None)
 
-    state.net.delNode(node)
+    try:
+        state.net.delNode(node)
+    except Exception:
+        pass
     if node.type == "sw":
         del state.switches[node_id]
     elif node.type == "host":
@@ -673,7 +676,10 @@ def delete_node(node_id: str):
             if switch.controller == node_id:
                 debug("CONTROLLER", switch.controller, node_id)
                 state.switches[switch_id].controller = None
-                state.net.nameToNode[switch_id].start([])
+                try:
+                    state.net.nameToNode[switch_id].start([])
+                except Exception:
+                    pass
     return {"message": f"Node {node_id} deleted successfully"}
 
 

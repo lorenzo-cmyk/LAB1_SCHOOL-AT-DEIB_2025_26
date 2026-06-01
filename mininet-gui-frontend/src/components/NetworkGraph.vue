@@ -1037,6 +1037,7 @@ export default {
         });
 
         this.links = await getEdges();
+        this.edges.clear();
         for (const link of this.links) {
           const intfs = link.intfs || null;
           this.edges.add({
