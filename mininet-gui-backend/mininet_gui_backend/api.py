@@ -327,7 +327,7 @@ async def full_reset_network():
 
 
 @app.post("/api/mininet/pingall")
-def run_pingall():
+async def run_pingall():
     """Build network and start nodes"""
     if not state.net.is_started:
         raise HTTPException(
@@ -337,13 +337,20 @@ def run_pingall():
         raise HTTPException(status_code=409, detail="pingall already running")
     state.pingall_running = True
     try:
-        pingall_results = state.net.pingFull()
+        pingall_results = await asyncio.wait_for(
+            asyncio.to_thread(state.net.pingFull),
+            timeout=120,
+        )
         debug(pingall_results)
         return "\n".join(
             [
                 f"{p[0]}->{p[1]}: {p[2][0]}/{p[2][1]}, rtt min/avg/max/mdev {p[2][2]:.3f}/{p[2][3]:.3f}/{p[2][4]:.3f}/{p[2][5]:.3f} ms"
                 for p in pingall_results
             ]
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=504, detail="pingall timed out after 120 seconds"
         )
     except AssertionError:
         raise HTTPException(
