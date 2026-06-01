@@ -32,7 +32,7 @@ uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000
 
 - Frontend communicates with backend via HTTP REST (`src/core/api.js`) and WebSockets (terminal, sniffer, monitoring)
 - All network state lives in backend `app_state.py` module-level dicts (no DB)
-- Topology graph rendered by vis-network; single `NetworkGraph.vue` component orchestrates everything
+- Topology graph rendered by vis-network; `NetworkGraph.vue` orchestrates the graph, with `Side.vue` (sidebar), `NodeStats.vue` (node details), `PingallResults.vue`, and other components handling specific UI areas
 - i18n: single `en.json` locale file, used via vue-i18n
 
 ## Node types supported

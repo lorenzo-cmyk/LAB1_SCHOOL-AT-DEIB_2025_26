@@ -8,7 +8,7 @@ Fork of [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
 
 ## Installation
 
-Tested on Ubuntu 20.04.
+Tested on Ubuntu 22.04+. Requires Node 20+ (installed automatically by `setup.sh` via nvm).
 
 ```bash
 git clone https://github.com/lorenzo-cmyk/mininet-gui
@@ -52,7 +52,7 @@ Open `http://<host-ip>:5173` in a browser.
 - **Port label toggle removed** — The "Show port labels" checkbox in the View menu was removed since labels are now always on.
 - **Show Hosts/Controllers toggle removed** — The visibility toggles in the View menu were non-functional and removed.
 - **Default route editing on hosts removed** — The route type selector, interface selector, and gateway IP input were removed from the host edit form. Only IP editing remains.
-- **Switch node stats made read-only** — The OpenFlow version selector and add/delete flow buttons were removed. The flow table and ARP table are display-only.
+- **Switch node stats** — Displays switch type, port count, associated controller, and raw `dump-flows` output with a Refresh button. Flow table is only available when the network is started.
 
 ### Stability fixes
 
@@ -72,7 +72,7 @@ Open `http://<host-ip>:5173` in a browser.
 - **Docker removed** — Docker support was dropped in favor of native `setup.sh` + `run.sh`.
 - **Fonts bundled locally** — Replaced Google Fonts CDN loading with local `.woff2` files for offline use.
 - **Portuguese i18n removed** — Only English locale remains.
-- **Dead code cleanup** — Removed LLM chat feature, unused examples, redundant docs, unused npm dependencies (`vis.js`, `dotenv`, `jspdf`, `clsx`, `vis-util`), unused Python imports, `console.log` debug statements, and `print()` statements.
+- **Dead code cleanup** — Removed LLM chat feature, unused examples, redundant docs, unused Python imports, `console.log` debug statements, and `print()` statements.
 - **Naming standardized** — IPerf, WebShell, Default Route, OpenFlow, etc. capitalized correctly across all UI strings.
 
 ### Backend changes

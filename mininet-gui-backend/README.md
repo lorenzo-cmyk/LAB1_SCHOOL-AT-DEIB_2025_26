@@ -19,11 +19,9 @@ function correctly.
 | `ovs-testcontroller` | `openvswitch-testcontroller` |
 | `tshark`      | `tshark`                  |
 | `mergecap`    | `tshark`                  |
-| `mnexec`      | `mininet` (apt package)  |
+| `mnexec`      | `mininet` (apt package)   |
 | `tail`        | `coreutils` (pre-installed) |
 | `which`       | `debianutils` (pre-installed) |
-| `ryu`         | `ryu` (pip, optional)     |
-| `ryu-manager` | `ryu` (pip, optional)     |
 
 ## Per-section detail
 
@@ -31,13 +29,13 @@ function correctly.
 
 | Command   | Used for                                           |
 | --------- | -------------------------------------------------- |
-| `ip`      | route and interface management on hosts/routers    |
+| `ip`      | route and interface management on hosts            |
 | `arp`     | ARP table queries on hosts                         |
 | `ping`    | ping tests (called via Mininet's `pingFull`)       |
 | `iperf`   | bandwidth tests (called via Mininet's `net.iperf`) |
 | `netstat` | port scanning (find free controller ports)         |
-| `telnet`  | controller port probing (Ryu)                      |
-| `sysctl`  | enable/disable IP forwarding on routers            |
+| `telnet`  | controller port probing                            |
+| `sysctl`  | enable/disable IP forwarding                       |
 
 ### Open vSwitch
 
@@ -46,13 +44,6 @@ function correctly.
 | `ovs-vsctl`       | OVS bridge configuration (OpenFlow version)     |
 | `ovs-ofctl`       | OpenFlow flow rule management (add/dump/delete) |
 | `ovs-testcontroller` | default controller for OVS switches          |
-
-### SDN Controllers (optional)
-
-| Command       | Used for                            |
-| ------------- | ----------------------------------- |
-| `ryu`         | Ryu controller node support         |
-| `ryu-manager` | discover available Ryu applications |
 
 ### Packet capture
 
@@ -74,4 +65,3 @@ function correctly.
 | `/bin/bash` | interactive terminal sessions (webshell) |
 | `tail`      | log streaming over WebSocket             |
 | `which`     | checks if telnet is installed            |
-| `kill`      | stop Ryu controller processes            |
