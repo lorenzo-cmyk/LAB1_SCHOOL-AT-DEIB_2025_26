@@ -403,28 +403,49 @@ def update_host(host_id: str, payload: HostUpdate):
             else:
                 prefix_len = 8
         intf = payload.intf or None
-        node.setIP(addr, prefixLen=prefix_len, intf=intf)
+        try:
+            node.setIP(addr, prefixLen=prefix_len, intf=intf)
+        except Exception:
+            raise HTTPException(status_code=503, detail="host shell not ready, try again")
         host.ip = f"{addr}/{prefix_len}"
     if payload.default_route_type:
         route_type = payload.default_route_type.strip().lower()
         if route_type == "dev":
             dev = (payload.default_route_dev or "").strip()
             if dev:
-                node.setDefaultRoute(dev)
+                try:
+                    node.setDefaultRoute(dev)
+                except Exception:
+                    raise HTTPException(status_code=503, detail="host shell not ready, try again")
             else:
-                node.cmd("ip route del default")
+                try:
+                    node.cmd("ip route del default")
+                except Exception:
+                    raise HTTPException(status_code=503, detail="host shell not ready, try again")
         elif route_type == "ip":
             ip_value = (payload.default_route_ip or "").strip()
             if ip_value:
-                node.setDefaultRoute(f"via {ip_value}")
+                try:
+                    node.setDefaultRoute(f"via {ip_value}")
+                except Exception:
+                    raise HTTPException(status_code=503, detail="host shell not ready, try again")
             else:
-                node.cmd("ip route del default")
+                try:
+                    node.cmd("ip route del default")
+                except Exception:
+                    raise HTTPException(status_code=503, detail="host shell not ready, try again")
     elif payload.default_route is not None:
         route_value = payload.default_route.strip()
         if route_value:
-            node.setDefaultRoute(route_value)
+            try:
+                node.setDefaultRoute(route_value)
+            except Exception:
+                raise HTTPException(status_code=503, detail="host shell not ready, try again")
         else:
-            node.cmd("ip route del default")
+            try:
+                node.cmd("ip route del default")
+            except Exception:
+                raise HTTPException(status_code=503, detail="host shell not ready, try again")
     state.hosts[host_id] = host
     return {"status": "ok", "host": host.model_dump()}
 
@@ -705,13 +726,25 @@ def get_node_stats(node_id: str):
     result = dict(**base_data.model_dump())
 
     if node.type == "sw":
-        ports_raw = node.dpctl("dump-ports")
-        ports_raw = ports_raw[ports_raw.find("\n") + 1 :].replace("\n", " ")
-        result["ports"] = [
-            p.strip() for p in ports_raw.split("port") if "LOCAL" not in p and p.strip()
-        ]
+        configured_ports = result.get("ports", 4)
+        ports_raw = ""
+        try:
+            ports_raw = node.dpctl("dump-ports")
+        except Exception:
+            pass
+        if ports_raw and "failed to connect" not in ports_raw and "error" not in ports_raw.lower():
+            ports_raw = ports_raw[ports_raw.find("\n") + 1 :].replace("\n", " ")
+            result["port_stats"] = [
+                p.strip() for p in ports_raw.split("port") if "LOCAL" not in p and p.strip()
+            ]
+        else:
+            result["port_stats"] = []
+        result["ports"] = configured_ports
 
-        flow_table_raw = node.dpctl("dump-flows").strip()
+        try:
+            flow_table_raw = node.dpctl("dump-flows").strip()
+        except Exception:
+            flow_table_raw = ""
         parsed_flows = []
 
         for line in flow_table_raw.split("\n"):
@@ -745,7 +778,10 @@ def get_node_stats(node_id: str):
             parsed_flows.append(flow)
         result["flow_table"] = parsed_flows
     elif node.type == "host":
-        arp_table = node.cmd("arp -a -n")
+        try:
+            arp_table = node.cmd("arp -a -n")
+        except Exception:
+            arp_table = ""
 
         parsed_arp_table = []
         for line in arp_table.splitlines():
@@ -757,7 +793,10 @@ def get_node_stats(node_id: str):
             interface = parts[-1]
             parsed_arp_table.append({"ip": ip, "mac": mac, "interface": interface})
         result["arp_table"] = parsed_arp_table
-        default_route = node.cmd("ip route show default").strip()
+        try:
+            default_route = node.cmd("ip route show default").strip()
+        except Exception:
+            default_route = ""
         result["default_route"] = default_route
         interfaces = []
         try:

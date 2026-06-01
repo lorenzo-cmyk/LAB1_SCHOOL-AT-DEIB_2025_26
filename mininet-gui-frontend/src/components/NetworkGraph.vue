@@ -208,8 +208,9 @@ import hostImgLight from "@/assets/light-host.svg";
         <node-stats
           v-if="modalOption === 'nodeStats'"
           :stats="modalData"
+          :networkStarted="networkStarted"
           @hostUpdated="handleHostUpdated"
-          @editController="showControllerEditModal"
+          @controllerUpdated="handleControllerUpdated"
         />
         <pingall-results
           v-if="modalOption === 'pingall'"
@@ -1733,6 +1734,29 @@ export default {
       }
       if (this.modalOption === "nodeStats") {
         this.modalData = updatedHost;
+      }
+    },
+    handleControllerUpdated(updatedController) {
+      if (!updatedController?.id) return;
+      const controllerId = updatedController.id;
+      const existing = this.controllers[controllerId] || {};
+      const merged = {
+        ...existing,
+        ...updatedController,
+        color: this.controllerColor(),
+      };
+      merged.label = this.controllerLabel(merged);
+      merged.image = this.controllerImageForColor(
+        this.controllerIconColor(merged),
+      );
+      this.controllers[controllerId] = merged;
+      this.nodes.update({
+        id: controllerId,
+        label: merged.label,
+        ip: merged.ip,
+      });
+      if (this.modalOption === "nodeStats") {
+        this.modalData = merged;
       }
     },
     async createSingleTopo(nDevices, controller) {
