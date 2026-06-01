@@ -95,14 +95,14 @@
     "resultsTitle": "Pingall Results",
     "noResults": "No ping results available.",
     "headers": {
-      "src": "src",
-      "dst": "dst",
-      "packets_sent": "packets_sent",
-      "packets_recv": "packets_recv",
-      "min": "min",
-      "avg": "avg",
-      "max": "max",
-      "mdev": "mdev"
+      "src": "Source",
+      "dst": "Destination",
+      "packets_sent": "Sent",
+      "packets_recv": "Received",
+      "min": "Min (ms)",
+      "avg": "Avg (ms)",
+      "max": "Max (ms)",
+      "mdev": "Mdev (ms)"
     }
   },
   "side": {

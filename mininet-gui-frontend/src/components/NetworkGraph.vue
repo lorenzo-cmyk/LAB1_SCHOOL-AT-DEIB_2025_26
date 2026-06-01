@@ -217,164 +217,77 @@ import hostImgLight from "@/assets/light-host.svg";
           :pingResults="modalData"
         />
         <div v-if="modalOption === 'iperf'" class="modal-ui">
-          <div class="modal-tabs">
-            <button
-              type="button"
-              class="modal-tab"
-              :class="{ 'is-active': iperfTab === 'config' }"
-              @click="iperfTab = 'config'"
-            >
-              {{ $t("iperf.configTab") }}
-            </button>
-            <button
-              type="button"
-              class="modal-tab"
-              :class="{ 'is-active': iperfTab === 'results' }"
-              @click="iperfTab = 'results'"
-            >
-              {{ $t("iperf.resultsTab") }}
-            </button>
-          </div>
-          <div class="modal-tab-panels">
-            <div
-              class="modal-section tab-panel"
-              :class="{ 'is-hidden': iperfTab !== 'config' }"
-            >
-              <div class="modal-section__header">
-                <div class="modal-section__title">
-                  {{ $t("iperf.configTitle") }}
-                </div>
-                <span class="modal-muted">{{ $t("iperf.configHint") }}</span>
+          <div class="modal-section">
+            <div class="modal-section__header">
+              <div class="modal-section__title">
+                {{ $t("iperf.configTitle") }}
               </div>
-              <div class="modal-form-grid">
-                <label class="modal-field" for="iperf-client">
-                  {{ $t("iperf.client") }}
-                  <select
-                    id="iperf-client"
-                    v-model="iperfForm.client"
-                    class="modal-select"
-                  >
-                    <option value="" disabled>
-                      {{ $t("iperf.selectClient") }}
-                    </option>
-                    <option
-                      v-for="host in Object.values(hosts)"
-                      :key="host.id"
-                      :value="host.id"
-                    >
-                      {{ host.id }}
-                    </option>
-                  </select>
-                </label>
-                <label class="modal-field" for="iperf-server">
-                  {{ $t("iperf.server") }}
-                  <select
-                    id="iperf-server"
-                    v-model="iperfForm.server"
-                    class="modal-select"
-                  >
-                    <option value="" disabled>
-                      {{ $t("iperf.selectServer") }}
-                    </option>
-                    <option
-                      v-for="host in Object.values(hosts)"
-                      :key="host.id"
-                      :value="host.id"
-                    >
-                      {{ host.id }}
-                    </option>
-                  </select>
-                </label>
-                <label class="modal-field" for="iperf-proto">
-                  {{ $t("iperf.protocol") }}
-                  <select
-                    id="iperf-proto"
-                    v-model="iperfForm.l4_type"
-                    class="modal-select"
-                  >
-                    <option value="TCP">TCP</option>
-                    <option value="UDP">UDP</option>
-                  </select>
-                </label>
-                <label class="modal-field" for="iperf-duration">
-                  {{ $t("iperf.duration") }}
-                  <input
-                    id="iperf-duration"
-                    v-model.number="iperfForm.seconds"
-                    class="modal-input"
-                    type="number"
-                    min="1"
-                  />
-                </label>
-                <label class="modal-field" for="iperf-udp-bw">
-                  {{ $t("iperf.udpBw") }}
-                  <input
-                    id="iperf-udp-bw"
-                    v-model="iperfForm.udp_bw"
-                    class="modal-input"
-                    type="text"
-                    :disabled="iperfForm.l4_type !== 'UDP'"
-                    placeholder="10M"
-                  />
-                </label>
-                <label class="modal-field" for="iperf-format">
-                  {{ $t("iperf.format") }}
-                  <input
-                    id="iperf-format"
-                    v-model="iperfForm.fmt"
-                    class="modal-input"
-                    type="text"
-                    placeholder="M"
-                  />
-                </label>
-                <label class="modal-field" for="iperf-port">
-                  {{ $t("iperf.port") }}
-                  <input
-                    id="iperf-port"
-                    v-model.number="iperfForm.port"
-                    class="modal-input"
-                    type="number"
-                    min="1"
-                    max="65535"
-                  />
-                </label>
-              </div>
-              <div class="modal-actions">
-                <button
-                  class="modal-button modal-button--primary"
-                  type="button"
-                  :disabled="
-                    iperfBusy ||
-                    !iperfForm.client ||
-                    !iperfForm.server ||
-                    iperfForm.client === iperfForm.server
-                  "
-                  @click="runIperfTest"
+            </div>
+            <div class="modal-form-grid">
+              <label class="modal-field" for="iperf-client">
+                {{ $t("iperf.client") }}
+                <select
+                  id="iperf-client"
+                  v-model="iperfForm.client"
+                  class="modal-select"
                 >
-                  {{ iperfBusy ? $t("iperf.running") : $t("menu.runIperf") }}
-                </button>
-                <span v-if="iperfError" class="modal-error">{{
-                  iperfError
-                }}</span>
-              </div>
+                  <option value="" disabled>
+                    {{ $t("iperf.selectClient") }}
+                  </option>
+                  <option
+                    v-for="host in Object.values(hosts)"
+                    :key="host.id"
+                    :value="host.id"
+                  >
+                    {{ host.id }}
+                  </option>
+                </select>
+              </label>
+              <label class="modal-field" for="iperf-server">
+                {{ $t("iperf.server") }}
+                <select
+                  id="iperf-server"
+                  v-model="iperfForm.server"
+                  class="modal-select"
+                >
+                  <option value="" disabled>
+                    {{ $t("iperf.selectServer") }}
+                  </option>
+                  <option
+                    v-for="host in Object.values(hosts)"
+                    :key="host.id"
+                    :value="host.id"
+                  >
+                    {{ host.id }}
+                  </option>
+                </select>
+              </label>
             </div>
-            <div
-              class="modal-section tab-panel"
-              :class="{ 'is-hidden': iperfTab !== 'results' }"
-            >
-              <div class="modal-section__header">
-                <div class="modal-section__title">{{ $t("iperf.result") }}</div>
-                <span class="modal-muted">{{
-                  iperfResult ? $t("iperf.resultReady") : $t("iperf.noResult")
-                }}</span>
-              </div>
-              <pre class="modal-pre">{{
-                iperfResult
-                  ? formatIperfResult(iperfResult)
-                  : $t("iperf.noResultBody")
-              }}</pre>
+            <div class="modal-actions">
+              <button
+                class="modal-button modal-button--primary"
+                type="button"
+                :disabled="
+                  iperfBusy ||
+                  !iperfForm.client ||
+                  !iperfForm.server ||
+                  iperfForm.client === iperfForm.server
+                "
+                @click="runIperfTest"
+              >
+                {{ iperfBusy ? $t("iperf.running") : $t("menu.runIperf") }}
+              </button>
+              <span v-if="iperfError" class="modal-error">{{
+                iperfError
+              }}</span>
             </div>
           </div>
+          <div v-if="iperfResult" class="modal-section">
+            <div class="modal-section__header">
+              <div class="modal-section__title">{{ $t("iperf.result") }}</div>
+            </div>
+            <pre class="modal-pre">{{ formatIperfResult(iperfResult) }}</pre>
+           </div>
         </div>
         <controller-form
           v-if="modalOption === 'controllerForm'"
@@ -442,15 +355,9 @@ export default {
       iperfBusy: false,
       iperfError: "",
       iperfResult: null,
-      iperfTab: "config",
       iperfForm: {
         client: "",
         server: "",
-        l4_type: "TCP",
-        seconds: 5,
-        udp_bw: "",
-        fmt: "",
-        port: "",
       },
       snifferActive: false,
       sidebarCollapsed: false,
@@ -1640,14 +1547,8 @@ export default {
       const hostIds = Object.keys(this.hosts || {});
       this.iperfForm.client = hostIds[0] || "";
       this.iperfForm.server = hostIds[1] || "";
-      this.iperfForm.l4_type = "TCP";
-      this.iperfForm.seconds = 5;
-      this.iperfForm.udp_bw = "";
-      this.iperfForm.fmt = "";
-      this.iperfForm.port = "";
       this.iperfError = "";
       this.iperfResult = null;
-      this.iperfTab = "config";
       this.modalHeader = this.$t("menu.runIperf");
       this.modalOption = "iperf";
       this.showModal = true;
@@ -1665,22 +1566,13 @@ export default {
       const payload = {
         client: this.iperfForm.client,
         server: this.iperfForm.server,
-        l4_type: this.iperfForm.l4_type,
       };
-      if (this.iperfForm.seconds)
-        payload.seconds = Number(this.iperfForm.seconds);
-      if (this.iperfForm.port) payload.port = Number(this.iperfForm.port);
-      if (this.iperfForm.fmt) payload.fmt = this.iperfForm.fmt;
-      if (this.iperfForm.l4_type === "UDP" && this.iperfForm.udp_bw) {
-        payload.udp_bw = this.iperfForm.udp_bw;
-      }
       try {
         const result = await runIperf(payload);
         if (result?.running) {
           this.iperfError = this.$t("iperf.errorAlreadyRunning");
           this.modalHeader = this.$t("menu.runIperf");
           this.modalOption = "iperf";
-          this.iperfTab = "config";
           this.showModal = true;
           return;
         }
@@ -1689,15 +1581,13 @@ export default {
         } else {
           this.iperfResult = result;
         }
-        this.modalHeader = this.$t("iperf.resultsTitle");
+        this.modalHeader = this.$t("menu.runIperf");
         this.modalOption = "iperf";
-        this.iperfTab = "results";
         this.showModal = true;
       } catch (error) {
         this.iperfError = error?.message || this.$t("iperf.errorFailed");
         this.modalHeader = this.$t("menu.runIperf");
         this.modalOption = "iperf";
-        this.iperfTab = "config";
         this.showModal = true;
       } finally {
         this.iperfBusy = false;

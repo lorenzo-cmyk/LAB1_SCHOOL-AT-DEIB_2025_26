@@ -61,11 +61,12 @@ export default {
         .replaceAll(",", "")
         .replaceAll(":", "")
         .replaceAll("rtt", "")
+        .replaceAll("ms", "")
         .split(/\s+/)
         .filter(Boolean);
 
       const rows = [];
-      for (let i = 0; i < cleanedData.length; i += 9) {
+      for (let i = 0; i < cleanedData.length; i += 8) {
         const row = {
           src: cleanedData[i],
           dst: cleanedData[i + 1],
