@@ -1,8 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-# When running as root (e.g. systemd), skip sudo.
+# When running as root (e.g. systemd), skip sudo and ensure HOME is set.
 [ "$(id -u)" -eq 0 ] && sudo() { "$@"; }
+HOME="${HOME:-/root}"
 
 MININET_GUI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
