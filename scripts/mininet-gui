@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# Resolve the real location of this script (symlink-safe).
+SELF="$(readlink -f "$0")"
+
+SCRIPTS_DIR="$(dirname "$SELF")"
+MININET_GUI_DIR="$(dirname "$SCRIPTS_DIR")"
+
+usage() {
+  echo "Usage: $(basename "$0") {run|stop|setup}"
+  echo ""
+  echo "  run    — start backend (.venv) + frontend (npm dev)"
+  echo "  stop   — kill all mininet-gui processes"
+  echo "  setup  — install system packages, venv, Node, frontend deps"
+  exit 1
+}
+
+cmd="${1:-run}"
+case "$cmd" in
+  run)   exec "$SCRIPTS_DIR/run.sh"   ;;
+  stop)  exec "$SCRIPTS_DIR/stop.sh"  ;;
+  setup) exec "$SCRIPTS_DIR/setup.sh" ;;
+  *)     usage ;;
+esac

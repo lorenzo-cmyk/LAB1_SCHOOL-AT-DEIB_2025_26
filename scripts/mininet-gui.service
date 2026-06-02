@@ -1,0 +1,14 @@
+[Unit]
+Description=Mininet-GUI
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/mininet-gui/scripts/mininet-gui run
+ExecStop=/opt/mininet-gui/scripts/mininet-gui stop
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

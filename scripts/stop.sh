@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# When running as root (e.g. systemd), skip sudo.
+[ "$(id -u)" -eq 0 ] && sudo() { "$@"; }
+
 restore_terminal() {
   stty sane 2>/dev/null || true
 }

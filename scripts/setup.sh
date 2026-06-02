@@ -17,7 +17,8 @@ sudo apt-get install -y \
     openvswitch-testcontroller \
     telnet \
     tshark \
-    python3-pip
+    python3-pip \
+    python3-venv
 
 # ---- ovs-controller symlinks ----
 sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/controller
@@ -29,9 +30,15 @@ sudo ln -sf /usr/bin/ovs-testcontroller /usr/local/bin/ovs-testcontroller
 MININET_GUI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
 FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
+VENV_DIR="$BACKEND_DIR/.venv"
+
+if [ ! -d "$VENV_DIR" ]; then
+  echo "Creating Python virtual environment for backend..."
+  python3 -m venv "$VENV_DIR"
+fi
 
 echo "Installing backend Python deps"
-sudo python3 -m pip install --break-system-packages --no-cache-dir -r "$BACKEND_DIR/requirements.txt"
+"$VENV_DIR/bin/pip" install --no-cache-dir -r "$BACKEND_DIR/requirements.txt"
 
 # ---- Node / nvm ----
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -61,7 +68,7 @@ echo "Installing frontend deps"
 
 # ---- Alias ----
 if ! grep -q "alias mininet_gui=" "$HOME/.bashrc" 2>/dev/null; then
-    echo "alias mininet_gui=$MININET_GUI_DIR/scripts/run.sh" >> "$HOME/.bashrc"
+    echo "alias mininet_gui=$MININET_GUI_DIR/scripts/mininet-gui" >> "$HOME/.bashrc"
 fi
 
-printf "\nSetup complete. Run with: mininet_gui (or scripts/run.sh)\n"
+printf "\nSetup complete. Run with: mininet_gui (or scripts/mininet-gui)\n"

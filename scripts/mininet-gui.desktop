@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mininet-GUI
+GenericName=Network Emulator
+Comment=Interactive Mininet network emulation lab tool
+Terminal=true
+Exec=bash -c 'sudo /opt/mininet-gui/scripts/mininet-gui run; read -p "Press Enter to close..."'
+Categories=Network;Development;

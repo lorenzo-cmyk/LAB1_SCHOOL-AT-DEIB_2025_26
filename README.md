@@ -19,10 +19,43 @@ cd mininet-gui
 Then start with:
 
 ```bash
-mininet_gui
+./scripts/mininet-gui         # defaults to run
+./scripts/mininet-gui stop    # kill everything
+./scripts/mininet-gui setup   # re-run setup
+```
+
+Or install the wrapper for convenience:
+
+```bash
+# Bash alias (added automatically by setup.sh)
+mininet_gui                   # calls ./scripts/mininet-gui run
+
+# Or symlink to PATH (symlink-safe):
+ln -s "$PWD/scripts/mininet-gui" ~/.local/bin/mininet-gui
+mininet-gui run
 ```
 
 Open `http://<host-ip>:4020` in a browser.
+
+## Desktop shortcut
+
+```bash
+cp scripts/mininet-gui.desktop ~/.local/share/applications/mininet-gui.desktop
+sed -i "s|/opt/mininet-gui|$PWD|g" ~/.local/share/applications/mininet-gui.desktop
+```
+
+Opens a terminal, runs the app, waits for Enter to close.
+
+## Auto-start on boot (systemd)
+
+```bash
+sudo cp scripts/mininet-gui.service /etc/systemd/system/
+sudo sed -i "s|/opt/mininet-gui|$PWD|g" /etc/systemd/system/mininet-gui.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now mininet-gui
+```
+
+Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut down.
 
 ## Quick test
 

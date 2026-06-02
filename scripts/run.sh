@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# When running as root (e.g. systemd), skip sudo.
+[ "$(id -u)" -eq 0 ] && sudo() { "$@"; }
+
 MININET_GUI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$MININET_GUI_DIR/mininet-gui-backend"
 FRONTEND_DIR="$MININET_GUI_DIR/mininet-gui-frontend"
@@ -40,7 +43,7 @@ fi
 
 # ---- start backend ----
 echo "Starting backend..."
-(cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021 --log-level debug > /dev/null 2>&1 &)
+(cd "$BACKEND_DIR" && sudo nohup "$BACKEND_DIR/.venv/bin/uvicorn" mininet_gui_backend.api:app --host=0.0.0.0 --port=4021 --log-level debug > /dev/null 2>&1 &)
 sleep 3
 
 if ! pgrep -f "uvicorn mininet_gui_backend" >/dev/null 2>&1; then
@@ -78,6 +81,21 @@ echo "Starting frontend..."
   elif [ -s "/usr/share/nvm/nvm.sh" ]; then
     export NVM_DIR="/usr/share/nvm"
     . "$NVM_DIR/nvm.sh"
+  elif [ "$(id -u)" -eq 0 ]; then
+    # Running as root (e.g. systemd) — search user home dirs for nvm
+    for u in /home/*; do
+      if [ -s "$u/.nvm/nvm.sh" ]; then
+        export HOME="$u"
+        export NVM_DIR="$u/.nvm"
+        . "$NVM_DIR/nvm.sh"
+        break
+      elif [ -s "$u/.config/nvm/nvm.sh" ]; then
+        export HOME="$u"
+        export NVM_DIR="$u/.config/nvm"
+        . "$NVM_DIR/nvm.sh"
+        break
+      fi
+    done
   fi
   nvm use 20 2>/dev/null || true
   nohup npm run dev -- --host 0.0.0.0 --port 4020 &
