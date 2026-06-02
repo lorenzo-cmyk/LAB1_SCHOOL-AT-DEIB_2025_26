@@ -78,7 +78,7 @@ export default {
     return {
       type: this.presetType || "remote",
       ip: "127.0.0.1",
-      port: "",
+      port: 6633,
       isEditing: false,
     };
   },
@@ -119,7 +119,7 @@ export default {
   methods: {
     resetForm() {
       this.ip = "127.0.0.1";
-      this.port = "";
+      this.port = 6633;
       this.isEditing = false;
     },
     startEdit() {
