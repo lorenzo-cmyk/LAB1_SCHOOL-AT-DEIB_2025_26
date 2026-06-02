@@ -6,7 +6,7 @@ if [[ $EUID -ne 0 ]]; then
     exec sudo "$0" "$@"
 fi
 
-PORT=8080
+PORT=2000
 SERVER_PID=""
 PASS=0
 FAIL=0

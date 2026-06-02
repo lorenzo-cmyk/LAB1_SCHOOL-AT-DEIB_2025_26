@@ -14,14 +14,14 @@ Lab tool: Vue 3 frontend + FastAPI backend for interactive Mininet network emula
 # Frontend
 cd mininet-gui-frontend
 npm install          # first time only (needs Node 20+ via nvm)
-npx vite dev         # dev server on :5173
+npx vite dev         # dev server on :4020
 npx vite build       # production build
 npx prettier --write # format
 
 # Backend
 cd mininet-gui-backend
 pip install -r requirements.txt
-uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000
+uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021
 
 # Or just run both:
 ./scripts/run.sh     # kills old processes, starts backend + frontend
@@ -42,7 +42,7 @@ Hosts, Switches (ovskernel), Controllers (default/remote). NAT, Router, special 
 ## Gotchas
 
 - `run.sh` runs backend with `sudo nohup uvicorn` — changes to backend require restart
-- Frontend proxies nothing — backend must be on `:8000`, frontend on `:5173`
+- Frontend proxies nothing — backend must be on `:4021`, frontend on `:4020`
 - WebSocket endpoints (`/api/mininet/terminal/`, `/api/mininet/sniffer`, `/api/mininet/monitor`) require the Mininet network to be started first
 - `pingFull()` has a 120s timeout; iperf has per-command `timeout` wrapping
 - All processes run as root (required for Mininet/OVS)

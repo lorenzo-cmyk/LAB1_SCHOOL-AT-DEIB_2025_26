@@ -40,7 +40,7 @@ fi
 
 # ---- start backend ----
 echo "Starting backend..."
-(cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=8000 --log-level debug > /dev/null 2>&1 &)
+(cd "$BACKEND_DIR" && sudo nohup uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021 --log-level debug > /dev/null 2>&1 &)
 sleep 3
 
 if ! pgrep -f "uvicorn mininet_gui_backend" >/dev/null 2>&1; then
@@ -52,7 +52,7 @@ fi
 # wait for backend to be ready
 echo "Waiting for backend..."
 for i in $(seq 1 30); do
-  if curl -s http://127.0.0.1:8000/api/health 2>/dev/null | grep -q '"status"'; then
+  if curl -s http://127.0.0.1:4021/api/health 2>/dev/null | grep -q '"status"'; then
     echo "✔ Backend ready"
     break
   fi
@@ -80,7 +80,7 @@ echo "Starting frontend..."
     . "$NVM_DIR/nvm.sh"
   fi
   nvm use 20 2>/dev/null || true
-  nohup npm run dev -- --host 0.0.0.0 &
+  nohup npm run dev -- --host 0.0.0.0 --port 4020 &
 )
 
 # ---- done ----
@@ -89,5 +89,5 @@ ALL_IPS="$(hostname -I)"
 echo ""
 echo "Mininet-GUI is available at:"
 for ip in $ALL_IPS; do
-  echo "  http://$ip:5173"
+  echo "  http://$ip:4020"
 done

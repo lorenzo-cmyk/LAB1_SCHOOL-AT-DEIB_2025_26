@@ -13,7 +13,7 @@ import (
 
 const (
 	ttlThreshold = 100
-	listenPort   = 8080
+	listenPort   = 2000
 	ethPAll      = 0x0003
 )
 

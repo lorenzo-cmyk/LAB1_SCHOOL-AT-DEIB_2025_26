@@ -22,7 +22,7 @@ Then start with:
 mininet_gui
 ```
 
-Open `http://<host-ip>:5173` in a browser.
+Open `http://<host-ip>:4020` in a browser.
 
 ## Quick test
 
