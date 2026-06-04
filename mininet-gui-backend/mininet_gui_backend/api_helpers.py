@@ -362,18 +362,6 @@ async def read_pty(master_fd, websocket: WebSocket):
         debug(f"PTY Read Error: {e}")
 
 
-async def read_sniffer(process: asyncio.subprocess.Process, websocket: WebSocket):
-    """Reads tcpdump output and sends it to WebSocket"""
-    try:
-        while True:
-            line = await process.stdout.readline()
-            if not line:
-                break
-            await websocket.send_text(line.decode(errors="ignore").rstrip())
-    except Exception as e:
-        debug(f"Sniffer Read Error: {e}")
-
-
 async def start_sniffer_process(node_pid: int, intf: str, pcap_path: str):
     if node_pid and node_pid > 0:
         return await asyncio.create_subprocess_exec(

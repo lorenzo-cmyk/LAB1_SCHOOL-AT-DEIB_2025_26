@@ -106,7 +106,6 @@ app = FastAPI(
     title="Mininet-GUI-API",
     description=__doc__,
     version=BACKEND_VERSION,
-    terms_of_service="http://example.com/terms/",
 )
 
 
@@ -241,7 +240,6 @@ async def stop_network():
     state.net = Mininet(autoSetMacs=True, topo=Topo())
     state.net.is_started = False
     state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
-    state.links = dict()
     # Recreate topology without start
     entries = [
         (add_host_to_net, state.hosts.values(), {}),
