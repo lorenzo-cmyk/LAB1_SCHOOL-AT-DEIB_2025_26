@@ -1,0 +1,3 @@
+[submodule "utils/controller/flowmanager"]
+	path = utils/controller/flowmanager
+	url = https://github.com/martimy/flowmanager.git
