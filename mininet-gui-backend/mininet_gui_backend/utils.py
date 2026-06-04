@@ -1,15 +1,5 @@
 import os
-import re
-from typing import Dict, List, Optional
-
-
-def parse_ip_addrs(output: str) -> List[str]:
-    addrs = []
-    for line in output.splitlines():
-        match = re.search(r"\sinet6?\s+([0-9a-fA-F:.]+/\d+)", line)
-        if match:
-            addrs.append(match.group(1))
-    return addrs
+from typing import Dict, Optional
 
 
 def parse_flow_match_from_dump(line: str) -> str:

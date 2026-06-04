@@ -365,6 +365,10 @@ export const getEdges = async () => {
   return await sendGet(baseUrl + "/api/mininet/links");
 };
 
+export const getControllers = async () => {
+  return await sendGet(baseUrl + "/api/mininet/controllers");
+};
+
 export const getNodeStats = async (nodeId) => {
   return await sendGet(baseUrl + `/api/mininet/stats/${nodeId}`);
 };

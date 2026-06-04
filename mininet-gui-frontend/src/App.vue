@@ -13,12 +13,7 @@ html {
 }
 
 :root {
-  /* CSS HEX */
-  --middle-blue: #89d2dcff;
-  --slate-blue: #6564dbff;
-  --persian-blue: #232ed1ff;
   --oxford-blue: #101d42ff;
-  --rich-black-fogra-29: #0d1317ff;
 }
 
 body {

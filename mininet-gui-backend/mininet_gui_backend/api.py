@@ -43,9 +43,7 @@ from mininet_gui_backend.flow_rules import (
     build_flow_match,
 )
 from mininet_gui_backend.utils import (
-    get_interface_stats_path,
     parse_flow_match_from_dump,
-    read_interface_counter,
 )
 from mininet_gui_backend.api_helpers import (
     LinkCreate,

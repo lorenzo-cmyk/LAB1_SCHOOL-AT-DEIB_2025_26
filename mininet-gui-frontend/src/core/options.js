@@ -44,5 +44,3 @@ export const buildOptions = () => {
     },
   };
 };
-
-export const options = buildOptions();
