@@ -7,6 +7,7 @@ Lab tool: Vue 3 frontend + FastAPI backend for interactive Mininet network emula
 - `mininet-gui-frontend/` — Vue 3 SPA (Vite, Tailwind CSS v4, vis-network for topology graph)
 - `mininet-gui-backend/` — FastAPI app (Python, Mininet integration, WebSocket terminals)
 - `scripts/` — `setup.sh` (install deps), `run.sh` (start both), `stop.sh` (kill processes), `mininet-gui` (symlink-safe wrapper: `mininet-gui run|stop|setup`)
+- `utils/webserver-ttl/` — TTL-gated HTTP challenge server (Go, port 2000)
 
 ## Key commands
 
@@ -28,6 +29,18 @@ uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021
 ./scripts/mininet-gui run     # kills old processes, starts backend + frontend
 ./scripts/mininet-gui stop    # kills all mininet-gui processes
 ./scripts/mininet-gui setup   # install system deps, venv, Node, frontend
+```
+
+## Linting
+
+```bash
+# Python (pylint installed in venv)
+cd mininet-gui-backend
+.venv/bin/pylint mininet_gui_backend/
+
+# JavaScript
+cd mininet-gui-frontend
+npx eslint --rule 'no-unused-vars: warn' --no-config-lookup src/core/*.js src/i18n/*.js src/main.js
 ```
 
 ## Desktop shortcut
@@ -74,3 +87,7 @@ Hosts, Switches (ovskernel), Controllers (default/remote). NAT, Router, special 
 - All processes run as root (required for Mininet/OVS)
 - Port labels are always-on on edges (no toggle)
 - Dark theme only (light theme was removed)
+- Remote controllers: stopping the network will fail if the external controller process is still listening on its port. Stop the external controller manually before restarting.
+- Webshell terminal PTY is fixed at 24×256 columns (not dynamically resized)
+- `package-lock.json` is intentionally not tracked in git
+- `vis.js` is a kept dependency despite being unused by source code
