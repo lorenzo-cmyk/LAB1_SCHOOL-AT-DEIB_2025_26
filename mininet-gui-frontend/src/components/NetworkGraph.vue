@@ -371,7 +371,6 @@ export default {
 
       webshellView: null,
       webshellFocusId: null,
-      webshellActiveView: null,
       terminalSessions: [],
       terminalSessionCounters: {},
       contextMenu: {
@@ -1209,7 +1208,7 @@ export default {
       );
     },
     handleWebshellViewChange(view) {
-      this.webshellActiveView = view;
+      this.webshellView = view;
     },
     hostHasLink(hostId) {
       const edges = this.edges?.get ? this.edges.get() : [];

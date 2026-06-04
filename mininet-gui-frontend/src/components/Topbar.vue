@@ -120,7 +120,6 @@ export default {
   },
   emits: [
     "new-topology",
-    "open-topology",
     "save-topology",
     "collapse-all-views",
     "expand-all-views",

@@ -144,7 +144,7 @@
           "
           @mousemove="handleTooltipMouseMove($event)"
           @mouseleave="hideTooltip"
-          @click="createTopology()"
+          @click="$emit('createTopology')"
         >
           <span class="material-symbols-outlined">scatter_plot</span>
           <span class="label">{{ $t("side.generateTopology") }}</span>
@@ -360,12 +360,6 @@ export default {
       if (!id) return;
       event.dataTransfer.setData("text/plain", id);
       event.dataTransfer.setData("text", id);
-    },
-    createTopology() {
-      this.$emit("createTopology", {
-        selectedTopology: this.selectedTopology,
-        nDevices: this.nDevices,
-      });
     },
     shouldShowTooltip() {
       return !this.sideIsActive;
