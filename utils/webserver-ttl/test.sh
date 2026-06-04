@@ -21,6 +21,21 @@ trap cleanup EXIT
 pass() { ((PASS++)); echo "  PASS: $1"; }
 fail() { ((FAIL++)); echo "  FAIL: $1"; }
 
+check_proof() {
+    local body="$1" label="$2"
+    if (( ${#body} < 13 )); then
+        fail "$label: body too short for proof check"
+        return
+    fi
+    local sum
+    sum=$(echo "${body:0:13}" | od -An -tuC | awk '{for(i=1;i<=NF;i++)s+=$i}END{print s}')
+    if (( sum % 7 == 0 )); then
+        pass "$label: ASCII sum ($sum) divisible by 7"
+    else
+        fail "$label: sum $sum not divisible by 7 (remainder $((sum % 7)))"
+    fi
+}
+
 # ── ensure Go is installed ──────────────────────────────────────────────────
 if ! command -v go &>/dev/null; then
     echo "===> Installing Go"
@@ -91,6 +106,9 @@ else
     fail "body contains non-printable chars"
 fi
 
+# verify sum of first 13 chars is divisible by 7 (proof property)
+check_proof "$BODY" "proof-on-TTL-200"
+
 # ── test 3: different endpoints and methods ───────────────────────────────────
 echo "===> Test 3 — POST /foo should also work"
 BODY2=$(curl -s -X POST --max-time 2 "http://127.0.0.1:$PORT/foo" 2>/dev/null || true)
@@ -99,6 +117,7 @@ if [[ "$BODY2" == *TTL && ${#BODY2} == 16 ]]; then
 else
     fail "POST /foo unexpected body: $BODY2"
 fi
+check_proof "$BODY2" "proof-on-POST"
 
 # ── test 4: remove mangle rule, TTL back to 64 → denied again ────────────────
 echo "===> Test 4 — remove mangle, back to TTL 64 → expect 403"
@@ -121,6 +140,8 @@ if [[ "$B1" != "$B2" && -n "$B1" && -n "$B2" ]]; then
 else
     fail "responses not random (got '$B1' and '$B2')"
 fi
+check_proof "$B1" "proof-on-random-1"
+check_proof "$B2" "proof-on-random-2"
 
 # ── summary ──────────────────────────────────────────────────────────────────
 echo ""

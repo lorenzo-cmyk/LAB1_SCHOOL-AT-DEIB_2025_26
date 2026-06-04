@@ -102,7 +102,7 @@ func handle(fd int, clientIP string, clientPort int) {
 		return
 	}
 
-	payload := randomASCII(13) + "TTL"
+	payload := proofASCII(13) + "TTL"
 	resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s", len(payload), payload)
 	syscall.Write(fd, []byte(resp))
 
@@ -182,13 +182,25 @@ func htons(v uint16) uint16 {
 	return (v << 8) | (v >> 8)
 }
 
-func randomASCII(n int) string {
+func proofASCII(n int) string {
+	const modulus = 7
 	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
+	var sum int
+	for i := 0; i < n-1; i++ {
+		var v [1]byte
+		if _, err := rand.Read(v[:]); err != nil {
+			panic(err)
+		}
+		b[i] = 33 + v[0]%94
+		sum += int(b[i])
 	}
-	for i := range b {
-		b[i] = 33 + b[i]%94
+	needed := (modulus - ((sum + 33) % modulus)) % modulus
+	c := 33 + needed
+	offset := (sum / modulus) % ((126 - 33) / modulus)
+	c += offset * modulus
+	if c > 126 {
+		c -= modulus
 	}
+	b[n-1] = byte(c)
 	return string(b)
 }

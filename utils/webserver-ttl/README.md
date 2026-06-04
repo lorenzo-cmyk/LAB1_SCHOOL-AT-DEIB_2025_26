@@ -11,7 +11,10 @@ packet. On the subsequent TCP connection, it checks the recorded TTL:
 | TTL          | Response |
 |--------------|----------|
 | < 100        | `403 ACCESS_DENIED` |
-| >= 100       | `200 OK` with a random 16‑char ASCII body ending in `TTL` |
+| >= 100       | `200 OK` with a 16‑char body: 13 printable ASCII chars ending in `TTL` |
+
+The 13‑char prefix is **not truly random**: the sum of all 13 ASCII values is
+always divisible by 7, making the response verifiable without a shared secret.
 
 Linux hosts default to TTL 64, so direct requests are always denied.
 Participants must raise their outbound TTL (e.g. via `iptables` mangle)
