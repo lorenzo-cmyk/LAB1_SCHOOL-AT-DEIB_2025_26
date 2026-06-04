@@ -98,12 +98,12 @@ Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut dow
 ### Infrastructure
 
 - **Scripts rewritten** — `run.sh` and `stop.sh` rewritten with `echo` (replacing `printf`), `stty sane` terminal reset, process health checks, and proper error reporting. `setup.sh` installs from apt instead of building from source.
-- **Backend decomposed** — Monolithic `api.py` split into `api_helpers.py` (models, utilities), `app_state.py` (state), `export.py` (script/JSON export), `schema.py` (Pydantic models), `routers/` (WebSocket handlers).
+- **Backend decomposed** — Monolithic `api.py` split into `api_helpers.py` (models, utilities), `app_state.py` (state), `export.py` (JSON export), `schema.py` (Pydantic models), `routers/` (WebSocket handlers).
 - **Frontend decomposed** — Monolithic `NetworkGraph.vue` refactored; components like `Side.vue`, `Webshell.vue`, `Modal.vue`, `Topbar.vue`, `MonitoringView.vue`, `TrafficView.vue` are well-scoped.
 - **Docker removed** — Docker support was dropped in favor of native `setup.sh` + `run.sh`.
 - **Fonts bundled locally** — Replaced Google Fonts CDN loading with local `.woff2` files for offline use.
 - **Portuguese i18n removed** — Only English locale remains.
-- **Dead code cleanup** — Removed LLM chat feature, unused examples, redundant docs, unused Python imports, `console.log` debug statements, and `print()` statements.
+- **Dead code cleanup** — Removed LLM chat feature, unused examples, redundant docs, unused Python imports, and `print()` statements.
 - **Naming standardized** — IPerf, WebShell, Default Route, OpenFlow, etc. capitalized correctly across all UI strings.
 
 ### Backend changes
