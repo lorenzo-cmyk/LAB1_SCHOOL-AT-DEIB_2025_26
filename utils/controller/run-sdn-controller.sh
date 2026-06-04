@@ -37,6 +37,8 @@ done
 
 if command -v firefox &>/dev/null; then
     firefox http://localhost:8080/home/index.html 2>/dev/null &
+elif command -v xdg-open &>/dev/null; then
+    xdg-open http://localhost:8080/home/index.html 2>/dev/null &
 fi
 
 echo "Controller running (PID: $CONTROLLER_PID). Press Ctrl+C to stop."
