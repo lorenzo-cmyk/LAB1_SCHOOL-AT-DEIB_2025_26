@@ -114,6 +114,8 @@ for ip in $(hostname -I); do
         10.0.*)
             if command -v firefox &>/dev/null; then
                 firefox "http://$ip:4020" 2>/dev/null &
+            elif command -v xdg-open &>/dev/null; then
+                xdg-open "http://$ip:4020" 2>/dev/null &
             fi
             ;;
     esac
