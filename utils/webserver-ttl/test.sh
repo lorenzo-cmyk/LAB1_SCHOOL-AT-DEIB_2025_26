@@ -21,6 +21,13 @@ trap cleanup EXIT
 pass() { ((PASS++)); echo "  PASS: $1"; }
 fail() { ((FAIL++)); echo "  FAIL: $1"; }
 
+# ── ensure Go is installed ──────────────────────────────────────────────────
+if ! command -v go &>/dev/null; then
+    echo "===> Installing Go"
+    apt-get update -qq
+    apt-get install -y -qq golang-go
+fi
+
 # ── build ────────────────────────────────────────────────────────────────────
 echo "===> Building"
 cd "$SCRIPT_DIR"
