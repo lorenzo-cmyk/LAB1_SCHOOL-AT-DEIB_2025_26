@@ -107,20 +107,6 @@ app = FastAPI(
     description=__doc__,
     version=BACKEND_VERSION,
     terms_of_service="http://example.com/terms/",
-    # contact= {
-    #     "name": "Lucas Schneider",
-    #     "url": "https://github.com/schneider8357",
-    #     "email": "schneider8357@hotmail.com",
-    # },
-    contact={
-        "name": "",
-        "url": "",
-        "email": "",
-    },
-    # license_info={
-    #     "name": "Apache 2.0",
-    #     "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
-    # },
 )
 
 
