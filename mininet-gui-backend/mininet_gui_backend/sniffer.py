@@ -229,7 +229,6 @@ class SnifferManager:
         parser = TsharkEkJsonParser()
         buffer = b""
         got_first = False
-        key = (node_info["id"], intf_name)
         try:
             # Read stderr in background
             async def _read_stderr():
@@ -237,7 +236,7 @@ class SnifferManager:
                     err = await process.stderr.read()
                     if err:
                         logger.warning("tshark stderr on %s:%s: %s", node_info["id"], intf_name, err.decode("utf-8", errors="replace").strip())
-            stderr_task = asyncio.create_task(_read_stderr())
+            asyncio.create_task(_read_stderr())
 
             while not self._stop_event.is_set():
                 try:

@@ -12,7 +12,7 @@ import subprocess
 import logging
 from typing import Optional, Set
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from mininet.log import debug as _debug
 from mininet.node import (
@@ -263,7 +263,7 @@ def _apply_switch_openflow_version(
 
 def _terminate_all_terminals():
     for node_id, sessions in list(state.terminals.items()):
-        for session_id, (master_fd, process) in list(sessions.items()):
+        for _session_id, (master_fd, process) in list(sessions.items()):
             try:
                 process.terminate()
             except Exception:

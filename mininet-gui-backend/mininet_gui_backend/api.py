@@ -70,7 +70,7 @@ from mininet_gui_backend import __version__ as BACKEND_VERSION
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     # start
     mn_cleanup()
     setup_log_file()
