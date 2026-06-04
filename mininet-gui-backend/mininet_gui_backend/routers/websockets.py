@@ -43,7 +43,7 @@ async def websocket_terminal(websocket: WebSocket, node_id: str):
         return
 
     master_fd, slave_fd = pty.openpty()
-    winsize = struct.pack("HHHH", 24, 80, 0, 0)
+    winsize = struct.pack("HHHH", 24, 256, 0, 0)
     fcntl.ioctl(slave_fd, termios.TIOCSWINSZ, winsize)
 
     env = dict(os.environ)
