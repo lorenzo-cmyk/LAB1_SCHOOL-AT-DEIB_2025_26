@@ -23,7 +23,9 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
-firefox http://localhost:8080/home/index.html 2>/dev/null &
+if command -v firefox &>/dev/null; then
+    firefox http://localhost:8080/home/index.html 2>/dev/null &
+fi
 
 echo "Controller running (PID: $CONTROLLER_PID). Press Ctrl+C to stop."
 trap 'kill $CONTROLLER_PID 2>/dev/null; echo "Stopped."' EXIT
