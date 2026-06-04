@@ -28,11 +28,11 @@ check_proof() {
         return
     fi
     local sum
-    sum=$(echo "${body:0:13}" | od -An -tuC | awk '{for(i=1;i<=NF;i++)s+=$i}END{print s}')
-    if (( sum % 7 == 0 )); then
+    sum=$(printf '%s' "${body:0:13}" | od -An -tuC | awk '{for(i=1;i<=NF;i++)s+=$i}END{print s}')
+    if [[ -n "$sum" ]] && (( sum % 7 == 0 )); then
         pass "$label: ASCII sum ($sum) divisible by 7"
     else
-        fail "$label: sum $sum not divisible by 7 (remainder $((sum % 7)))"
+        fail "$label: sum ${sum:-empty} not divisible by 7 (remainder ${sum:+$((sum % 7))})"
     fi
 }
 
@@ -76,6 +76,7 @@ fi
 # ── test 2: set TTL=128 via iptables mangle ──────────────────────────────────
 echo "===> Test 2 — mangled TTL (128 >= 100) → expect 200 + TTL suffix"
 iptables -t mangle -A OUTPUT -p tcp --dport "$PORT" -j TTL --ttl-set 128
+sleep 0.2
 
 BODY=$(curl -s --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
