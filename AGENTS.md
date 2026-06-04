@@ -29,6 +29,11 @@ uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021
 ./scripts/mininet-gui run     # kills old processes, starts backend + frontend
 ./scripts/mininet-gui stop    # kills all mininet-gui processes
 ./scripts/mininet-gui setup   # install system deps, venv, Node, frontend
+
+# webserver-ttl (CTF challenge utility)
+cd utils/webserver-ttl
+go build -o webserver-ttl .   # needs golang-go from apt
+sudo ./test.sh                 # integration tests (requires root)
 ```
 
 ## Linting
