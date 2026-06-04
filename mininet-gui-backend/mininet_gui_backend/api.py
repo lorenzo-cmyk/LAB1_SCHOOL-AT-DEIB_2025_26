@@ -87,7 +87,7 @@ async def lifespan(_app: FastAPI):
     state.pingall_running = False
     state.iperf_running = False
     setLogLevel("debug")
-    state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
+    state.net = Mininet(autoSetMacs=True, topo=Topo())
     state.net.is_started = False
     yield
     # stop
@@ -220,11 +220,18 @@ async def stop_network():
     # Create the Mininet network
     setLogLevel("debug")
     try:
-        state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
+        state.net = Mininet(autoSetMacs=True, topo=Topo())
     except Exception as exc:
+        detail = str(exc)
+        if "shut down the controller" in detail:
+            raise HTTPException(
+                status_code=500,
+                detail="A controller is still running on its port. "
+                "If using a remote controller, stop the external process manually before restarting the network.",
+            )
         raise HTTPException(
             status_code=500,
-            detail=f"failed to create Mininet instance: {exc}",
+            detail=f"failed to create Mininet instance: {detail}",
         )
     state.net.is_started = False
     state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
@@ -274,11 +281,18 @@ async def full_reset_network():
 
     setLogLevel("debug")
     try:
-        state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
+        state.net = Mininet(autoSetMacs=True, topo=Topo())
     except Exception as exc:
+        detail = str(exc)
+        if "shut down the controller" in detail:
+            raise HTTPException(
+                status_code=500,
+                detail="A controller is still running on its port. "
+                "If using a remote controller, stop the external process manually before restarting the network.",
+            )
         raise HTTPException(
             status_code=500,
-            detail=f"failed to create Mininet instance: {exc}",
+            detail=f"failed to create Mininet instance: {detail}",
         )
     state.net.is_started = False
     state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
