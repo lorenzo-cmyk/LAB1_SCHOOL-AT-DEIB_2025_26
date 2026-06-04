@@ -300,28 +300,6 @@ export const requestImportNetwork = async (file) => {
   }
 };
 
-export const requestExportMininetScript = async () => {
-  try {
-    const response = await axios.get(baseUrl + "/api/mininet/export_script", {
-      responseType: "blob",
-    });
-
-    if (response.status === 200) {
-      const blob = new Blob([response.data], { type: "text/x-python" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "network_export.py";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-  }
-};
-
 export const requestRunPingall = async () => {
   try {
     const response = await axios.post(baseUrl + "/api/mininet/pingall", null);
@@ -387,23 +365,6 @@ export const getSwitches = async () => {
   return await sendGet(baseUrl + "/api/mininet/switches");
 };
 
-export const updateSwitchOpenflowVersion = async (switchId, payload) => {
-  try {
-    const response = await axios.put(
-      baseUrl + `/api/mininet/switches/${switchId}/openflow`,
-      payload,
-    );
-    return response.data?.switch || null;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    return null;
-  }
-};
-
-export const getControllers = async () => {
-  return await sendGet(baseUrl + "/api/mininet/controllers");
-};
-
 export const updateController = async (controllerId, payload) => {
   try {
     const body = { ...payload };
@@ -432,16 +393,6 @@ export const isNetworkStarted = async () => {
 
 export const getNodeStats = async (nodeId) => {
   return await sendGet(baseUrl + `/api/mininet/stats/${nodeId}`);
-};
-
-export const getAddressingPlan = async () => {
-  try {
-    const response = await axios.get(baseUrl + "/api/mininet/addressing_plan");
-    return response.data;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    throw error;
-  }
 };
 
 export const listFlows = async (switchId) => {

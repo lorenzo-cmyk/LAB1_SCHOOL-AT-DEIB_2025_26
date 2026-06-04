@@ -32,8 +32,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
 from mininet_gui_backend.export import (
-    build_addressing_plan,
-    export_net_to_script,
     export_net_to_json,
 )
 from mininet_gui_backend.schema import Switch, Host, Controller
@@ -52,7 +50,6 @@ from mininet_gui_backend.utils import (
 from mininet_gui_backend.api_helpers import (
     LinkCreate,
     ControllerUpdate,
-    SwitchUpdate,
     HostUpdate,
     IperfRequest,
     FLOW_FIELDS,
@@ -62,7 +59,6 @@ from mininet_gui_backend.api_helpers import (
     add_host_to_net,
     add_controller_to_net,
     add_switch_to_net,
-    _apply_switch_openflow_version,
     _terminate_all_terminals,
     _stop_all_sniffers_quietly,
     _stop_mininet_with_timeout,
@@ -131,13 +127,6 @@ def get_health():
         "network_started": network_started,
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
-
-
-@app.get("/api/mininet/addressing_plan")
-def addressing_plan():
-    if not state.net.is_started:
-        raise HTTPException(status_code=400, detail="network must be started")
-    return build_addressing_plan(state.net)
 
 
 @app.get("/api/mininet/hosts")
@@ -467,29 +456,6 @@ def update_controller(controller_id: str, payload: ControllerUpdate):
         setattr(controller, key, value)
     state.controllers[controller_id] = controller
     return {"controller": controller.model_dump()}
-
-
-@app.put("/api/mininet/switches/{switch_id}/openflow")
-def update_switch_openflow_version(switch_id: str, payload: SwitchUpdate):
-    if switch_id not in state.switches:
-        raise HTTPException(status_code=404, detail="switch not found")
-    of_version = payload.of_version
-    if of_version in ("", "auto"):
-        of_version = None
-    allowed = {
-        None,
-        "OpenFlow10",
-        "OpenFlow11",
-        "OpenFlow12",
-        "OpenFlow13",
-        "OpenFlow14",
-        "OpenFlow15",
-    }
-    if of_version not in allowed:
-        raise HTTPException(status_code=400, detail="invalid OpenFlow version")
-    _apply_switch_openflow_version(switch_id, of_version)
-    state.switches[switch_id].of_version = of_version
-    return {"switch": state.switches[switch_id].model_dump()}
 
 
 @app.post("/api/mininet/associate_switch")
@@ -1066,17 +1032,6 @@ async def run_iperf(request: IperfRequest):
                 pass
             node.waiting = False
         state.iperf_running = False
-
-
-@app.get("/api/mininet/export_script", response_class=PlainTextResponse)
-def export_network():
-    debug(state.net)
-    return export_net_to_script(
-        state.switches,
-        state.hosts,
-        state.controllers,
-        state.links,
-    ).encode("utf-8")
 
 
 @app.get("/api/mininet/export_json", response_class=PlainTextResponse)
