@@ -87,7 +87,7 @@ async def lifespan(_app: FastAPI):
     state.pingall_running = False
     state.iperf_running = False
     setLogLevel("debug")
-    state.net = Mininet(autoSetMacs=True, topo=Topo())
+    state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
     state.net.is_started = False
     yield
     # stop
@@ -219,7 +219,13 @@ async def stop_network():
 
     # Create the Mininet network
     setLogLevel("debug")
-    state.net = Mininet(autoSetMacs=True, topo=Topo())
+    try:
+        state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"failed to create Mininet instance: {exc}",
+        )
     state.net.is_started = False
     state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
     # Recreate topology without start
@@ -267,7 +273,13 @@ async def full_reset_network():
     state.iperf_running = False
 
     setLogLevel("debug")
-    state.net = Mininet(autoSetMacs=True, topo=Topo())
+    try:
+        state.net = Mininet(autoSetMacs=True, topo=Topo(), controller=None)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"failed to create Mininet instance: {exc}",
+        )
     state.net.is_started = False
     state.sniffer_manager = SnifferManager(list_mininet_interfaces, start_sniffer_process)
     return {"status": "ok"}
