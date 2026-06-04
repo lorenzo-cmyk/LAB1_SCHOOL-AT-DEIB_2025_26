@@ -89,7 +89,7 @@ Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut dow
 
 - **Iperf hanging** — Replaced Mininet's `iperf()` with a custom implementation using `sendCmd`/`monitor`. Added OS-level `timeout` wrapping and `asyncio.TimeoutError` catch with 504 responses.
 - **Pingall hanging** — Added 120-second hard timeout via `asyncio.wait_for` + `asyncio.to_thread` on the blocking `pingFull()` call.
-- **Webshell terminal corruption** — Added `stty sane` trap to shell scripts. Set PTY terminal size (80x24) via `TIOCSWINSZ` ioctl to fix line wrapping.
+- **Webshell terminal corruption** — Added `stty sane` trap to shell scripts. Set PTY terminal size (24x256) via `TIOCSWINSZ` ioctl to fix line wrapping.
 - **Sniffer stability** — Fixed pyshark broken mapping loader, added dynamic tshark version detection, improved error logging for tshark stderr.
 - **Stale links on node deletion** — When a node is deleted, all associated links are now cleaned up from `state.links` and `state.link_attrs`, preventing "link already exists" errors when reusing node IDs.
 - **Port label rendering** — Added dark background and stroke to edge labels for readability. Fixed stale font styling when toggling off by setting `font: null` and `title: null` on updates.
