@@ -8,6 +8,7 @@ Lab tool: Vue 3 frontend + FastAPI backend for interactive Mininet network emula
 - `mininet-gui-backend/` — FastAPI app (Python, Mininet integration, WebSocket terminals)
 - `scripts/` — `setup.sh` (install deps), `run.sh` (start both), `stop.sh` (kill processes), `mininet-gui` (symlink-safe wrapper: `mininet-gui run|stop|setup`)
 - `utils/webserver-ttl/` — TTL-gated HTTP challenge server (Go, port 2000)
+- `utils/controller/` — FlowManager SDN controller with custom OS-Ken app, run scripts, setup
 
 ## Key commands
 
@@ -34,6 +35,13 @@ uvicorn mininet_gui_backend.api:app --host=0.0.0.0 --port=4021
 cd utils/webserver-ttl
 go build -o webserver-ttl .   # needs golang-go from apt
 sudo ./test.sh                 # integration tests (requires root)
+
+# SDN controller (FlowManager submodule)
+cd utils/controller
+git submodule update --init     # clone flowmanager on first use
+./setup.sh                      # create venv + install deps
+./run-flowmanager.sh            # flowmanager web UI on :8080
+./run-sdn-controller.sh         # flowmanager + sdn-controller.py on :8080
 ```
 
 ## Linting
