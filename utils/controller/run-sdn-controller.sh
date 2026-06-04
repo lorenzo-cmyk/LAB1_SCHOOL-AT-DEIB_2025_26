@@ -14,12 +14,12 @@ fi
 
 cd "$(dirname "$0")"
 
-if [ ! -f .venv/bin/activate ]; then
+if [ ! -f flowmanager/.venv/bin/activate ]; then
     echo "Virtual environment not found." >&2
-    echo "Run: python3 -m venv .venv && .venv/bin/pip install -r flowmanager/requirements.txt" >&2
+    echo "Run: python3 -m venv flowmanager/.venv && flowmanager/.venv/bin/pip install -r flowmanager/requirements.txt" >&2
     exit 1
 fi
-source .venv/bin/activate
+source flowmanager/.venv/bin/activate
 
 echo "Starting controller with --observe-links..."
 python3 flowmanager/controller.py --observe-links flowmanager/flowmanager.py examples/sdn-controller.py &
