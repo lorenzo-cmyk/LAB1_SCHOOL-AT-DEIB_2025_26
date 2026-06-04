@@ -103,9 +103,18 @@ echo "Starting frontend..."
 
 # ---- done ----
 stty sane 2>/dev/null || true
-ALL_IPS="$(hostname -I)"
 echo ""
 echo "Mininet-GUI is available at:"
-for ip in $ALL_IPS; do
-  echo "  http://$ip:4020"
+for ip in $(hostname -I); do
+    case "$ip" in
+        *:*) continue ;;   # skip IPv6
+    esac
+    echo "  http://$ip:4020"
+    case "$ip" in
+        10.0.*)
+            if command -v firefox &>/dev/null; then
+                firefox "http://$ip:4020" 2>/dev/null &
+            fi
+            ;;
+    esac
 done
