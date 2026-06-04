@@ -1,3 +1,9 @@
 *.sqlite3
 .ruff_cache/
 mininet-gui-frontend/dist/
+.venv/
+__pycache__/
+*.log
+.env
+nohup.out
+utils/webserver-ttl/webserver-ttl

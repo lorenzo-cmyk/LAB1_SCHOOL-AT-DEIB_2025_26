@@ -32,7 +32,7 @@ function correctly.
 | `ip`      | route and interface management on hosts            |
 | `arp`     | ARP table queries on hosts                         |
 | `ping`    | ping tests (called via Mininet's `pingFull`)       |
-| `iperf`   | bandwidth tests (called via Mininet's `net.iperf`) |
+| `iperf`   | bandwidth tests (custom `_run_iperf` with per-command timeout) |
 | `netstat` | port scanning (find free controller ports)         |
 | `telnet`  | controller port probing                            |
 | `sysctl`  | enable/disable IP forwarding                       |

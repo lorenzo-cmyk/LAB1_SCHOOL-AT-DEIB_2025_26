@@ -81,10 +81,8 @@ Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut dow
 - **Help menu removed** — The Usage modal (welcome, shortcuts, devices tabs), About modal, and Open Documentation link are gone.
 - **OpenFlow version selector removed** — Switches always use OpenFlow 1.3. The settings selector and per-switch editing were removed.
 - **Color picker removed** — Controller color customization was removed. All controllers use the default white icon.
-- **Default route editing removed** — Host node stats no longer allow editing the default route. The display is kept but editing was removed.
 - **Port label toggle removed** — The "Show port labels" checkbox in the View menu was removed since labels are now always on.
 - **Show Hosts/Controllers toggle removed** — The visibility toggles in the View menu were non-functional and removed.
-- **Default route editing on hosts removed** — The route type selector, interface selector, and gateway IP input were removed from the host edit form. Only IP editing remains.
 - **Switch node stats** — Displays switch type, port count, associated controller, and raw `dump-flows` output with a Refresh button. Flow table is only available when the network is started.
 
 ### Stability fixes

@@ -16,7 +16,7 @@ cd mininet-gui-frontend
 npm install          # first time only (needs Node 20+ via nvm)
 npx vite dev         # dev server on :4020
 npx vite build       # production build
-npx prettier --write # format
+npx prettier --write . # format
 
 # Backend (uses venv created by setup.sh)
 cd mininet-gui-backend
