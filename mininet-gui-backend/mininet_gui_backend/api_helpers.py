@@ -65,10 +65,6 @@ class ControllerUpdate(BaseModel):
     of_version: Optional[str] = None
 
 
-class SwitchUpdate(BaseModel):
-    of_version: Optional[str] = None
-
-
 class HostUpdate(BaseModel):
     ip: Optional[str] = None
     intf: Optional[str] = None

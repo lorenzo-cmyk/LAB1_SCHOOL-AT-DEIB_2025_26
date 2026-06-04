@@ -183,11 +183,6 @@ def list_edges():
     return edges
 
 
-@app.get("/api/mininet/start")
-def get_network_started():
-    return state.net.is_started
-
-
 @app.post("/api/mininet/start")
 def start_network():
     """Build network and start nodes"""
@@ -251,18 +246,6 @@ async def stop_network():
         new_link = state.net.addLink(src, dst, **kwargs)
         state.links[key] = new_link
     return {"status": "ok"}
-
-
-@app.post("/api/mininet/reset")
-async def reset_network():
-    """Restart network and nodes"""
-    try:
-        await state.sniffer_manager.stop()
-    except Exception:
-        pass
-    clear_log_file()
-    await stop_network()
-    return start_network()
 
 
 @app.post("/api/mininet/full_reset")
@@ -539,33 +522,6 @@ def create_link(payload: Union[Tuple[str, str], LinkCreate]):
     if getattr(new_link, "intf1", None) and getattr(new_link, "intf2", None):
         intfs = {"from": new_link.intf1.name, "to": new_link.intf2.name}
     return {"from": src, "to": dst, "intfs": intfs}
-
-
-@app.get("/api/mininet/links/stats/{src_id}/{dst_id}")
-def get_link_stats(src_id: str, dst_id: str):
-    key = frozenset((src_id, dst_id))
-    link = state.links.get(key)
-    if not link:
-        raise HTTPException(status_code=404, detail="link not found")
-    intfs = []
-    for intf in (getattr(link, "intf1", None), getattr(link, "intf2", None)):
-        if not intf or not getattr(intf, "name", None):
-            continue
-        stats_paths = get_interface_stats_path(intf.name)
-        intfs.append(
-            {
-                "name": intf.name,
-                "tx_bytes": read_interface_counter(stats_paths["tx"]),
-                "rx_bytes": read_interface_counter(stats_paths["rx"]),
-            }
-        )
-    return {
-        "from": src_id,
-        "to": dst_id,
-        "intfs": intfs,
-        "options": state.link_attrs.get(key, {}),
-        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-    }
 
 
 @app.post("/api/mininet/node_position")

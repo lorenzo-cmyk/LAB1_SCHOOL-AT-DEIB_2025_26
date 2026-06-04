@@ -108,18 +108,6 @@ export const deleteLink = async (srcId, dstId) => {
   }
 };
 
-export const getLinkStats = async (srcId, dstId) => {
-  try {
-    const response = await axios.get(
-      baseUrl + `/api/mininet/links/stats/${srcId}/${dstId}`,
-    );
-    return response.status === 200 ? response.data : null;
-  } catch (error) {
-    console.warn("Failed to fetch link stats", error);
-    return null;
-  }
-};
-
 export const getInterfaces = async () => {
   try {
     const response = await axios.get(baseUrl + "/api/mininet/interfaces");
@@ -226,16 +214,6 @@ export const requestStartNetwork = async () => {
 export const requestStopNetwork = async () => {
   try {
     const response = await axios.post(baseUrl + "/api/mininet/stop", null);
-    return response.status === 200;
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-    return false;
-  }
-};
-
-export const requestResetNetwork = async () => {
-  try {
-    const response = await axios.post(baseUrl + "/api/mininet/reset", null);
     return response.status === 200;
   } catch (error) {
     alert(error.response ? error.response.data["detail"] : "Network Error");
@@ -385,10 +363,6 @@ export const updateController = async (controllerId, payload) => {
 
 export const getEdges = async () => {
   return await sendGet(baseUrl + "/api/mininet/links");
-};
-
-export const isNetworkStarted = async () => {
-  return await sendGet(baseUrl + "/api/mininet/start");
 };
 
 export const getNodeStats = async (nodeId) => {
