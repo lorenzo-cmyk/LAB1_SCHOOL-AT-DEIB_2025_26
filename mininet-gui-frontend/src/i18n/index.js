@@ -8,7 +8,7 @@ const getSavedLocale = () => {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return parsed?.language || null;
-  } catch (_error) {
+  } catch {
     return null;
   }
 };

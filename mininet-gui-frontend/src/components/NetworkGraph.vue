@@ -799,12 +799,6 @@ export default {
       this.applySwitchLabels();
       this.applyPortLabels();
     },
-    computeNetwork() {
-      const locale = this.settings.language || "en";
-      if (this.$i18n?.locale && this.$i18n.locale !== locale) {
-        this.$i18n.locale = locale;
-      }
-    },
     hostLabel(host) {
       if (!host) return "";
       if (this.settings.showHostIp && host.ip) {

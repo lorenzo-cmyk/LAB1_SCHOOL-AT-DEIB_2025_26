@@ -234,29 +234,6 @@ export const requestFullResetNetwork = async () => {
   }
 };
 
-export const requestExportNetwork = async () => {
-  try {
-    const response = await axios.get(baseUrl + "/api/mininet/export_json", {
-      responseType: "blob",
-    });
-
-    if (response.status === 200) {
-      const blob = new Blob([response.data], { type: "application/json" });
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "network_export.json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }
-  } catch (error) {
-    alert(error.response ? error.response.data["detail"] : "Network Error");
-  }
-};
-
 export const requestImportNetwork = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
