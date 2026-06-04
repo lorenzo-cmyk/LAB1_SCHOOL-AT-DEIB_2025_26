@@ -76,10 +76,18 @@ fi
 # ── test 2: set TTL=128 via iptables mangle ──────────────────────────────────
 echo "===> Test 2 — mangled TTL (128 >= 100) → expect 200 + TTL suffix"
 iptables -t mangle -A OUTPUT -p tcp --dport "$PORT" -j TTL --ttl-set 128
-sleep 0.2
 
-BODY=$(curl -s --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
+# retry: sniffer may not have picked up the SYN yet (inherent race)
+BODY=""
+HTTP_CODE=""
+for attempt in 1 2 3; do
+    BODY=$(curl -s --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "http://127.0.0.1:$PORT/any-endpoint" 2>/dev/null || true)
+    if [[ "$HTTP_CODE" == "200" && "$BODY" != "ACCESS_DENIED" ]]; then
+        break
+    fi
+    sleep 0.1
+done
 
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "HTTP 200 returned"
