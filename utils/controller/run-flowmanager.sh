@@ -21,7 +21,7 @@ if [ ! -f flowmanager/.venv/bin/activate ]; then
 fi
 source flowmanager/.venv/bin/activate
 
-echo "Starting FlowManager..."
+echo "Starting FlowManager with --observe-links..."
 python3 flowmanager/controller.py --observe-links flowmanager/flowmanager.py &
 CONTROLLER_PID=$!
 trap 'kill $CONTROLLER_PID 2>/dev/null; echo "Stopped."' EXIT
