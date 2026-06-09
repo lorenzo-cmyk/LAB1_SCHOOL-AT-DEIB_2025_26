@@ -11,7 +11,7 @@ Fork of [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
 Tested on Ubuntu 22.04+. Requires Node 20+ (installed automatically by `setup.sh` via nvm).
 
 ```bash
-git clone https://github.com/lorenzo-cmyk/mininet-gui
+git clone https://github.com/lorenzo-cmyk/LAB1_SCHOOL-AT-DEIB_2025_26
 cd mininet-gui
 ./scripts/setup.sh
 ```
