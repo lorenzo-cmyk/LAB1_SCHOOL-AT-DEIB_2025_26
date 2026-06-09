@@ -29,8 +29,8 @@ Once the VM is booted:
 | `mininet-gui-backend/`  | FastAPI (Python), Mininet, WebSocket terminals |
 | `scripts/`              | `setup.sh`, `run.sh`, `stop.sh`, wrapper `mininet-gui` |
 | `doc/`                  | PDF lab guide (Italian) |
-| `utils/webserver-ttl/`  | TTL-gated HTTP server (Go) — target of Challenge #1 |
-| `utils/controller/`     | FlowManager UI + `examples/sdn-controller.py` (commented-out line to fix) — Challenge #2 |
+| `utils/webserver-ttl/`  | TTL-gated HTTP server (Go) — the target for both challenges |
+| `utils/controller/`     | FlowManager UI + `examples/sdn-controller.py` (commented-out line to fix) — used in Challenge #1 and #2 respectively |
 
 ## Installation from scratch (without the VM)
 
