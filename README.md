@@ -5,9 +5,9 @@ Teaching tool for the Module 1 lab of the PCTO course
 organized by [School@DEIB](https://www.schoolatdeib.polimi.it/), Politecnico di Milano.
 
 Students build a Mininet-emulated network via GUI, interact with an SDN
-controller (OpenFlow), and tackle two challenges of increasing difficulty:
-modifying IP packet TTL to unlock a gated HTTP server — first manually
-through FlowManager, then by writing code in a Python controller.
+controller (OpenFlow), and tackle two challenges with the same goal — setting
+IP packet TTL to 100 to unlock a gated HTTP server — solved two different ways:
+manually through the FlowManager web UI, then by writing code in a Python controller.
 
 ## Getting started (students)
 
