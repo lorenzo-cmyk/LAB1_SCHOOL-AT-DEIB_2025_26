@@ -1,22 +1,48 @@
-# Mininet-GUI
+# Mininet-GUI — Lab SDN · School@DEIB 2025/26
 
-A web-based interface to design and run Mininet experiments through an interactive topology graph.
+Teaching tool for the Module 1 lab of the PCTO course
+**[Dietro la connessione](https://www.schoolatdeib.polimi.it/pcto-corsi/dietro_connessione/)**
+organized by [School@DEIB](https://www.schoolatdeib.polimi.it/), Politecnico di Milano.
 
-Add and configure hosts, switches, controllers, and links, start/stop the emulation, and modify the topology during execution. Includes WebShell node terminals, OpenFlow flow-rule manager, packet sniffer, and real-time traffic charts.
+Students build a Mininet-emulated network via GUI, interact with an SDN
+controller (OpenFlow), and tackle two challenges of increasing difficulty:
+modifying IP packet TTL to unlock a gated HTTP server — first manually
+through FlowManager, then by writing code in a Python controller.
 
-Fork of [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
+## Getting started (students)
 
-## Installation
+The lab is designed to run inside a **pre-configured virtual machine**
+with all tools pre-installed. Download the OVA from the
+[Releases](https://github.com/lorenzo-cmyk/LAB1_SCHOOL-AT-DEIB_2025_26/releases)
+section of this repository.
 
-Tested on Ubuntu 22.04+. Requires Node 20+ (installed automatically by `setup.sh` via nvm).
+Once the VM is booted:
+
+1. Launch **Mininet-GUI** from the applications menu
+2. Follow the instructions in `doc/LAB1 - School-at-DEIB - 2025-26.pdf`
+
+## Repository structure
+
+| Directory | Contents |
+|-----------|----------|
+| `mininet-gui-frontend/` | Vue 3 SPA (Vite, Tailwind CSS v4, vis-network) |
+| `mininet-gui-backend/`  | FastAPI (Python), Mininet, WebSocket terminals |
+| `scripts/`              | `setup.sh`, `run.sh`, `stop.sh`, wrapper `mininet-gui` |
+| `doc/`                  | PDF lab guide (Italian) |
+| `utils/webserver-ttl/`  | TTL-gated HTTP server (Go) — target of Challenge #1 |
+| `utils/controller/`     | FlowManager UI + `examples/sdn-controller.py` (commented-out line to fix) — Challenge #2 |
+
+## Installation from scratch (without the VM)
+
+Requires Ubuntu 22.04+ and Node 20+ (installed automatically by `setup.sh` via nvm).
 
 ```bash
 git clone https://github.com/lorenzo-cmyk/LAB1_SCHOOL-AT-DEIB_2025_26
-cd mininet-gui
+cd LAB1_SCHOOL-AT-DEIB_2025_26
 ./scripts/setup.sh
 ```
 
-Then start with:
+Avvio:
 
 ```bash
 ./scripts/mininet-gui         # defaults to run
@@ -24,18 +50,18 @@ Then start with:
 ./scripts/mininet-gui setup   # re-run setup
 ```
 
-Or install the wrapper for convenience:
+Oppure installa il wrapper:
 
 ```bash
-# Bash alias (added automatically by setup.sh)
-mininet_gui                   # calls ./scripts/mininet-gui run
+# Alias Bash (aggiunto automaticamente da setup.sh)
+mininet_gui
 
-# Or symlink to PATH (symlink-safe):
+# O symlink-safe nel PATH:
 ln -s "$PWD/scripts/mininet-gui" ~/.local/bin/mininet-gui
 mininet-gui run
 ```
 
-Open `http://<host-ip>:4020` in a browser.
+Apri `http://<host-ip>:4020` nel browser.
 
 ## Desktop shortcut
 
@@ -44,7 +70,7 @@ cp scripts/mininet-gui.desktop ~/.local/share/applications/mininet-gui.desktop
 sed -i "s|/opt/mininet-gui|$PWD|g" ~/.local/share/applications/mininet-gui.desktop
 ```
 
-Opens a terminal, runs the app, waits for Enter to close.
+Apre un terminale, esegue l'app, attende Enter per chiudere.
 
 ## Auto-start on boot (systemd)
 
@@ -55,15 +81,21 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now mininet-gui
 ```
 
-Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut down.
+Esegue come root al boot. `systemctl stop mininet-gui` per fermare.
 
 ## Quick test
 
-1. Drag a "Controller" from the sidebar to the canvas, choose "Default".
-2. Click "Generate Topology", select "Single", set "Hosts" to 2, submit.
-3. Click "Run Pingall Test" on the sidebar and wait for results.
+1. Trascina un "Controller" dalla sidebar al canvas, scegli "Default".
+2. Clicca "Generate Topology", seleziona "Single", imposta "Hosts" a 2, invia.
+3. Clicca "Run Pingall Test" nella sidebar e attendi i risultati.
 
-## Changes from upstream
+## Fork
+
+Basato su [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
+Modifiche sostanziali descritte sotto.
+
+<details>
+<summary>Changes from upstream</summary>
 
 ### UI overhaul
 
@@ -115,6 +147,8 @@ Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut dow
 - **Ryu/NOX endpoints removed** — `/api/ryu/apps` removed along with `list_ryu_apps()`, `LinuxRouter`, `Ryu` node class, and all special switch/controller creation logic.
 - **`import_json` fixed** — Returns proper `HTTPException` instead of Flask-style tuple.
 - **`debug=True` kept** — Intentionally left on for lab use.
+
+</details>
 
 ## License
 
