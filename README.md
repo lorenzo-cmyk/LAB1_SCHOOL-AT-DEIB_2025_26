@@ -42,7 +42,7 @@ cd LAB1_SCHOOL-AT-DEIB_2025_26
 ./scripts/setup.sh
 ```
 
-Avvio:
+Start:
 
 ```bash
 ./scripts/mininet-gui         # defaults to run
@@ -50,18 +50,18 @@ Avvio:
 ./scripts/mininet-gui setup   # re-run setup
 ```
 
-Oppure installa il wrapper:
+Or install the wrapper:
 
 ```bash
-# Alias Bash (aggiunto automaticamente da setup.sh)
+# Bash alias (added automatically by setup.sh)
 mininet_gui
 
-# O symlink-safe nel PATH:
+# Or symlink-safe in PATH:
 ln -s "$PWD/scripts/mininet-gui" ~/.local/bin/mininet-gui
 mininet-gui run
 ```
 
-Apri `http://<host-ip>:4020` nel browser.
+Open `http://<host-ip>:4020` in a browser.
 
 ## Desktop shortcut
 
@@ -70,7 +70,7 @@ cp scripts/mininet-gui.desktop ~/.local/share/applications/mininet-gui.desktop
 sed -i "s|/opt/mininet-gui|$PWD|g" ~/.local/share/applications/mininet-gui.desktop
 ```
 
-Apre un terminale, esegue l'app, attende Enter per chiudere.
+Opens a terminal, runs the app, waits for Enter to close.
 
 ## Auto-start on boot (systemd)
 
@@ -81,18 +81,18 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now mininet-gui
 ```
 
-Esegue come root al boot. `systemctl stop mininet-gui` per fermare.
+Runs as root on boot (no sudo prompts). `systemctl stop mininet-gui` to shut down.
 
 ## Quick test
 
-1. Trascina un "Controller" dalla sidebar al canvas, scegli "Default".
-2. Clicca "Generate Topology", seleziona "Single", imposta "Hosts" a 2, invia.
-3. Clicca "Run Pingall Test" nella sidebar e attendi i risultati.
+1. Drag a "Controller" from the sidebar to the canvas, choose "Default".
+2. Click "Generate Topology", select "Single", set "Hosts" to 2, submit.
+3. Click "Run Pingall Test" on the sidebar and wait for results.
 
 ## Fork
 
-Basato su [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
-Modifiche sostanziali descritte sotto.
+Based on [latarc/mininet-gui](https://github.com/latarc/mininet-gui).
+Major changes described below.
 
 <details>
 <summary>Changes from upstream</summary>
